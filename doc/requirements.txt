@@ -1,0 +1,3 @@
+Jinja2
+Pygments
+Sphinx>=1.3
