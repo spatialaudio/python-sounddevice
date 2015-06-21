@@ -234,8 +234,7 @@ _sampleformats = {
     'uint8': _lib.paUInt8,
 }
 
-_stream = None
-_event = None
+_last_callback = None
 
 
 def play(data, samplerate=None, mapping=None, blocking=False, **kwargs):
@@ -431,19 +430,15 @@ def playrec(data, samplerate=None, channels=None, dtype=None,
 def wait():
     """Wait for :func:`play`/:func:`rec`/:func:`playrec` to be finished.
 
-    Playback/recording can be stopped with a :obj:`KeyboardInterrupt`.
+    Playback/recording can be stopped with a :class:`KeyboardInterrupt`.
 
     """
-    global _event
-    if _event is None:
-        return
-    try:
-        _event.wait()
-    finally:
-        stop()
+    global _last_callback
+    if _last_callback:
+        _last_callback.wait()
 
 
-def stop():
+def stop(ignore_errors=True):
     """Stop playback/recording.
 
     This only stops :func:`play`, :func:`rec` and :func:`playrec`, but
@@ -452,13 +447,9 @@ def stop():
     :class:`RawInputStream`, :class:`RawOutputStream`.
 
     """
-    global _stream
-    try:
-        _stream.close()
-    except AttributeError:
-        pass  # If stop() is called before play()
-    except PortAudioError:
-        pass  # If stop() is called multiple times
+    global _last_callback
+    if _last_callback:
+        _last_callback.stream.close(ignore_errors)
 
 
 def print_devices():
@@ -2091,10 +2082,7 @@ class _CallbackContext(object):
         except ImportError:
             raise ImportError(
                 "NumPy must be installed for play()/rec()/playrec()")
-        stop()  # Stop previous playback/recording
-        global _event
-        # self.event is kept alive even if _event is re-bound
-        _event = self.event = threading.Event()
+        self.event = threading.Event()
         self.logger = _logging.getLogger(__name__)
         self.status = CallbackFlags()
 
@@ -2196,16 +2184,29 @@ class _CallbackContext(object):
 
     def start_stream(self, StreamClass, samplerate, channels, dtype, callback,
                      blocking, **kwargs):
-        global _stream
-        _stream = StreamClass(samplerate=samplerate,
-                              channels=channels,
-                              dtype=dtype,
-                              callback=callback,
-                              finished_callback=self.finished_callback,
-                              **kwargs)
-        _stream.start()
+        stop()  # Stop previous playback/recording
+        self.stream = StreamClass(samplerate=samplerate,
+                                  channels=channels,
+                                  dtype=dtype,
+                                  callback=callback,
+                                  finished_callback=self.finished_callback,
+                                  **kwargs)
+        self.stream.start()
+        global _last_callback
+        _last_callback = self
         if blocking:
-            wait()
+            self.wait()
+
+    def wait(self):
+        """Wait for finished_callback.
+
+        Can be interrupted with a KeyboardInterrupt.
+
+        """
+        try:
+            self.event.wait()
+        finally:
+            self.stream.close()
 
 
 def _check_mapping(mapping, channels):
