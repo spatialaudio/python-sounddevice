@@ -357,7 +357,7 @@ def rec(frames=None, samplerate=None, channels=None, dtype=None,
     return ctx.out
 
 
-def playrec(data, samplerate=None, input_channels=None, input_dtype=None,
+def playrec(data, samplerate=None, channels=None, dtype=None,
             out=None, input_mapping=None, output_mapping=None, blocking=False,
             **kwargs):
     """Simultaneous playback and recording.
@@ -366,12 +366,14 @@ def playrec(data, samplerate=None, input_channels=None, input_dtype=None,
     ----------
     data : array_like
         Audio data to be played back.  See :func:`play`.
-    input_channels : int, sometimes optional
-        See the parameter `channels` of :func:`rec`.
-    input_dtype : str or numpy.dtype, optional
-        See the parameter `dtype` of :func:`rec`.
-        If `input_dtype` is not specified, it is taken from `data.dtype`
+    channels : int, sometimes optional
+        Number of input channels, see :func:`rec`.
+        The number of output channels is obtained from `data.shape`.
+    dtype : str or numpy.dtype, optional
+        Input data type, see :func:`rec`.
+        If `dtype` is not specified, it is taken from `data.dtype`
         (i.e. :attr:`default.dtype` is ignored).
+        The output data type is obtained from `data.dtype` anyway.
     input_mapping, output_mapping : array_like, optional
         See the parameter `mapping` of :func:`rec` and :func:`play`,
         respectively.
@@ -402,10 +404,10 @@ def playrec(data, samplerate=None, input_channels=None, input_dtype=None,
     """
     ctx = _CallbackContext()
     output_frames = ctx.check_data(data, output_mapping)
-    if input_dtype is None:
-        input_dtype = data.dtype  # ignore module defaults
-    input_frames = ctx.check_out(out, output_frames, input_channels,
-                                 input_dtype, input_mapping)
+    if dtype is None:
+        dtype = data.dtype  # ignore module defaults
+    input_frames = ctx.check_out(out, output_frames, channels, dtype,
+                                 input_mapping)
     if input_frames != output_frames:
         raise PortAudioError("len(data) != len(out)")
     ctx.frames = input_frames

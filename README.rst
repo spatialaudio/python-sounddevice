@@ -151,7 +151,7 @@ Simultaneous Playback and Recording
 
 To play back an array and record at the same time, use `sounddevice.playrec()`:
 
->>> myrecording2 = sd.playrec(myarray, fs, input_channels=2)
+>>> myrecording2 = sd.playrec(myarray, fs, channels=2)
 
 The number of output channels is obtained from ``myarray``, but the number of
 input channels still has to be specified.
