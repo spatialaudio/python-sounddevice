@@ -5,6 +5,7 @@ PySoundFile (https://github.com/bastibe/PySoundFile/) has to be installed!
 
 """
 import argparse
+import logging
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("filename", help="audio file to be played back")
@@ -15,7 +16,10 @@ try:
     import sounddevice as sd
     import soundfile as sf
     data, fs = sf.read(args.filename, dtype='float32')
-    sd.play(data, fs, device=args.device, blocking=True)
+    sd.play(data, fs, device=args.device)
+    status = sd.wait()
+    if status:
+        logging.warning(str(status))
 except BaseException as e:
     # This avoids printing the traceback, especially if Ctrl-C is used.
     raise SystemExit(str(e))

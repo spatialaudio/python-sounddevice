@@ -28,7 +28,6 @@ __version__ = "0.1.0"
 import atexit as _atexit
 from cffi import FFI as _FFI
 import sys as _sys
-import logging as _logging
 
 _ffi = _FFI()
 _ffi.cdef("""
@@ -440,6 +439,10 @@ def wait():
         If at least one buffer over-/underrun happened during the last
         playback/recording, a :class:`CallbackFlags` object is returned.
 
+    See Also
+    --------
+    get_status
+
     """
     global _last_callback
     if _last_callback:
@@ -458,6 +461,26 @@ def stop(ignore_errors=True):
     global _last_callback
     if _last_callback:
         _last_callback.stream.close(ignore_errors)
+
+
+def get_status():
+    """Get information about over-/underflows in play()/rec()/playrec().
+
+    Returns
+    -------
+    CallbackFlags
+        A :class:`CallbackFlags` object that holds information about the
+        last invocation of :func:`play`, :func:`rec` or :func:`playrec`.
+
+    See Also
+    --------
+    wait
+
+    """
+    if _last_callback:
+        return _last_callback.status
+    else:
+        raise RuntimeError("play()/rec()/playrec() was not called yet")
 
 
 def print_devices():
@@ -1749,11 +1772,14 @@ class CallbackFlags(object):
         self._flags = flags
 
     def __repr__(self):
-        flags = ", ".join(name for name in dir(self)
-                          if not name.startswith('_') and getattr(self, name))
+        flags = str(self)
         if not flags:
             flags = "no flags set"
         return "<sounddevice.CallbackFlags: {0}>".format(flags)
+
+    def __str__(self):
+        return ", ".join(name.replace('_', ' ') for name in dir(self)
+                         if not name.startswith('_') and getattr(self, name))
 
     def __bool__(self):
         return bool(self._flags)
@@ -2091,7 +2117,6 @@ class _CallbackContext(object):
             raise ImportError(
                 "NumPy must be installed for play()/rec()/playrec()")
         self.event = threading.Event()
-        self.logger = _logging.getLogger(__name__)
         self.status = CallbackFlags()
 
     def check_data(self, data, mapping):
@@ -2180,14 +2205,6 @@ class _CallbackContext(object):
         self.frame += self.blocksize
 
     def finished_callback(self):
-        if self.status.input_underflow:
-            self.logger.warning("input underflowed")
-        if self.status.input_overflow:
-            self.logger.warning("input overflowed")
-        if self.status.output_underflow:
-            self.logger.warning("output underflowed")
-        if self.status.output_overflow:
-            self.logger.warning("output overflowed")
         self.event.set()
 
     def start_stream(self, StreamClass, samplerate, channels, dtype, callback,
