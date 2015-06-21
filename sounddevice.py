@@ -282,7 +282,9 @@ def play(data, samplerate=None, mapping=None, blocking=False, **kwargs):
         ctx.callback_exit()
 
     ctx.start_stream(OutputStream, samplerate, ctx.output_channels,
-                     ctx.output_dtype, callback, blocking, **kwargs)
+                     ctx.output_dtype, callback, blocking,
+                     prime_output_buffers_using_stream_callback=False,
+                     **kwargs)
 
 
 def rec(frames=None, samplerate=None, channels=None, dtype=None,
@@ -432,10 +434,16 @@ def wait():
 
     Playback/recording can be stopped with a :class:`KeyboardInterrupt`.
 
+    Returns
+    -------
+    CallbackFlags or None
+        If at least one buffer over-/underrun happened during the last
+        playback/recording, a :class:`CallbackFlags` object is returned.
+
     """
     global _last_callback
     if _last_callback:
-        _last_callback.wait()
+        return _last_callback.wait()
 
 
 def stop(ignore_errors=True):
@@ -2207,6 +2215,7 @@ class _CallbackContext(object):
             self.event.wait()
         finally:
             self.stream.close()
+        return self.status if self.status else None
 
 
 def _check_mapping(mapping, channels):
