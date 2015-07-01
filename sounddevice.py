@@ -646,7 +646,7 @@ def query_devices(index=None):
     else:
         encoding = 'utf-8'
     return {
-        'name': _ffi.string(info.name).decode(encoding, errors='replace'),
+        'name': _ffi.string(info.name).decode(encoding, 'replace'),
         'hostapi': info.hostApi,
         'max_input_channels': info.maxInputChannels,
         'max_output_channels': info.maxOutputChannels,
