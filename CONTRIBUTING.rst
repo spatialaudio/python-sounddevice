@@ -9,7 +9,7 @@ Contributions are always welcome!
 Instead of pip-installing the latest release from PyPI, you should get the newest
 development version from Github_::
 
-   git clone https://github.com/spatialaudio/python-sounddevice.git
+   git clone --recursive https://github.com/spatialaudio/python-sounddevice.git
    cd python-sounddevice
    python setup.py develop --user
 
@@ -23,6 +23,12 @@ If you prefer, you can also replace the last command with::
    pip install --user -e .
 
 ... where ``-e`` stands for ``--editable``.
+
+If you used the ``--recursive`` option when cloning, the dynamic libraries for
+Mac OS X and Windows should be available.
+If not, you can get the submodule with::
+
+    git submodule update --init --recursive
 
 If you make changes to the documentation, you can re-create the HTML pages
 using Sphinx_.

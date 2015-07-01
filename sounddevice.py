@@ -27,6 +27,8 @@ __version__ = "0.1.0"
 
 import atexit as _atexit
 from cffi import FFI as _FFI
+import os as _os
+import platform as _platform
 import sys as _sys
 
 _ffi = _FFI()
@@ -222,7 +224,20 @@ PaError Pa_GetSampleSize( PaSampleFormat format );
 void Pa_Sleep( long msec );
 """)
 
-_lib = _ffi.dlopen("portaudio")
+try:
+    _lib = _ffi.dlopen('portaudio')
+except OSError:
+    if _platform.system() == 'Darwin':
+        _libname = 'libportaudio.dylib'
+    elif _platform.system() == 'Windows':
+        _libname = 'libportaudio' + _platform.architecture()[0] + '.dll'
+    else:
+        raise
+    _lib = _ffi.dlopen(_os.path.join(
+        _os.path.dirname(_os.path.abspath(__file__)),
+        '_sounddevice_data',
+        _libname
+    ))
 
 _sampleformats = {
     'float32': _lib.paFloat32,
