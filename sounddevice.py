@@ -459,7 +459,6 @@ def wait():
     get_status
 
     """
-    global _last_callback
     if _last_callback:
         return _last_callback.wait()
 
@@ -473,7 +472,6 @@ def stop(ignore_errors=True):
     :class:`RawInputStream`, :class:`RawOutputStream`.
 
     """
-    global _last_callback
     if _last_callback:
         _last_callback.stream.close(ignore_errors)
 
