@@ -130,8 +130,8 @@ After that, you can drop the additional arguments:
 >>> myrecording = sd.rec(duration * fs)
 
 This function also returns immediately but continues recording in the
-background.  In the meantime, you can run other commands. If you want to check if
-the recording is finished, you should use `sounddevice.wait()`:
+background.  In the meantime, you can run other commands.  If you want to check
+if the recording is finished, you should use `sounddevice.wait()`:
 
 >>> sd.wait()
 
