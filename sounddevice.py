@@ -993,9 +993,8 @@ class _StreamBase(object):
 
         """
         err = _lib.Pa_StartStream(self._ptr)
-        if err == _lib.paStreamIsNotStopped:
-            return
-        _check(err, "Error starting stream")
+        if err != _lib.paStreamIsNotStopped:
+            _check(err, "Error starting stream")
 
     def stop(self):
         """Terminate audio processing.
@@ -1009,9 +1008,8 @@ class _StreamBase(object):
 
         """
         err = _lib.Pa_StopStream(self._ptr)
-        if err == _lib.paStreamIsStopped:
-            return
-        _check(err, "Error stopping stream")
+        if err != _lib.paStreamIsStopped:
+            _check(err, "Error stopping stream")
 
     def abort(self):
         """Terminate audio processing immediately.
@@ -1024,9 +1022,8 @@ class _StreamBase(object):
 
         """
         err = _lib.Pa_AbortStream(self._ptr)
-        if err == _lib.paStreamIsStopped:
-            return
-        _check(err, "Error aborting stream")
+        if err != _lib.paStreamIsStopped:
+            _check(err, "Error aborting stream")
 
     def close(self, ignore_errors=True):
         """Close the stream.
