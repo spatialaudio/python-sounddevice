@@ -213,17 +213,3 @@ Blocking Read/Write Streams
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Coming soon!
-
-More Examples
-^^^^^^^^^^^^^
-
-Have a look in the ``examples/`` directory.
-
-Copyright Information
----------------------
-
-python-sounddevice (MIT License)
-   Copyright (c) 2015 Matthias Geier
-
-PortAudio_ Portable Real-Time Audio Library (MIT License)
-   Copyright (c) 1999-2011 Ross Bencina and Phil Burk

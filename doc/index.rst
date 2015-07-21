@@ -2,6 +2,13 @@
 
 .. include:: ../README.rst
 
+.. only:: html
+
+   More Examples
+   ^^^^^^^^^^^^^
+
+   For more examples, have a look at the :doc:`examples`.
+
 .. include:: ../CONTRIBUTING.rst
 
 .. default-role::
