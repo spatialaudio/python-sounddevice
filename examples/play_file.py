@@ -16,8 +16,8 @@ try:
     import sounddevice as sd
     import soundfile as sf
     data, fs = sf.read(args.filename, dtype='float32')
-    sd.play(data, fs, device=args.device)
-    status = sd.wait()
+    sd.play(data, fs, device=args.device, blocking=True)
+    status = sd.get_status()
     if status:
         logging.warning(str(status))
 except BaseException as e:
