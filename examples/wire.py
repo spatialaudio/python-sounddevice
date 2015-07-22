@@ -5,6 +5,7 @@ See https://www.assembla.com/spaces/portaudio/subversion/source/HEAD/portaudio/t
 
 """
 import argparse
+import logging
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("-i", "--input-device", type=int, help="input device ID")
@@ -37,7 +38,7 @@ try:
         input()
 
     if callback_status:
-        print(callback_status)
+        logging.warning(str(callback_status))
 except BaseException as e:
     # This avoids printing the traceback, especially if Ctrl-C is used.
     raise SystemExit(str(e))
