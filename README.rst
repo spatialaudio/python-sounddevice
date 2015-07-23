@@ -86,7 +86,9 @@ Usage
 
 First, import the module:
 
->>> import sounddevice as sd
+.. code:: python
+
+   import sounddevice as sd
 
 Playback
 ^^^^^^^^
@@ -95,21 +97,29 @@ Assuming you have a NumPy array named ``myarray`` holding audio data with a
 sampling frequency of ``fs`` (in the most cases this will be 44100 or 48000
 frames per second), you can play it back with `sounddevice.play()`:
 
->>> sd.play(myarray, fs)
+.. code:: python
+
+   sd.play(myarray, fs)
 
 This function returns immediately but continues playing the audio signal in the
 background.  You can stop playback with `sounddevice.stop()`:
 
->>> sd.stop()
+.. code:: python
+
+   sd.stop()
 
 If you know that you will use the same sampling frequency for a while, you can
 set it as default using `sounddevice.default.samplerate`:
 
->>> sd.default.samplerate = fs
+.. code:: python
+
+   sd.default.samplerate = fs
 
 After that, you can drop the *samplerate* argument:
 
->>> sd.play(myarray)
+.. code:: python
+
+   sd.play(myarray)
 
 Recording
 ^^^^^^^^^
@@ -117,51 +127,67 @@ Recording
 To record audio data from your sound device into a NumPy array, use
 `sounddevice.rec()`:
 
->>> duration = 10  # seconds
->>> myrecording = sd.rec(duration * fs, samplerate=fs, channels=2)
+.. code:: python
+
+   duration = 10  # seconds
+   myrecording = sd.rec(duration * fs, samplerate=fs, channels=2)
 
 Again, for repeated use you can set defaults using `sounddevice.default`:
 
->>> sd.default.samplerate = fs
->>> sd.default.channels = 2
+.. code:: python
+
+   sd.default.samplerate = fs
+   sd.default.channels = 2
 
 After that, you can drop the additional arguments:
 
->>> myrecording = sd.rec(duration * fs)
+.. code:: python
+
+   myrecording = sd.rec(duration * fs)
 
 This function also returns immediately but continues recording in the
 background.  In the meantime, you can run other commands.  If you want to check
 if the recording is finished, you should use `sounddevice.wait()`:
 
->>> sd.wait()
+.. code:: python
+
+   sd.wait()
 
 If the recording was already finished, this returns immediately; if not, it
 waits and returns as soon as the recording is finished.
 
 Alternatively, you could have used the *blocking* argument in the first place:
 
->>> myrecording = sd.rec(duration * fs, blocking=True)
+.. code:: python
+
+   myrecording = sd.rec(duration * fs, blocking=True)
 
 By default, the recorded array has the data type ``'float32'`` (see
 `sounddevice.default.dtype`), but this can be changed with the *dtype* argument:
 
->>> myrecording = sd.rec(duration * fs, dtype='float64')
+.. code:: python
+
+   myrecording = sd.rec(duration * fs, dtype='float64')
 
 Simultaneous Playback and Recording
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To play back an array and record at the same time, use `sounddevice.playrec()`:
 
->>> myrecording2 = sd.playrec(myarray, fs, channels=2)
+.. code:: python
+
+   myrecording2 = sd.playrec(myarray, fs, channels=2)
 
 The number of output channels is obtained from ``myarray``, but the number of
 input channels still has to be specified.
 
 Again, default values can be used:
 
->>> sd.default.samplerate = fs
->>> sd.default.channels = 2
->>> myrecording2 = sd.playrec(myarray)
+.. code:: python
+
+   sd.default.samplerate = fs
+   sd.default.channels = 2
+   myrecording2 = sd.playrec(myarray)
 
 In this case the number of output channels is still taken from ``myarray``
 (which may or may not have 2 channels), but the number of input channels is
@@ -180,7 +206,9 @@ to `sounddevice.default.device` or by passing it as *device* argument to
 Callback Streams
 ^^^^^^^^^^^^^^^^
 
-Callback "wire" with `sounddevice.Stream`::
+Callback "wire" with `sounddevice.Stream`:
+
+.. code:: python
 
    import sounddevice as sd
    duration = 5  # seconds
@@ -193,7 +221,9 @@ Callback "wire" with `sounddevice.Stream`::
    with sd.Stream(channels=2, callback=callback):
        sd.sleep(duration * 1000)
 
-Same thing with `sounddevice.RawStream`::
+Same thing with `sounddevice.RawStream`:
+
+.. code:: python
 
    import sounddevice as sd
    duration = 5  # seconds
