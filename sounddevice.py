@@ -2268,7 +2268,7 @@ def _check_dtype(dtype):
     elif dtype == 'float64':
         dtype = 'float32'
     else:
-        raise TypeError("Unsupported data type: %s" % repr(dtype.name))
+        raise TypeError("Unsupported data type: %s" % repr(dtype))
     return dtype
 
 
