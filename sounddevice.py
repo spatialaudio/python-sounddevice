@@ -2045,7 +2045,7 @@ class default(object):
             object.__setattr__(self, name, value)
         else:
             raise AttributeError(
-                "'default' object has no attribute %s" % repr(name))
+                "'default' object has no attribute " + repr(name))
 
     @property
     def _default_device(self):
@@ -2268,7 +2268,7 @@ def _check_dtype(dtype):
     elif dtype == 'float64':
         dtype = 'float32'
     else:
-        raise TypeError("Unsupported data type: %s" % repr(dtype))
+        raise TypeError("Unsupported data type: " + repr(dtype))
     return dtype
 
 
