@@ -1561,9 +1561,10 @@ class Stream(InputStream, OutputStream):
                non-zero `blocksize` value only be used when your
                algorithm requires a fixed number of frames per stream
                callback.
-        device : int or pair of int, optional
-            Device index specifying the device to be used.  The default
-            value(s) can be changed with :attr:`default.device`.
+        device : int or str or pair thereof, optional
+            Device index(es) or query string(s) specifying the device(s)
+            to be used.  The default value(s) can be changed with
+            :attr:`default.device`.
         channels : int or pair of int, optional
             The number of channels of sound to be delivered to the
             stream callback or accessed by :meth:`read` or
@@ -1934,9 +1935,14 @@ class default(object):
     # provided here for static analysis tools and for the docs.
     # They're overwritten in __init__().
     device = None, None
-    """Index of default input/output device.
+    """Index or query string of default input/output device.
 
     If not overwritten, this is queried from PortAudio.
+
+    If a string is given, the device is selected which contains all
+    space-separated parts in the right order.  Each device string
+    contains the name of the corresponding host API in the end.
+    The string comparison is case-insensitive.
 
     See Also
     --------
@@ -2285,6 +2291,8 @@ def _get_stream_parameters(kind, device, channels, dtype, latency, samplerate):
     if samplerate is None:
         samplerate = default.samplerate
 
+    if not isinstance(device, int):
+        device = _find_device_id(kind, device)
     info = query_devices(device)
     if channels is None:
         channels = info['max_' + kind + '_channels']
@@ -2360,6 +2368,38 @@ def _check(err, msg=""):
             msg += _ffi.string(_lib.Pa_GetErrorText(err)).decode()
         raise PortAudioError(msg)
     return err
+
+
+def _find_device_id(kind, device):
+    """Return device ID given space-separated substrings."""
+    device_list = []
+    for i, info in enumerate(query_devices()):
+        if info['max_' + kind + '_channels'] > 0:
+            hostapi_info = query_hostapis(info['hostapi'])
+            name = info['name'] + ', ' + hostapi_info['name']
+            device_list.append((i, name))
+
+    substrings = device.lower().split()
+    matches = []
+    for i, device_string in device_list:
+        lowercase_device_string = device_string.lower()
+        pos = 0
+        for substring in substrings:
+            pos = lowercase_device_string.find(substring, pos)
+            if pos < 0:
+                break
+            pos += len(substring)
+        else:
+            matches.append((i, device_string))
+
+    if not matches:
+        raise ValueError(
+            "No " + kind + " device matching " + repr(device))
+    if len(matches) > 1:
+        raise ValueError(
+            "Multiple " + kind + " devices found for " + repr(device) + ": " +
+            '; '.join('[{0}] {1}'.format(id, name) for id, name in matches))
+    return matches[0][0]
 
 
 def _initialize():
