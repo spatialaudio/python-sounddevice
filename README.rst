@@ -198,7 +198,7 @@ Device Selection
 
 In many cases, the default input/output device(s) will be the one(s) you want,
 but it is of course possible to choose a different device.
-Use `sounddevice.print_devices()` to get a list of supported devices.
+Use `sounddevice.query_devices()` to get a list of supported devices.
 You can use the corresponding device ID to select a desired device by assigning
 to `sounddevice.default.device` or by passing it as *device* argument to
 `sounddevice.play()`, `sounddevice.Stream()` etc.

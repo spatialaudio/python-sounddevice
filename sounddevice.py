@@ -496,151 +496,26 @@ def get_status():
         raise RuntimeError("play()/rec()/playrec() was not called yet")
 
 
-def print_devices():
-    """Show information about all available audio devices.
-
-    Each available device is printed on one line together with the
-    corresponding device ID, which can be assigned to
-    :attr:`default.device` or used as `device` argument in :func:`play`,
-    :class:`Stream` etc.
-
-    The first character of a line is ``>`` for the default input device,
-    ``<`` for the default output device and ``*`` for the default
-    input/output device.  After the device ID and the device name, the
-    corresponding host API name is displayed.  In the end of each line,
-    the maximum number of input and output channels is shown.
-
-    This function is meant to be used by a human in an interactive
-    session.  To get the same information programmatically, use
-    :func:`query_hostapis`, :func:`query_devices`,
-    :attr:`default.hostapi` and :attr:`default.device`.
-
-    Notes
-    -----
-
-    The list of devices can also be printed in a terminal:
-
-    .. code-block:: sh
-
-        $ python -m sounddevice
-
-    Examples
-    --------
-    On a GNU/Linux computer it might look somewhat like this:
-
-    >>> import sounddevice as sd
-    >>> sd.print_devices()
-       0 HDA Intel: ALC662 rev1 Analog (hw:0,0), ALSA (2 in, 2 out)
-       1 HDA Intel: ALC662 rev1 Digital (hw:0,1), ALSA (0 in, 2 out)
-       2 HDA Intel: HDMI 0 (hw:0,3), ALSA (0 in, 8 out)
-       3 sysdefault, ALSA (128 in, 128 out)
-       4 front, ALSA (0 in, 2 out)
-       5 surround40, ALSA (0 in, 2 out)
-       6 surround51, ALSA (0 in, 2 out)
-       7 surround71, ALSA (0 in, 2 out)
-       8 iec958, ALSA (0 in, 2 out)
-       9 spdif, ALSA (0 in, 2 out)
-      10 hdmi, ALSA (0 in, 8 out)
-    * 11 default, ALSA (128 in, 128 out)
-      12 dmix, ALSA (0 in, 2 out)
-      13 /dev/dsp, OSS (16 in, 16 out)
-
-    Note that ALSA provides access to some "real" and some "virtual"
-    devices.  The latter sometimes have a ridiculously high number of
-    (virtual) inputs and outputs.
-
-    On Mac OS X, you might get something similar to this:
-
-    >>> sd.print_devices()
-      0 Built-in Line Input, Core Audio (2 in, 0 out)
-    > 1 Built-in Digital Input, Core Audio (2 in, 0 out)
-    < 2 Built-in Output, Core Audio (0 in, 2 out)
-      3 Built-in Line Output, Core Audio (0 in, 2 out)
-      4 Built-in Digital Output, Core Audio (0 in, 2 out)
-
-    """
-    idev, odev = default.device
-    digits = len(str(_lib.Pa_GetDeviceCount() - 1))
-    hostapi_names = [hostapi['name'] for hostapi in query_hostapis()]
-    for idx, info in enumerate(query_devices()):
-        print("{mark} {idx:{dig}} {name}, {ha} ({ins} in, {outs} out)".format(
-            mark=(" ", ">", "<", "*")[(idx == idev) + 2 * (idx == odev)],
-            idx=idx,
-            dig=digits,
-            name=info['name'],
-            ha=hostapi_names[info['hostapi']],
-            ins=info['max_input_channels'],
-            outs=info['max_output_channels'],
-        ))
-
-
-def query_hostapis(index=None):
-    """Return information about available host APIs.
-
-    Parameters
-    ----------
-    index : int, optional
-        If specified, information about only the given host API `index`
-        is returned.
-
-    Returns
-    -------
-    dict or list of dict
-        A dictionary with information about the given host API `index`
-        or -- if no `index` was specified -- a list containing one
-        dictionary for each available host API.
-        The dictionaries have the following keys:
-
-        ``'name'``
-            The name of the host API.
-
-        ``'devices'``
-            A list of device IDs belonging to the host API.
-            Use :func:`query_devices` to get information about a device.
-        ``'default_input_device'``, ``'default_output_device'``
-            The device ID of the default input/output device of the host
-            API.  If no default input/output device exists for the given
-            host API, this is -1.
-
-    See Also
-    --------
-    print_devices
-
-    """
-    if index is None:
-        return [query_hostapis(i)
-                for i in range(_check(_lib.Pa_GetHostApiCount()))]
-    info = _lib.Pa_GetHostApiInfo(index)
-    if not info:
-        raise PortAudioError("Error querying host API {0}".format(index))
-    assert info.structVersion == 1
-    return {
-        'name': _ffi.string(info.name).decode(),
-        'devices': [_lib.Pa_HostApiDeviceIndexToDeviceIndex(index, i)
-                    for i in range(info.deviceCount)],
-        'default_input_device': info.defaultInputDevice,
-        'default_output_device': info.defaultOutputDevice,
-    }
-
-
 def query_devices(index=None):
     """Return information about available devices.
 
     Information and capabilities of PortAudio devices.
     Devices may support input, output or both input and output.
 
+    To find the default device, use :attr:`default.device`.
+
     Parameters
     ----------
     index : int, optional
         If specified, information about only the given device `index` is
-        returned.
+        returned in a single dictionary.
 
     Returns
     -------
-    dict or list of dict
+    dict or DeviceList
         A dictionary with information about the given device `index` or
-        -- if no `index` was specified -- a list containing one
-        dictionary for each available device.
+        -- if no `index` was specified -- a :class:`DeviceList`
+        containing one dictionary for each available device.
         The dictionaries have the following keys:
 
         ``'name'``
@@ -666,14 +541,68 @@ def query_devices(index=None):
             The default sampling frequency of the device.
             This is used if :attr:`default.samplerate` is not set.
 
-    See Also
+    Notes
+    -----
+    The list of devices can also be printed in a terminal:
+
+    .. code-block:: sh
+
+        $ python -m sounddevice
+
+    Examples
     --------
-    print_devices
+    The returned :class:`DeviceList` can be indexed and iterated over
+    like a normal :class:`tuple` (yielding the abovementioned
+    dictionaries), but it also has a special string representation which
+    is shown when used in an interactive Python session.
+
+    Each available device is listed on one line together with the
+    corresponding device ID, which can be assigned to
+    :attr:`default.device` or used as `device` argument in :func:`play`,
+    :class:`Stream` etc.
+
+    The first character of a line is ``>`` for the default input device,
+    ``<`` for the default output device and ``*`` for the default
+    input/output device.  After the device ID and the device name, the
+    corresponding host API name is displayed.  In the end of each line,
+    the maximum number of input and output channels is shown.
+
+    On a GNU/Linux computer it might look somewhat like this:
+
+    >>> import sounddevice as sd
+    >>> sd.query_devices()
+       0 HDA Intel: ALC662 rev1 Analog (hw:0,0), ALSA (2 in, 2 out)
+       1 HDA Intel: ALC662 rev1 Digital (hw:0,1), ALSA (0 in, 2 out)
+       2 HDA Intel: HDMI 0 (hw:0,3), ALSA (0 in, 8 out)
+       3 sysdefault, ALSA (128 in, 128 out)
+       4 front, ALSA (0 in, 2 out)
+       5 surround40, ALSA (0 in, 2 out)
+       6 surround51, ALSA (0 in, 2 out)
+       7 surround71, ALSA (0 in, 2 out)
+       8 iec958, ALSA (0 in, 2 out)
+       9 spdif, ALSA (0 in, 2 out)
+      10 hdmi, ALSA (0 in, 8 out)
+    * 11 default, ALSA (128 in, 128 out)
+      12 dmix, ALSA (0 in, 2 out)
+      13 /dev/dsp, OSS (16 in, 16 out)
+
+    Note that ALSA provides access to some "real" and some "virtual"
+    devices.  The latter sometimes have a ridiculously high number of
+    (virtual) inputs and outputs.
+
+    On Mac OS X, you might get something similar to this:
+
+    >>> sd.query_devices()
+      0 Built-in Line Input, Core Audio (2 in, 0 out)
+    > 1 Built-in Digital Input, Core Audio (2 in, 0 out)
+    < 2 Built-in Output, Core Audio (0 in, 2 out)
+      3 Built-in Line Output, Core Audio (0 in, 2 out)
+      4 Built-in Digital Output, Core Audio (0 in, 2 out)
 
     """
     if index is None:
-        return [query_devices(i)
-                for i in range(_check(_lib.Pa_GetDeviceCount()))]
+        return DeviceList(query_devices(i)
+                          for i in range(_check(_lib.Pa_GetDeviceCount())))
     info = _lib.Pa_GetDeviceInfo(index)
     if not info:
         raise PortAudioError("Error querying device {0}".format(index))
@@ -692,6 +621,59 @@ def query_devices(index=None):
         'default_high_input_latency': info.defaultHighInputLatency,
         'default_high_output_latency': info.defaultHighOutputLatency,
         'default_samplerate': info.defaultSampleRate,
+    }
+
+
+def query_hostapis(index=None):
+    """Return information about available host APIs.
+
+    Parameters
+    ----------
+    index : int, optional
+        If specified, information about only the given host API `index`
+        is returned in a single dictionary.
+
+    Returns
+    -------
+    dict or tuple of dict
+        A dictionary with information about the given host API `index`
+        or -- if no `index` was specified -- a tuple containing one
+        dictionary for each available host API.
+        The dictionaries have the following keys:
+
+        ``'name'``
+            The name of the host API.
+        ``'devices'``
+            A list of device IDs belonging to the host API.
+            Use :func:`query_devices` to get information about a device.
+        ``'default_input_device'``, ``'default_output_device'``
+            The device ID of the default input/output device of the host
+            API.  If no default input/output device exists for the given
+            host API, this is -1.
+
+            .. note:: The overall default device(s) -- which can be
+                overwritten by assigning to :attr:`default.device` --
+                take(s) precedence over :attr:`default.hostapi` and the
+                information in the abovementioned dictionaries.
+
+    See Also
+    --------
+    query_devices
+
+    """
+    if index is None:
+        return tuple(query_hostapis(i)
+                     for i in range(_check(_lib.Pa_GetHostApiCount())))
+    info = _lib.Pa_GetHostApiInfo(index)
+    if not info:
+        raise PortAudioError("Error querying host API {0}".format(index))
+    assert info.structVersion == 1
+    return {
+        'name': _ffi.string(info.name).decode(),
+        'devices': [_lib.Pa_HostApiDeviceIndexToDeviceIndex(index, i)
+                    for i in range(info.deviceCount)],
+        'default_input_device': info.defaultInputDevice,
+        'default_output_device': info.defaultOutputDevice,
     }
 
 
@@ -1573,7 +1555,7 @@ class Stream(InputStream, OutputStream):
             dict returned by :func:`query_devices`.
             By default, the maximum possible number of channels for the
             selected device is used (which may not be what you want; see
-            :func:`print_devices`).  The default value(s) can be changed
+            :func:`query_devices`).  The default value(s) can be changed
             with :attr:`default.channels`.
         dtype : str or numpy.dtype or pair thereof, optional
             The sample format of the :class:`numpy.ndarray` provided to
@@ -1752,6 +1734,43 @@ class Stream(InputStream, OutputStream):
             latency, callback and callback_wrapper, finished_callback,
             clip_off, dither_off, never_drop_input,
             prime_output_buffers_using_stream_callback)
+
+
+class DeviceList(tuple):
+
+    """A list with information about all available audio devices.
+
+    This class is not meant to be instantiated by the user.
+    Instead, it is returned by :func:`query_devices`.
+    It contains a dictionary for each available device, holding the keys
+    described in :func:`query_devices`.
+
+    This class has a special string representation that is shown as
+    return value of :func:`query_devices` if used in an interactive
+    Python session and it can be otherwise obtained with :func:`repr`
+    and :class:`str() <str>`.
+
+    """
+
+    __slots__ = ()
+
+    def __repr__(self):
+        idev, odev = [
+            dev if isinstance(dev, int) else _find_device_id(kind, dev)
+            for kind, dev in zip(('input', 'output'), default.device)
+        ]
+        digits = len(str(_lib.Pa_GetDeviceCount() - 1))
+        hostapi_names = [hostapi['name'] for hostapi in query_hostapis()]
+        return '\n'.join(
+            "{mark} {idx:{dig}} {name}, {ha} ({ins} in, {outs} out)".format(
+                mark=(" ", ">", "<", "*")[(idx == idev) + 2 * (idx == odev)],
+                idx=idx,
+                dig=digits,
+                name=info['name'],
+                ha=hostapi_names[info['hostapi']],
+                ins=info['max_input_channels'],
+                outs=info['max_output_channels'])
+            for idx, info in enumerate(self))
 
 
 class CallbackFlags(object):
@@ -2292,7 +2311,7 @@ def _get_stream_parameters(kind, device, channels, dtype, latency, samplerate):
         samplerate = default.samplerate
 
     if not isinstance(device, int):
-        device = _find_device_id(kind, device)
+        device = _find_device_id(kind, device, raise_on_error=True)
     info = query_devices(device)
     if channels is None:
         channels = info['max_' + kind + '_channels']
@@ -2370,7 +2389,7 @@ def _check(err, msg=""):
     return err
 
 
-def _find_device_id(kind, device):
+def _find_device_id(kind, device, raise_on_error=False):
     """Return device ID given space-separated substrings."""
     device_list = []
     for i, info in enumerate(query_devices()):
@@ -2393,12 +2412,18 @@ def _find_device_id(kind, device):
             matches.append((i, device_string))
 
     if not matches:
-        raise ValueError(
-            "No " + kind + " device matching " + repr(device))
+        if raise_on_error:
+            raise ValueError("No " + kind + " device matching " + repr(device))
+        else:
+            return -1
     if len(matches) > 1:
-        raise ValueError(
-            "Multiple " + kind + " devices found for " + repr(device) + ": " +
-            '; '.join('[{0}] {1}'.format(id, name) for id, name in matches))
+        if raise_on_error:
+            raise ValueError(
+                "Multiple " + kind + " devices found for " + repr(device) +
+                ": " + '; '.join('[{0}] {1}'.format(id, name)
+                                 for id, name in matches))
+        else:
+            return -1
     return matches[0][0]
 
 
@@ -2417,4 +2442,4 @@ def _terminate():
 _initialize()
 
 if __name__ == '__main__':
-    print_devices()
+    print(query_devices())

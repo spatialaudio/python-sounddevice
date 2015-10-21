@@ -21,7 +21,8 @@ API Documentation
    :undoc-members:
    :exclude-members: RawInputStream, RawOutputStream, RawStream,
                      InputStream, OutputStream, Stream,
-                     CallbackFlags, CallbackStop, CallbackAbort, PortAudioError
+                     CallbackFlags, CallbackStop, CallbackAbort,
+                     PortAudioError, DeviceList
 
 .. autoclass:: Stream
    :members:
@@ -38,6 +39,8 @@ API Documentation
 .. autoclass:: RawInputStream
 
 .. autoclass:: RawOutputStream
+
+.. autoclass:: DeviceList
 
 .. autoclass:: CallbackFlags
    :members:
