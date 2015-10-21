@@ -1,3 +1,6 @@
+Version 0.2.2 (2015-10-21):
+ * Devices can now be selected by substrings of device name and host API name
+
 Version 0.2.1 (2015-10-08):
  * Example applications ``wire.py`` (based on PortAudio's ``patest_wire.c``)
    and ``spectrogram.py`` (based on code by Mauris Van Hauwe)

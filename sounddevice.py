@@ -23,7 +23,7 @@
 http://python-sounddevice.rtfd.org/
 
 """
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 
 import atexit as _atexit
 from cffi import FFI as _FFI
