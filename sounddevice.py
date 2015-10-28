@@ -543,11 +543,11 @@ def query_devices(index=None):
 
     Notes
     -----
-    The list of devices can also be printed in a terminal:
+    The list of devices can also be displayed in a terminal:
 
     .. code-block:: sh
 
-        $ python -m sounddevice
+        python -m sounddevice
 
     Examples
     --------
