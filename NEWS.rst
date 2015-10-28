@@ -1,3 +1,7 @@
+Version 0.3.0 (2015-10-28):
+ * Remove `sounddevice.print_devices()`, `sounddevice.query_devices()` can be
+   used instead, since it now returns a `sounddevice.DeviceList` object.
+
 Version 0.2.2 (2015-10-21):
  * Devices can now be selected by substrings of device name and host API name
 
