@@ -12,9 +12,9 @@ for line in open("sounddevice.py"):
 
 PYTHON_INTERPRETERS = '.'.join([
     'cp26', 'cp27',
-    'cp32', 'cp33', 'cp34', 'cp35',
+    'cp32', 'cp33', 'cp34', 'cp35', 'cp36',
     'pp27',
-    'pp32',
+    'pp32', 'pp33', 'pp34', 'pp35', 'pp36',
 ])
 MACOSX_VERSIONS = '.'.join([
     'macosx_10_6_x86_64',
