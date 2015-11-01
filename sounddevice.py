@@ -700,7 +700,6 @@ def get_portaudio_version():
 
 
 class _StreamBase(object):
-
     """Base class for Raw{Input,Output}Stream."""
 
     def __init__(self, kind, samplerate, blocksize, device, channels, dtype,
@@ -1020,7 +1019,6 @@ class _StreamBase(object):
 
 
 class RawInputStream(_StreamBase):
-
     """Raw stream for recording only.  See __init__() and RawStream."""
 
     def __init__(self, samplerate=None, blocksize=None,
@@ -1122,7 +1120,6 @@ class RawInputStream(_StreamBase):
 
 
 class RawOutputStream(_StreamBase):
-
     """Raw stream for playback only.  See __init__() and RawStream."""
 
     def __init__(self, samplerate=None, blocksize=None,
@@ -1232,7 +1229,6 @@ class RawOutputStream(_StreamBase):
 
 
 class RawStream(RawInputStream, RawOutputStream):
-
     """Raw stream for playback and recording.  See __init__()."""
 
     def __init__(self, samplerate=None, blocksize=None,
@@ -1298,7 +1294,6 @@ class RawStream(RawInputStream, RawOutputStream):
 
 
 class InputStream(RawInputStream):
-
     """Stream for input only.  See __init__() and Stream."""
 
     def __init__(self, samplerate=None, blocksize=None,
@@ -1381,7 +1376,6 @@ class InputStream(RawInputStream):
 
 
 class OutputStream(RawOutputStream):
-
     """Stream for output only.  See __init__() and Stream."""
 
     def __init__(self, samplerate=None, blocksize=None,
@@ -1473,7 +1467,6 @@ class OutputStream(RawOutputStream):
 
 
 class Stream(InputStream, OutputStream):
-
     """Stream for input and output.  See __init__()."""
 
     def __init__(self, samplerate=None, blocksize=None,
@@ -1737,7 +1730,6 @@ class Stream(InputStream, OutputStream):
 
 
 class DeviceList(tuple):
-
     """A list with information about all available audio devices.
 
     This class is not meant to be instantiated by the user.
@@ -1774,7 +1766,6 @@ class DeviceList(tuple):
 
 
 class CallbackFlags(object):
-
     """Flag bits for the `status` argument to a stream `callback`.
 
     See Also
@@ -1884,7 +1875,6 @@ class CallbackFlags(object):
 
 
 class _InputOutputPair(object):
-
     """Parameter pairs for device, channels, dtype and latency."""
 
     _indexmapping = {'input': 0, 'output': 1}
@@ -1910,7 +1900,6 @@ class _InputOutputPair(object):
 
 
 class default(object):
-
     """Get/set defaults for the `sounddevice` module.
 
     The attributes :attr:`device`, :attr:`channels`, :attr:`dtype` and
@@ -2093,14 +2082,12 @@ if not hasattr(_ffi, 'I_AM_FAKE'):
 
 
 class PortAudioError(Exception):
-
     """This exception will be raised on PortAudio errors."""
 
     pass
 
 
 class CallbackStop(Exception):
-
     """Exception to be raised by the user to stop callback processing.
 
     If this is raised in the stream callback, the callback will not be
@@ -2116,7 +2103,6 @@ class CallbackStop(Exception):
 
 
 class CallbackAbort(Exception):
-
     """Exception to be raised by the user to abort callback processing.
 
     If this is raised in the stream callback, all pending buffers are
@@ -2132,7 +2118,6 @@ class CallbackAbort(Exception):
 
 
 class _CallbackContext(object):
-
     """Helper class for re-use in play()/rec()/playrec() callbacks."""
 
     blocksize = None
