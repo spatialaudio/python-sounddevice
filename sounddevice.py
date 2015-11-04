@@ -2374,39 +2374,45 @@ def _check(err, msg=""):
     return err
 
 
-def _find_device_id(kind, device, raise_on_error=False):
+def _find_device_id(kind, query_string, raise_on_error=False):
     """Return device ID given space-separated substrings."""
     device_list = []
-    for i, info in enumerate(query_devices()):
+    for id, info in enumerate(query_devices()):
         if info['max_' + kind + '_channels'] > 0:
             hostapi_info = query_hostapis(info['hostapi'])
-            name = info['name'] + ', ' + hostapi_info['name']
-            device_list.append((i, name))
+            device_list.append((id, info['name'], hostapi_info['name']))
 
-    substrings = device.lower().split()
+    query_string = query_string.lower()
+    substrings = query_string.split()
     matches = []
-    for i, device_string in device_list:
-        lowercase_device_string = device_string.lower()
+    exact_device_matches = []
+    for id, device_string, hostapi_string in device_list:
+        full_string = device_string + ', ' + hostapi_string
         pos = 0
         for substring in substrings:
-            pos = lowercase_device_string.find(substring, pos)
+            pos = full_string.lower().find(substring, pos)
             if pos < 0:
                 break
             pos += len(substring)
         else:
-            matches.append((i, device_string))
+            matches.append((id, full_string))
+            if device_string.lower() == query_string:
+                exact_device_matches.append(id)
 
     if not matches:
         if raise_on_error:
-            raise ValueError("No " + kind + " device matching " + repr(device))
+            raise ValueError(
+                "No " + kind + " device matching " + repr(query_string))
         else:
             return -1
     if len(matches) > 1:
+        if len(exact_device_matches) == 1:
+            return exact_device_matches[0]
         if raise_on_error:
-            raise ValueError(
-                "Multiple " + kind + " devices found for " + repr(device) +
-                ": " + '; '.join('[{0}] {1}'.format(id, name)
-                                 for id, name in matches))
+            raise ValueError("Multiple " + kind + " devices found for " +
+                             repr(query_string) + ": " +
+                             '; '.join('[{0}] {1}'.format(id, name)
+                                       for id, name in matches))
         else:
             return -1
     return matches[0][0]
