@@ -2417,6 +2417,28 @@ def _terminate():
     _check(_lib.Pa_Terminate(), "Error terminating PortAudio")
 
 
+def _ignore_stderr():
+    """Try to forward PortAudio messages from stderr to /dev/null."""
+    ffi = _FFI()
+    ffi.cdef("""
+    /* from stdio.h */
+    FILE* fopen(const char* path, const char* mode);
+    int fclose(FILE* fp);
+    FILE* stderr;  /* GNU C library */
+    FILE* __stderrp;  /* Mac OS X */
+    """)
+    stdio = ffi.dlopen(None)
+    devnull = stdio.fopen(_os.devnull.encode(), b'w')
+    try:
+        stdio.stderr = devnull
+    except KeyError:
+        try:
+            stdio.__stderrp = devnull
+        except KeyError:
+            stdio.fclose(devnull)
+
+
+_ignore_stderr()
 _initialize()
 
 if __name__ == '__main__':
