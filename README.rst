@@ -44,6 +44,7 @@ CFFI:
 PortAudio library:
    The PortAudio_ library must be installed on your system (and CFFI must be
    able to find it).  Again, you should use your package manager to install it.
+   The package may be called `libportaudio2` or similar.
    If you prefer, you can of course also download the sources and compile the
    library yourself.  If you are using Mac OS X or Windows, the library will be
    installed automagically with *pip* (see "Installation" below).
