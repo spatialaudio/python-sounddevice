@@ -13,6 +13,9 @@ Code:
 Python Package Index:
    http://pypi.python.org/pypi/sounddevice/
 
+License:
+   MIT -- see the file ``LICENSE`` for details.
+
 Requirements
 ------------
 
