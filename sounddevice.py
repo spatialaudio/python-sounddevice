@@ -1075,11 +1075,7 @@ class RawInputStream(_StreamBase):
         return _check(_lib.Pa_GetStreamReadAvailable(self._ptr))
 
     def read(self, frames):
-        """Read samples from the stream.
-
-        The function doesn't return until all requested `frames` have
-        been read -- this may involve waiting for the operating system
-        to supply the data.
+        """Read samples from the stream into a buffer.
 
         This is the same as :meth:`Stream.read`, except that it returns
         a plain Python buffer object instead of a NumPy array.
@@ -1088,11 +1084,7 @@ class RawInputStream(_StreamBase):
         Parameters
         ----------
         frames : int
-            The number of frames to be read into `data`.  This
-            parameter is not constrained to a specific range, however
-            high performance applications will want to match this
-            parameter to the `blocksize` parameter used when opening the
-            stream.
+            The number of frames to be read.  See :meth:`Stream.read`.
 
         Returns
         -------
@@ -1103,8 +1095,7 @@ class RawInputStream(_StreamBase):
             specified by `channels`.
             See also :attr:`Stream.samplesize`.
         overflowed : bool
-            ``True`` if input data was discarded by PortAudio after the
-            previous call and before this call.
+            See :meth:`Stream.read`.
 
         """
         channels, _ = _split(self._channels)
@@ -1178,10 +1169,6 @@ class RawOutputStream(_StreamBase):
     def write(self, data):
         """Write samples to the stream.
 
-        This function doesn't return until the entire buffer has been
-        consumed -- this may involve waiting for the operating system to
-        consume the data.
-
         This is the same as :meth:`Stream.write`, except that it expects
         a plain Python buffer object instead of a NumPy array.
         NumPy is not necessary to use this.
@@ -1201,8 +1188,7 @@ class RawOutputStream(_StreamBase):
         Returns
         -------
         underflowed : bool
-            ``True`` if additional output data was inserted after the
-            previous call and before this call.
+            See :meth:`Stream.write`.
 
         """
         try:
@@ -1339,11 +1325,12 @@ class InputStream(RawInputStream):
             prime_output_buffers_using_stream_callback)
 
     def read(self, frames):
-        """Read samples from the stream.
+        """Read samples from the stream into a NumPy array.
 
         The function doesn't return until all requested `frames` have
         been read -- this may involve waiting for the operating system
-        to supply the data.
+        to supply the data (except if no more than
+        :attr:`read_available` frames were requested).
 
         This is the same as :meth:`RawStream.read`, except that it
         returns a NumPy array instead of a plain Python buffer object.
@@ -1351,11 +1338,10 @@ class InputStream(RawInputStream):
         Parameters
         ----------
         frames : int
-            The number of frames to be read into `data`.  This
-            parameter is not constrained to a specific range, however
-            high performance applications will want to match this
-            parameter to the `blocksize` parameter used when opening the
-            stream.
+            The number of frames to be read.  This parameter is not
+            constrained to a specific range, however high performance
+            applications will want to match this parameter to the
+            `blocksize` parameter used when opening the stream.
 
         Returns
         -------
@@ -1425,7 +1411,8 @@ class OutputStream(RawOutputStream):
 
         This function doesn't return until the entire buffer has been
         consumed -- this may involve waiting for the operating system to
-        consume the data.
+        consume the data (except if `data` contains no more than
+        :attr:`write_available` frames).
 
         This is the same as :meth:`RawStream.write`, except that it
         expects a NumPy array instead of a plain Python buffer object.

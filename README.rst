@@ -250,4 +250,8 @@ Same thing with `sounddevice.RawStream`:
 Blocking Read/Write Streams
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Coming soon!
+Instead of using a callback function, you can also use the blocking methods
+`sounddevice.Stream.read()` and `sounddevice.Stream.write()` (and of course the
+corresponding methods in `sounddevice.InputStream`, `sounddevice.OutputStream`,
+`sounddevice.RawStream`, `sounddevice.RawInputStream` and
+`sounddevice.RawOutputStream`).
