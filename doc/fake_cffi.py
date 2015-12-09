@@ -10,10 +10,12 @@ class FFI(object):
         pass
 
     def dlopen(self, _):
-        return FakePortAudio()
+        return FakeLibrary()
 
 
-class FakePortAudio(object):
+class FakeLibrary(object):
+
+    # from portaudio.h:
 
     paFloat32 = paInt32 = paInt24 = paInt16 = paInt8 = paUInt8 = NotImplemented
     paFramesPerBufferUnspecified = 0
@@ -23,3 +25,11 @@ class FakePortAudio(object):
 
     def Pa_Terminate(self):
         return 0
+
+    # from stdio.h:
+
+    def fopen(*args, **kwargs):
+        return NotImplemented
+
+    def fclose(*args):
+        pass
