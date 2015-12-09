@@ -211,6 +211,17 @@ You can use the corresponding device ID to select a desired device by assigning
 to `sounddevice.default.device` or by passing it as *device* argument to
 `sounddevice.play()`, `sounddevice.Stream()` etc.
 
+Instead of the numerical device ID, you can also use a space-separated list of
+case-insensitive substrings of the device name (and the host API name, if
+needed).  See `sounddevice.default.device` for details.
+
+.. code:: python
+
+   import sounddevice as sd
+   sd.default.samplerate = 44100
+   sd.default.device = 'digital output'
+   sd.play(myarray)
+
 Callback Streams
 ^^^^^^^^^^^^^^^^
 
