@@ -180,7 +180,7 @@ To play back an array and record at the same time, use `sounddevice.playrec()`:
 
 .. code:: python
 
-   myrecording2 = sd.playrec(myarray, fs, channels=2)
+   myrecording = sd.playrec(myarray, fs, channels=2)
 
 The number of output channels is obtained from ``myarray``, but the number of
 input channels still has to be specified.
@@ -191,7 +191,7 @@ Again, default values can be used:
 
    sd.default.samplerate = fs
    sd.default.channels = 2
-   myrecording2 = sd.playrec(myarray)
+   myrecording = sd.playrec(myarray)
 
 In this case the number of output channels is still taken from ``myarray``
 (which may or may not have 2 channels), but the number of input channels is
