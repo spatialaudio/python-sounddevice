@@ -150,7 +150,9 @@ typedef struct PaStreamParameters
     void *hostApiSpecificStreamInfo;
 } PaStreamParameters;
 /* not implemented: paFormatIsSupported */
-/* not implemented: Pa_IsFormatSupported */
+PaError Pa_IsFormatSupported( const PaStreamParameters *inputParameters,
+                              const PaStreamParameters *outputParameters,
+                              double sampleRate );
 typedef void PaStream;
 #define paFramesPerBufferUnspecified 0
 typedef unsigned long PaStreamFlags;
@@ -675,6 +677,46 @@ def query_hostapis(index=None):
         'default_input_device': info.defaultInputDevice,
         'default_output_device': info.defaultOutputDevice,
     }
+
+
+def check_input_settings(device=None, channels=None, dtype=None,
+                         samplerate=None):
+    """Check if given input device settings are supported.
+
+    All parameters are optional, :obj:`default` settings are used for
+    any unspecified parameters.  If the settings are supported, the
+    function does nothing; if not, an exception is raised.
+
+    Parameters
+    ----------
+    device : int or str, optional
+        Device ID or device name substring, see :attr:`default.device`.
+    channels : int, optional
+        Number of input channels, see :attr:`default.channels`.
+    dtype : str or numpy.dtype, optional
+        Data type for input samples, see :attr:`default.dtype`.
+    samplerate : float, optional
+        Sampling frequency, see :attr:`default.samplerate`.
+
+    """
+    parameters, dtype, samplesize, samplerate = _get_stream_parameters(
+        'input', device=device, channels=channels, dtype=dtype, latency=None,
+        samplerate=samplerate)
+    _check(_lib.Pa_IsFormatSupported(parameters, _ffi.NULL, samplerate))
+
+
+def check_output_settings(device=None, channels=None, dtype=None,
+                          samplerate=None):
+    """Check if given output device settings are supported.
+
+    Same as :func:`check_input_settings`, just for output device
+    settings.
+
+    """
+    parameters, dtype, samplesize, samplerate = _get_stream_parameters(
+        'output', device=device, channels=channels, dtype=dtype, latency=None,
+        samplerate=samplerate)
+    _check(_lib.Pa_IsFormatSupported(_ffi.NULL, parameters, samplerate))
 
 
 def sleep(msec):
