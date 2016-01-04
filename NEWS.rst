@@ -1,3 +1,8 @@
+Version 0.3.1 (2016-01-04):
+ * Add `sounddevice.check_input_settings()` and
+   `sounddevice.check_output_settings()`
+ * Send PortAudio output to ``/dev/null`` (on Linux and OSX)
+
 Version 0.3.0 (2015-10-28):
  * Remove `sounddevice.print_devices()`, `sounddevice.query_devices()` can be
    used instead, since it now returns a `sounddevice.DeviceList` object.
