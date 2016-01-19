@@ -2113,8 +2113,6 @@ if not hasattr(_ffi, 'I_AM_FAKE'):
 class PortAudioError(Exception):
     """This exception will be raised on PortAudio errors."""
 
-    pass
-
 
 class CallbackStop(Exception):
     """Exception to be raised by the user to stop callback processing.
@@ -2128,8 +2126,6 @@ class CallbackStop(Exception):
 
     """
 
-    pass
-
 
 class CallbackAbort(Exception):
     """Exception to be raised by the user to abort callback processing.
@@ -2142,8 +2138,6 @@ class CallbackAbort(Exception):
     CallbackStop, :meth:`Stream.abort`, Stream
 
     """
-
-    pass
 
 
 class _CallbackContext(object):
