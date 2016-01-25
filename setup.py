@@ -32,7 +32,7 @@ elif system == 'Windows':
 else:
     libname = None
 
-if libname:
+if libname and os.path.isdir('_sounddevice_data'):
     packages = ['_sounddevice_data']
     package_data = {'_sounddevice_data': [libname, 'README.md']}
 else:
