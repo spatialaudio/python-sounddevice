@@ -39,15 +39,16 @@ CFFI:
    The `C Foreign Function Interface for Python`_ is used to access the C-API
    of the PortAudio library from within Python.  It supports CPython 2.6, 2.7,
    3.x; and is distributed with PyPy_ 2.0 beta2 or later.
-   You should install it with your package manager (if it's not installed
-   already), or you can get it with::
+   If it's not installed already, you should install it with your package
+   manager (the package might be called ``python3-cffi``, ``python-cffi`` or
+   similar), or you can get it with::
 
       pip install cffi --user
 
 PortAudio library:
    The PortAudio_ library must be installed on your system (and CFFI must be
-   able to find it).  Again, you should use your package manager to install it.
-   The package may be called `libportaudio2` or similar.
+   able to find it).  Again, you should use your package manager to install it
+   (the package might be called ``libportaudio2`` or similar).
    If you prefer, you can of course also download the sources and compile the
    library yourself.  If you are using Mac OS X or Windows, the library will be
    installed automagically with *pip* (see "Installation" below).
