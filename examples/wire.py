@@ -39,6 +39,7 @@ try:
 
     if callback_status:
         logging.warning(str(callback_status))
-except BaseException as e:
-    # This avoids printing the traceback, especially if Ctrl-C is used.
-    raise SystemExit(str(e))
+except KeyboardInterrupt:
+    parser.exit('\nInterrupted by user')
+except Exception as e:
+    parser.exit(type(e).__name__ + ': ' + str(e))

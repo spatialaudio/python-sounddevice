@@ -20,6 +20,7 @@ try:
     status = sd.get_status()
     if status:
         logging.warning(str(status))
-except BaseException as e:
-    # This avoids printing the traceback, especially if Ctrl-C is used.
-    raise SystemExit(str(e))
+except KeyboardInterrupt:
+    parser.exit('\nInterrupted by user')
+except Exception as e:
+    parser.exit(type(e).__name__ + ': ' + str(e))
