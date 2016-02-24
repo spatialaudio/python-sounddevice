@@ -48,7 +48,7 @@ try:
     import sounddevice as sd
 
     if args.list_devices:
-        sd.print_devices()
+        print(sd.query_devices())
         parser.exit()
 
     if args.device is None:
