@@ -2102,7 +2102,7 @@ class default(object):
 
     def reset(self):
         """Reset all attributes to their "factory default"."""
-        self.__dict__ = {}
+        vars(self).clear()
         self.__init__()
 
 if not hasattr(_ffi, 'I_AM_FAKE'):
