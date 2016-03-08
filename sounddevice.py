@@ -1768,8 +1768,9 @@ class DeviceList(tuple):
 
     This class has a special string representation that is shown as
     return value of :func:`query_devices` if used in an interactive
-    Python session and it can be otherwise obtained with :func:`repr`
-    and :class:`str() <str>`.
+    Python session.  It will also be shown when using the :func:`print`
+    function.  Furthermore, it can be obtained with :func:`repr` and
+    :class:`str() <str>`.
 
     """
 
