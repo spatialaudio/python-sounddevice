@@ -498,26 +498,31 @@ def get_status():
         raise RuntimeError("play()/rec()/playrec() was not called yet")
 
 
-def query_devices(index=None):
+def query_devices(device=None, kind=None):
     """Return information about available devices.
 
     Information and capabilities of PortAudio devices.
     Devices may support input, output or both input and output.
 
-    To find the default device, use :attr:`default.device`.
+    To find the default input/output device, use :attr:`default.device`.
 
     Parameters
     ----------
-    index : int, optional
-        If specified, information about only the given device `index` is
+    device : int or str, optional
+        Numeric device ID or device name substring(s).
+        If specified, information about only the given `device` is
         returned in a single dictionary.
+    kind : {'input', 'output'}, optional
+        If `device` is not specified and `kind` is ``'input'`` or
+        ``'output'``, a single dictionary is returned with information
+        about the default input or output device, respectively.
 
     Returns
     -------
     dict or DeviceList
-        A dictionary with information about the given device `index` or
-        -- if no `index` was specified -- a :class:`DeviceList`
-        containing one dictionary for each available device.
+        A dictionary with information about the given `device` or -- if
+        no `device` was specified -- a :class:`DeviceList` containing
+        one dictionary for each available device.
         The dictionaries have the following keys:
 
         ``'name'``
@@ -602,18 +607,21 @@ def query_devices(index=None):
       4 Built-in Digital Output, Core Audio (0 in, 2 out)
 
     """
-    if index is None:
+    if kind not in ('input', 'output', None):
+        raise ValueError("Invalid kind: {0!r}".format(kind))
+    if device is None and kind is None:
         return DeviceList(query_devices(i)
                           for i in range(_check(_lib.Pa_GetDeviceCount())))
-    info = _lib.Pa_GetDeviceInfo(index)
+    device = _get_device_id(device, kind, raise_on_error=True)
+    info = _lib.Pa_GetDeviceInfo(device)
     if not info:
-        raise PortAudioError("Error querying device {0}".format(index))
+        raise PortAudioError("Error querying device {0}".format(device))
     assert info.structVersion == 2
     if info.hostApi == _lib.Pa_HostApiTypeIdToHostApiIndex(_lib.paDirectSound):
         encoding = 'mbcs'
     else:
         encoding = 'utf-8'
-    return {
+    device_dict = {
         'name': _ffi.string(info.name).decode(encoding, 'replace'),
         'hostapi': info.hostApi,
         'max_input_channels': info.maxInputChannels,
@@ -624,6 +632,10 @@ def query_devices(index=None):
         'default_high_output_latency': info.defaultHighOutputLatency,
         'default_samplerate': info.defaultSampleRate,
     }
+    if kind and device_dict['max_' + kind + '_channels'] < 1:
+        raise ValueError(
+            "Not an {0} device: {1!r}".format(kind, device_dict['name']))
+    return device_dict
 
 
 def query_hostapis(index=None):
@@ -1778,7 +1790,7 @@ class DeviceList(tuple):
 
     def __repr__(self):
         idev, odev = [
-            dev if isinstance(dev, int) else _find_device_id(kind, dev)
+            dev if isinstance(dev, int) else _get_device_id(dev, kind)
             for kind, dev in zip(('input', 'output'), default.device)
         ]
         digits = len(str(_lib.Pa_GetDeviceCount() - 1))
@@ -2319,8 +2331,7 @@ def _get_stream_parameters(kind, device, channels, dtype, latency, samplerate):
     if samplerate is None:
         samplerate = default.samplerate
 
-    if not isinstance(device, int):
-        device = _find_device_id(kind, device, raise_on_error=True)
+    device = _get_device_id(device, kind, raise_on_error=True)
     info = query_devices(device)
     if channels is None:
         channels = info['max_' + kind + '_channels']
@@ -2398,15 +2409,34 @@ def _check(err, msg=""):
     return err
 
 
-def _find_device_id(kind, query_string, raise_on_error=False):
+def _get_device_id(id_or_query_string, kind, raise_on_error=False):
     """Return device ID given space-separated substrings."""
+    assert kind in ('input', 'output', None)
+
+    if id_or_query_string is None:
+        id_or_query_string = default.device
+
+    idev, odev = _split(id_or_query_string)
+    if kind == 'input':
+        id_or_query_string = idev
+    elif kind == 'output':
+        id_or_query_string = odev
+    else:
+        if idev == odev:
+            id_or_query_string = idev
+        else:
+            raise ValueError("Input and output device are different: {0!r}"
+                             .format(id_or_query_string))
+
+    if isinstance(id_or_query_string, int):
+        return id_or_query_string
     device_list = []
     for id, info in enumerate(query_devices()):
-        if info['max_' + kind + '_channels'] > 0:
+        if not kind or info['max_' + kind + '_channels'] > 0:
             hostapi_info = query_hostapis(info['hostapi'])
             device_list.append((id, info['name'], hostapi_info['name']))
 
-    query_string = query_string.lower()
+    query_string = id_or_query_string.lower()
     substrings = query_string.split()
     matches = []
     exact_device_matches = []
@@ -2423,10 +2453,13 @@ def _find_device_id(kind, query_string, raise_on_error=False):
             if device_string.lower() == query_string:
                 exact_device_matches.append(id)
 
+    if kind is None:
+        kind = 'input/output'  # Just used for error messages
+
     if not matches:
         if raise_on_error:
             raise ValueError(
-                "No " + kind + " device matching " + repr(query_string))
+                "No " + kind + " device matching " + repr(id_or_query_string))
         else:
             return -1
     if len(matches) > 1:
@@ -2434,8 +2467,8 @@ def _find_device_id(kind, query_string, raise_on_error=False):
             return exact_device_matches[0]
         if raise_on_error:
             raise ValueError("Multiple " + kind + " devices found for " +
-                             repr(query_string) + ": " +
-                             '; '.join('[{0}] {1}'.format(id, name)
+                             repr(id_or_query_string) + ":\n" +
+                             '\n'.join('[{0}] {1}'.format(id, name)
                                        for id, name in matches))
         else:
             return -1

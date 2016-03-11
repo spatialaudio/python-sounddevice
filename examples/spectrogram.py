@@ -51,9 +51,7 @@ try:
         print(sd.query_devices())
         parser.exit()
 
-    if args.device is None:
-        args.device = sd.default.device['input']
-    samplerate = sd.query_devices(args.device)['default_samplerate']
+    samplerate = sd.query_devices(args.device, 'input')['default_samplerate']
 
     delta_f = (high - low) / (args.columns - 1)
     fftsize = np.ceil(samplerate / delta_f).astype(int)
