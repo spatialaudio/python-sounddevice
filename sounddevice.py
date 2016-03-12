@@ -289,7 +289,7 @@ def play(data, samplerate=None, mapping=None, blocking=False, **kwargs):
 
     """
     ctx = _CallbackContext()
-    ctx.frames = ctx.check_data(data, mapping)
+    ctx.frames = ctx.check_data(data, mapping, kwargs.get('device'))
 
     def callback(outdata, frames, time, status):
         assert len(outdata) == frames
@@ -420,7 +420,7 @@ def playrec(data, samplerate=None, channels=None, dtype=None,
 
     """
     ctx = _CallbackContext()
-    output_frames = ctx.check_data(data, output_mapping)
+    output_frames = ctx.check_data(data, output_mapping, kwargs.get('device'))
     if dtype is None:
         dtype = ctx.data.dtype  # ignore module defaults
     input_frames = ctx.check_out(out, output_frames, channels, dtype,
@@ -2175,7 +2175,7 @@ class _CallbackContext(object):
         self.event = threading.Event()
         self.status = CallbackFlags()
 
-    def check_data(self, data, mapping):
+    def check_data(self, data, mapping, device):
         """Check data and output mapping."""
         import numpy as np
         data = np.asarray(data)
@@ -2183,12 +2183,20 @@ class _CallbackContext(object):
             data = data.reshape(-1, 1)
         frames, channels = data.shape
         dtype = _check_dtype(data.dtype)
+        mapping_is_explicit = mapping is not None
         mapping, channels = _check_mapping(mapping, channels)
         if data.shape[1] == 1:
             pass  # No problem, mono data is duplicated into arbitrary channels
         elif data.shape[1] != len(mapping):
             raise ValueError(
                 "number of output channels != size of output mapping")
+        # Apparently, some PortAudio host APIs duplicate mono streams to the
+        # first two channels, which is unexpected when specifying mapping=[1].
+        # In this case, we play silence on the second channel, but only if the
+        # device actually supports a second channel:
+        if (mapping_is_explicit and np.array_equal(mapping, [0]) and
+               query_devices(device, 'output')['max_output_channels'] >= 2):
+            channels = 2
         silent_channels = np.setdiff1d(np.arange(channels), mapping)
         if len(mapping) + len(silent_channels) != channels:
             raise ValueError("each channel may only appear once in mapping")
@@ -2201,7 +2209,7 @@ class _CallbackContext(object):
         return frames
 
     def check_out(self, out, frames, channels, dtype, mapping):
-        """Check out, frames, channels, dtype and mapping."""
+        """Check out, frames, channels, dtype and input mapping."""
         import numpy as np
         if out is None:
             if frames is None:
