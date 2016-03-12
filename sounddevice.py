@@ -422,7 +422,7 @@ def playrec(data, samplerate=None, channels=None, dtype=None,
     ctx = _CallbackContext()
     output_frames = ctx.check_data(data, output_mapping)
     if dtype is None:
-        dtype = data.dtype  # ignore module defaults
+        dtype = ctx.data.dtype  # ignore module defaults
     input_frames = ctx.check_out(out, output_frames, channels, dtype,
                                  input_mapping)
     if input_frames != output_frames:
