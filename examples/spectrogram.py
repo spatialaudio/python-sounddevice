@@ -57,11 +57,11 @@ try:
     fftsize = np.ceil(samplerate / delta_f).astype(int)
     low_bin = np.floor(low / delta_f)
 
-    statuses = sd.CallbackFlags()
+    cumulated_status = sd.CallbackFlags()
 
     def callback(indata, frames, time, status):
-        global statuses
-        statuses |= status
+        global cumulated_status
+        cumulated_status |= status
         if any(indata):
             magnitude = np.abs(np.fft.rfft(indata[:, 0], n=fftsize))
             magnitude *= args.gain / fftsize
@@ -87,8 +87,8 @@ try:
                     print('\x1b[31;40m', usage_line.center(args.columns, '#'),
                           '\x1b[0m', sep='', flush=True)
                     break
-    if statuses:
-        logging.warning(str(statuses))
+    if cumulated_status:
+        logging.warning(str(cumulated_status))
 except KeyboardInterrupt:
     parser.exit('Interrupted by user')
 except Exception as e:
