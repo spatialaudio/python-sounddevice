@@ -235,7 +235,7 @@ Callback "wire" with `sounddevice.Stream`:
 
    def callback(indata, outdata, frames, time, status):
        if status:
-           print(status)
+           print(status, flush=True)
        outdata[:] = indata
 
    with sd.Stream(channels=2, callback=callback):
@@ -250,7 +250,7 @@ Same thing with `sounddevice.RawStream`:
 
    def callback(indata, outdata, frames, time, status):
        if status:
-           print(status)
+           print(status, flush=True)
        outdata[:] = indata
 
    with sd.RawStream(channels=2, dtype='int24', callback=callback):

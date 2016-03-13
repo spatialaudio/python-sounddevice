@@ -85,7 +85,7 @@ try:
                     args.gain /= 2
                 else:
                     print('\x1b[31;40m', usage_line.center(args.columns, '#'),
-                          '\x1b[0m', sep='')
+                          '\x1b[0m', sep='', flush=True)
                     break
     if statuses:
         logging.warning(str(statuses))
