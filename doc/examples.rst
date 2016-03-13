@@ -17,6 +17,13 @@ Input to Output Pass-Through
 
 .. literalinclude:: ../examples/wire.py
 
+Plot Microphone Signal(s) in Real-Time
+--------------------------------------
+
+:download:`plot_input.py <../examples/plot_input.py>`
+
+.. literalinclude:: ../examples/plot_input.py
+
 Real-Time Text-Mode Spectrogram
 -------------------------------
 
