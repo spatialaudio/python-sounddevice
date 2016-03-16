@@ -1,3 +1,8 @@
+Version 0.3.2 (2016-03-16):
+ * ``mapping=[1]`` works now on all host APIs
+ * Example application ``plot_input.py`` showing the live microphone signal(s)
+ * Device substrings are now allowed in `sounddevice.query_devices()`
+
 Version 0.3.1 (2016-01-04):
  * Add `sounddevice.check_input_settings()` and
    `sounddevice.check_output_settings()`
