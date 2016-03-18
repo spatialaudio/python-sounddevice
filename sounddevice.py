@@ -253,7 +253,8 @@ _sampleformats = {
 _last_callback = None
 
 
-def play(data, samplerate=None, mapping=None, blocking=False, **kwargs):
+def play(data, samplerate=None, mapping=None, blocking=False, loop=False,
+         **kwargs):
     """Play back an array of audio data.
 
     Parameters
@@ -276,6 +277,8 @@ def play(data, samplerate=None, mapping=None, blocking=False, **kwargs):
         continues in the background), if ``True``, wait until playback
         is finished.  A non-blocking invocation can be stopped with
         :func:`stop` or turned into a blocking one with :func:`wait`.
+    loop : bool, optional
+        Play `data` in a loop.
 
     Other Parameters
     ----------------
@@ -288,7 +291,7 @@ def play(data, samplerate=None, mapping=None, blocking=False, **kwargs):
     rec, playrec
 
     """
-    ctx = _CallbackContext()
+    ctx = _CallbackContext(loop=loop)
     ctx.frames = ctx.check_data(data, mapping, kwargs.get('device'))
 
     def callback(outdata, frames, time, status):
@@ -2164,7 +2167,7 @@ class _CallbackContext(object):
     input_mapping = output_mapping = None
     silent_channels = None
 
-    def __init__(self):
+    def __init__(self, loop=False):
         import threading
         try:
             import numpy
@@ -2172,6 +2175,7 @@ class _CallbackContext(object):
         except ImportError:
             raise ImportError(
                 "NumPy must be installed for play()/rec()/playrec()")
+        self.loop = loop
         self.event = threading.Event()
         self.status = CallbackFlags()
 
@@ -2261,7 +2265,13 @@ class _CallbackContext(object):
         outdata[:self.blocksize, self.output_mapping] = \
             self.data[self.frame:self.frame + self.blocksize]
         outdata[:self.blocksize, self.silent_channels] = 0
-        outdata[self.blocksize:] = 0
+        if self.loop and self.blocksize < len(outdata):
+            self.frame = 0
+            outdata = outdata[self.blocksize:]
+            self.blocksize = min(self.frames, len(outdata))
+            self.write_outdata(outdata)
+        else:
+            outdata[self.blocksize:] = 0
 
     def callback_exit(self):
         if not self.blocksize:
