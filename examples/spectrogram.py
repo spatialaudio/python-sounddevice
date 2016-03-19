@@ -55,7 +55,7 @@ try:
 
     delta_f = (high - low) / (args.columns - 1)
     fftsize = np.ceil(samplerate / delta_f).astype(int)
-    low_bin = np.floor(low / delta_f)
+    low_bin = np.floor(low / delta_f).astype(int)
 
     cumulated_status = sd.CallbackFlags()
 
