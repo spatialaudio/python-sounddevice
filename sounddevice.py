@@ -557,7 +557,7 @@ def query_devices(device=None, kind=None):
 
     .. code-block:: sh
 
-        python -m sounddevice
+        python3 -m sounddevice
 
     Examples
     --------
