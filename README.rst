@@ -33,17 +33,17 @@ pip/setuptools:
    install pip and setuptools as described on the `pip installation`_ page.
    If you happen to have pip but not setuptools, use this command::
 
-      pip install setuptools --user
+      python3 -m pip install setuptools --user
 
 CFFI:
    The `C Foreign Function Interface for Python`_ is used to access the C-API
    of the PortAudio library from within Python.  It supports CPython 2.6, 2.7,
-   3.x; and is distributed with PyPy_ 2.0 beta2 or later.
+   3.x; and is distributed with PyPy_.
    If it's not installed already, you should install it with your package
-   manager (the package might be called ``python3-cffi``, ``python-cffi`` or
-   similar), or you can get it with::
+   manager (the package might be called ``python3-cffi`` or similar), or you can
+   get it with::
 
-      pip install cffi --user
+      python3 -m pip install cffi --user
 
 PortAudio library:
    The PortAudio_ library must be installed on your system (and CFFI must be
@@ -77,14 +77,14 @@ Installation
 Once you have installed the above-mentioned dependencies, you can use pip
 to download and install the latest release with a single command::
 
-   pip install sounddevice --user
+   python3 -m pip install sounddevice --user
 
 If you want to install it system-wide for all users (assuming you have the
 necessary rights), you can just drop the ``--user`` option.
 
 To un-install, use::
 
-   pip uninstall sounddevice
+   python3 -m pip uninstall sounddevice
 
 Usage
 -----
@@ -206,7 +206,7 @@ but it is of course possible to choose a different device.
 Use `sounddevice.query_devices()` to get a list of supported devices.
 The same list can be obtained from a terminal by typing the command ::
 
-   python -m sounddevice
+   python3 -m sounddevice
 
 You can use the corresponding device ID to select a desired device by assigning
 to `sounddevice.default.device` or by passing it as *device* argument to
