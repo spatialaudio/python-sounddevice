@@ -1,3 +1,6 @@
+Version 0.3.3 (2016-04-11):
+ * Add ``loop`` argument to `sounddevice.play()`
+
 Version 0.3.2 (2016-03-16):
  * ``mapping=[1]`` works now on all host APIs
  * Example application ``plot_input.py`` showing the live microphone signal(s)
