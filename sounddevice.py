@@ -2515,8 +2515,11 @@ def _ignore_stderr():
     FILE* stderr;  /* GNU C library */
     FILE* __stderrp;  /* Mac OS X */
     """)
-    stdio = ffi.dlopen(None)
-    devnull = stdio.fopen(_os.devnull.encode(), b'w')
+    try:
+        stdio = ffi.dlopen(None)
+        devnull = stdio.fopen(_os.devnull.encode(), b'w')
+    except OSError:
+        return
     try:
         stdio.stderr = devnull
     except KeyError:
