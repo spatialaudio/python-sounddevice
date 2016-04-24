@@ -35,9 +35,11 @@ else:
 if libname and os.path.isdir('_sounddevice_data'):
     packages = ['_sounddevice_data']
     package_data = {'_sounddevice_data': [libname, 'README.md']}
+    zip_safe = False
 else:
     packages = None
     package_data = None
+    zip_safe = True
 
 try:
     from wheel.bdist_wheel import bdist_wheel
@@ -68,6 +70,7 @@ setup(
     py_modules=["sounddevice"],
     packages=packages,
     package_data=package_data,
+    zip_safe=zip_safe,
     install_requires=["CFFI"],
     extras_require={"NumPy": ["NumPy"]},
     author="Matthias Geier",
