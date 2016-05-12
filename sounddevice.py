@@ -255,7 +255,7 @@ _last_callback = None
 
 def play(data, samplerate=None, mapping=None, blocking=False, loop=False,
          **kwargs):
-    """Play back an array of audio data.
+    """Play back a NumPy array containing audio data.
 
     Parameters
     ----------
@@ -308,7 +308,7 @@ def play(data, samplerate=None, mapping=None, blocking=False, loop=False,
 
 def rec(frames=None, samplerate=None, channels=None, dtype=None,
         out=None, mapping=None, blocking=False, **kwargs):
-    """Record audio data.
+    """Record audio data into a NumPy array.
 
     Parameters
     ----------
@@ -380,7 +380,7 @@ def rec(frames=None, samplerate=None, channels=None, dtype=None,
 def playrec(data, samplerate=None, channels=None, dtype=None,
             out=None, input_mapping=None, output_mapping=None, blocking=False,
             **kwargs):
-    """Simultaneous playback and recording.
+    """Simultaneous playback and recording of NumPy arrays.
 
     Parameters
     ----------
