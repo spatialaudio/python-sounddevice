@@ -30,3 +30,10 @@ Real-Time Text-Mode Spectrogram
 :download:`spectrogram.py <../examples/spectrogram.py>`
 
 .. literalinclude:: ../examples/spectrogram.py
+
+Recording with Arbitrary Duration
+---------------------------------
+
+:download:`rec_unlimited.py <../examples/rec_unlimited.py>`
+
+.. literalinclude:: ../examples/rec_unlimited.py
