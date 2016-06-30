@@ -2518,7 +2518,7 @@ def _ignore_stderr():
     try:
         stdio = ffi.dlopen(None)
         devnull = stdio.fopen(_os.devnull.encode(), b'w')
-    except OSError:
+    except (OSError, AttributeError):
         return
     try:
         stdio.stderr = devnull
