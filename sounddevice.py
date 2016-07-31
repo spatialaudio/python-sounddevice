@@ -625,7 +625,7 @@ def query_devices(device=None, kind=None):
     else:
         encoding = 'utf-8'
     device_dict = {
-        'name': _ffi.string(info.name).decode(encoding, 'replace'),
+        'name': _native_string(info.name, encoding),
         'hostapi': info.hostApi,
         'max_input_channels': info.maxInputChannels,
         'max_output_channels': info.maxOutputChannels,
@@ -686,7 +686,7 @@ def query_hostapis(index=None):
         raise PortAudioError("Error querying host API {0}".format(index))
     assert info.structVersion == 1
     return {
-        'name': _ffi.string(info.name).decode(),
+        'name': _native_string(info.name),
         'devices': [_lib.Pa_HostApiDeviceIndexToDeviceIndex(index, i)
                     for i in range(info.deviceCount)],
         'default_input_device': info.defaultInputDevice,
@@ -753,7 +753,7 @@ def get_portaudio_version():
         (1899, 'PortAudio V19-devel (built Feb 15 2014 23:28:00)')
 
     """
-    return _lib.Pa_GetVersion(), _ffi.string(_lib.Pa_GetVersionText()).decode()
+    return _lib.Pa_GetVersion(), _native_string(_lib.Pa_GetVersionText())
 
 
 class _StreamBase(object):
@@ -2309,6 +2309,14 @@ class _CallbackContext(object):
         return self.status if self.status else None
 
 
+def _native_string(cdata, encoding='utf-8'):
+    """Convert CFFI string to native Python string."""
+    result = _ffi.string(cdata)
+    if _sys.version_info.major < 3:
+        return result
+    return result.decode(encoding, 'replace')
+
+
 def _check_mapping(mapping, channels):
     """Check mapping, obtain channels."""
     import numpy as np
@@ -2420,9 +2428,9 @@ def _check(err, msg=""):
             info = _lib.Pa_GetLastHostErrorInfo()
             hostapi = _lib.Pa_HostApiTypeIdToHostApiIndex(info.hostApiType)
             msg += "Unanticipated host API {0} error {1}: {2!r}".format(
-                hostapi, info.errorCode, _ffi.string(info.errorText).decode())
+                hostapi, info.errorCode, _native_string(info.errorText))
         else:
-            msg += _ffi.string(_lib.Pa_GetErrorText(err)).decode()
+            msg += _native_string(_lib.Pa_GetErrorText(err))
         raise PortAudioError(msg)
     return err
 
