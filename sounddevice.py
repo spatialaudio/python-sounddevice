@@ -620,12 +620,10 @@ def query_devices(device=None, kind=None):
     if not info:
         raise PortAudioError("Error querying device {0}".format(device))
     assert info.structVersion == 2
-    if info.hostApi == _lib.Pa_HostApiTypeIdToHostApiIndex(_lib.paDirectSound):
-        encoding = 'mbcs'
-    else:
-        encoding = 'utf-8'
     device_dict = {
-        'name': _ffi.string(info.name).decode(encoding, 'replace'),
+        'name': _ffi.string(info.name).decode('mbcs' if info.hostApi in (
+            _lib.Pa_HostApiTypeIdToHostApiIndex(_lib.paDirectSound),
+            _lib.Pa_HostApiTypeIdToHostApiIndex(_lib.paMME)) else 'utf-8'),
         'hostapi': info.hostApi,
         'max_input_channels': info.maxInputChannels,
         'max_output_channels': info.maxOutputChannels,
