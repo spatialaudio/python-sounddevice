@@ -1798,8 +1798,8 @@ class DeviceList(tuple):
         ]
         digits = len(str(_lib.Pa_GetDeviceCount() - 1))
         hostapi_names = [hostapi['name'] for hostapi in query_hostapis()]
-        return '\n'.join(
-            "{mark} {idx:{dig}} {name}, {ha} ({ins} in, {outs} out)".format(
+        text = '\n'.join(
+            u"{mark} {idx:{dig}} {name}, {ha} ({ins} in, {outs} out)".format(
                 mark=(" ", ">", "<", "*")[(idx == idev) + 2 * (idx == odev)],
                 idx=idx,
                 dig=digits,
@@ -1808,6 +1808,9 @@ class DeviceList(tuple):
                 ins=info['max_input_channels'],
                 outs=info['max_output_channels'])
             for idx, info in enumerate(self))
+        if _sys.version_info.major < 3:
+            return text.encode(_sys.stdout.encoding or 'utf-8')
+        return text
 
 
 class CallbackFlags(object):
