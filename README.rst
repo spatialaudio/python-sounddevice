@@ -5,9 +5,9 @@ This Python_ module provides bindings for the PortAudio_ library and a few
 convenience functions to play and record NumPy_ arrays containing audio signals.
 
 Documentation:
-   http://python-sounddevice.rtfd.org/
+   http://python-sounddevice.readthedocs.io/
 
-Code:
+Source code repository and issue tracker:
    http://github.com/spatialaudio/python-sounddevice/
 
 Python Package Index:
@@ -60,14 +60,15 @@ NumPy (optional):
    NumPy at all.
    If you need NumPy, you should install it with your package manager or use a
    Python distribution that already includes NumPy (see above).
-   Installing NumPy with pip is not recommended.
+   Installing NumPy with pip requires a compiler and several additional
+   libraries and is therefore not recommended for beginners.
 
 .. _PortAudio: http://www.portaudio.com/
 .. _NumPy: http://www.numpy.org/
 .. _Python: http://www.python.org/
 .. _Anaconda: http://docs.continuum.io/anaconda/
 .. _WinPython: http://winpython.github.io/
-.. _C Foreign Function Interface for Python: http://cffi.readthedocs.org/
+.. _C Foreign Function Interface for Python: http://cffi.readthedocs.io/
 .. _PyPy: http://pypy.org/
 .. _pip installation: http://www.pip-installer.org/en/latest/installing.html
 
