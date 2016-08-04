@@ -11,7 +11,7 @@
 
 .. include:: ../CONTRIBUTING.rst
 
-.. default-role::
+.. default-role:: any
 
 API Documentation
 -----------------

@@ -20,7 +20,7 @@
 
 """Play and Record Sound with Python.
 
-http://python-sounddevice.rtfd.org/
+http://python-sounddevice.readthedocs.io/
 
 """
 __version__ = "0.3.3"
@@ -263,28 +263,28 @@ def play(data, samplerate=None, mapping=None, blocking=False, loop=False,
         Audio data to be played back.  The columns of a two-dimensional
         array are interpreted as channels, one-dimensional arrays are
         treated as mono data.
-        The data types `float64`, `float32`, `int32`, `int16`, `int8`
-        and `uint8` can be used.
-        `float64` data is converted to `float32` before passing it to
+        The data types *float64*, *float32*, *int32*, *int16*, *int8*
+        and *uint8* can be used.
+        *float64* data is converted to *float32* before passing it to
         PortAudio, because it's not supported natively.
     mapping : array_like, optional
         List of channel numbers (starting with 1) where the columns of
-        `data` shall be played back on.  Must have the same length as
-        number of channels in `data` (except if `data` is mono).
-        Each channel may only appear once in `mapping`.
+        *data* shall be played back on.  Must have the same length as
+        number of channels in *data* (except if *data* is mono).
+        Each channel may only appear once in *mapping*.
     blocking : bool, optional
         If ``False`` (the default), return immediately (but playback
         continues in the background), if ``True``, wait until playback
         is finished.  A non-blocking invocation can be stopped with
-        :func:`stop` or turned into a blocking one with :func:`wait`.
+        `stop()` or turned into a blocking one with `wait()`.
     loop : bool, optional
-        Play `data` in a loop.
+        Play *data* in a loop.
 
     Other Parameters
     ----------------
     samplerate, **kwargs
-        All parameters of :class:`OutputStream` (except `channels`,
-        `dtype`, `callback` and `finished_callback`) can be used.
+        All parameters of `OutputStream` -- except *channels*, *dtype*,
+        *callback* and *finished_callback* -- can be used.
 
     See Also
     --------
@@ -313,27 +313,27 @@ def rec(frames=None, samplerate=None, channels=None, dtype=None,
     Parameters
     ----------
     frames : int, sometimes optional
-        Number of frames to record.  Not needed if `out` is given.
+        Number of frames to record.  Not needed if *out* is given.
     channels : int, optional
-        Number of channels to record.  Not needed if `mapping` or `out`
+        Number of channels to record.  Not needed if *mapping* or *out*
         is given.  The default value can be changed with
-        :attr:`default.channels`.
+        `default.channels`.
     dtype : str or numpy.dtype, optional
-        Data type of the recording.  Not needed if `out` is given.
-        The data types `float64`, `float32`, `int32`, `int16`, `int8`
-        and `uint8` can be used.  For `dtype='float64'`, audio data is
-        recorded in `float32` format and converted afterwards, because
+        Data type of the recording.  Not needed if *out* is given.
+        The data types *float64*, *float32*, *int32*, *int16*, *int8*
+        and *uint8* can be used.  For ``dtype='float64'``, audio data is
+        recorded in *float32* format and converted afterwards, because
         it's not natively supported by PortAudio.  The default value can
-        be changed with :attr:`default.dtype`.
+        be changed with `default.dtype`.
     mapping : array_like, optional
         List of channel numbers (starting with 1) to record.
-        If `mapping` is given, `channels` is silently ignored.
+        If *mapping* is given, *channels* is silently ignored.
     blocking : bool, optional
         If ``False`` (the default), return immediately (but recording
         continues in the background), if ``True``, wait until recording
         is finished.
-        A non-blocking invocation can be stopped with :func:`stop` or
-        turned into a blocking one with :func:`wait`.
+        A non-blocking invocation can be stopped with `stop()` or turned
+        into a blocking one with `wait()`.
 
     Returns
     -------
@@ -343,20 +343,20 @@ def rec(frames=None, samplerate=None, channels=None, dtype=None,
         .. note:: By default (``blocking=False``), an array of data is
            returned which is still being written to while recording.
            The returned data is only valid once recording has stopped.
-           Use :func:`wait` to make sure the recording is finished.
+           Use `wait()` to make sure the recording is finished.
 
     Other Parameters
     ----------------
     out : numpy.ndarray or subclass, optional
-        If `out` is specified, the recorded data is written into the
+        If *out* is specified, the recorded data is written into the
         given array instead of creating a new array.
-        In this case, the arguments `frames`, `channels` and `dtype` are
+        In this case, the arguments *frames*, *channels* and *dtype* are
         silently ignored!
-        If `mapping` is given, its length must match the number of
-        channels in `out`.
+        If *mapping* is given, its length must match the number of
+        channels in *out*.
     samplerate, **kwargs
-        All parameters of :class:`InputStream` (except `callback` and
-        `finished_callback`) can be used.
+        All parameters of `InputStream` -- except *callback* and
+        *finished_callback* -- can be used.
 
     See Also
     --------
@@ -385,37 +385,37 @@ def playrec(data, samplerate=None, channels=None, dtype=None,
     Parameters
     ----------
     data : array_like
-        Audio data to be played back.  See :func:`play`.
+        Audio data to be played back.  See `play()`.
     channels : int, sometimes optional
-        Number of input channels, see :func:`rec`.
-        The number of output channels is obtained from `data.shape`.
+        Number of input channels, see `rec()`.
+        The number of output channels is obtained from *data.shape*.
     dtype : str or numpy.dtype, optional
-        Input data type, see :func:`rec`.
-        If `dtype` is not specified, it is taken from `data.dtype`
-        (i.e. :attr:`default.dtype` is ignored).
-        The output data type is obtained from `data.dtype` anyway.
+        Input data type, see `rec()`.
+        If *dtype* is not specified, it is taken from *data.dtype*
+        (i.e. `default.dtype` is ignored).
+        The output data type is obtained from *data.dtype* anyway.
     input_mapping, output_mapping : array_like, optional
-        See the parameter `mapping` of :func:`rec` and :func:`play`,
+        See the parameter *mapping* of `rec()` and `play()`,
         respectively.
     blocking : bool, optional
         If ``False`` (the default), return immediately (but continue
         playback/recording in the background), if ``True``, wait until
         playback/recording is finished.
-        A non-blocking invocation can be stopped with :func:`stop` or
-        turned into a blocking one with :func:`wait`.
+        A non-blocking invocation can be stopped with `stop()` or turned
+        into a blocking one with `wait()`.
 
     Returns
     -------
     numpy.ndarray or type(out)
-        The recorded data.  See :func:`rec`.
+        The recorded data.  See `rec()`.
 
     Other Parameters
     ----------------
     out : numpy.ndarray or subclass, optional
-        See :func:`rec`.
+        See `rec()`.
     samplerate, **kwargs
-        All parameters of :class:`Stream` (except `channels`, `dtype`,
-        `callback` and `finished_callback`) can be used.
+        All parameters of `Stream` -- except *channels*, *dtype*,
+        *callback* and *finished_callback* -- can be used.
 
     See Also
     --------
@@ -449,15 +449,15 @@ def playrec(data, samplerate=None, channels=None, dtype=None,
 
 
 def wait():
-    """Wait for :func:`play`/:func:`rec`/:func:`playrec` to be finished.
+    """Wait for `play()`/`rec()`/`playrec()` to be finished.
 
-    Playback/recording can be stopped with a :class:`KeyboardInterrupt`.
+    Playback/recording can be stopped with a `KeyboardInterrupt`.
 
     Returns
     -------
     CallbackFlags or None
         If at least one buffer over-/underrun happened during the last
-        playback/recording, a :class:`CallbackFlags` object is returned.
+        playback/recording, a `CallbackFlags` object is returned.
 
     See Also
     --------
@@ -471,10 +471,9 @@ def wait():
 def stop(ignore_errors=True):
     """Stop playback/recording.
 
-    This only stops :func:`play`, :func:`rec` and :func:`playrec`, but
-    has no influence on streams created with :class:`Stream`,
-    :class:`InputStream`, :class:`OutputStream`, :class:`RawStream`,
-    :class:`RawInputStream`, :class:`RawOutputStream`.
+    This only stops `play()`, `rec()` and `playrec()`, but has no
+    influence on streams created with `Stream`, `InputStream`,
+    `OutputStream`, `RawStream`, `RawInputStream`, `RawOutputStream`.
 
     """
     if _last_callback:
@@ -482,13 +481,13 @@ def stop(ignore_errors=True):
 
 
 def get_status():
-    """Get information about over-/underflows in play()/rec()/playrec().
+    """Get info about over-/underflows in `play()`/`rec()`/`playrec()`.
 
     Returns
     -------
     CallbackFlags
-        A :class:`CallbackFlags` object that holds information about the
-        last invocation of :func:`play`, :func:`rec` or :func:`playrec`.
+        A `CallbackFlags` object that holds information about the last
+        invocation of `play()`, `rec()` or `playrec()`.
 
     See Also
     --------
@@ -507,49 +506,47 @@ def query_devices(device=None, kind=None):
     Information and capabilities of PortAudio devices.
     Devices may support input, output or both input and output.
 
-    To find the default input/output device, use :attr:`default.device`.
+    To find the default input/output device(s), use `default.device`.
 
     Parameters
     ----------
     device : int or str, optional
         Numeric device ID or device name substring(s).
-        If specified, information about only the given `device` is
+        If specified, information about only the given *device* is
         returned in a single dictionary.
     kind : {'input', 'output'}, optional
-        If `device` is not specified and `kind` is ``'input'`` or
+        If *device* is not specified and *kind* is ``'input'`` or
         ``'output'``, a single dictionary is returned with information
         about the default input or output device, respectively.
 
     Returns
     -------
     dict or DeviceList
-        A dictionary with information about the given `device` or -- if
-        no `device` was specified -- a :class:`DeviceList` containing
-        one dictionary for each available device.
+        A dictionary with information about the given *device* or -- if
+        no *device* was specified -- a `DeviceList` containing one
+        dictionary for each available device.
         The dictionaries have the following keys:
 
         ``'name'``
             The name of the device.
         ``'hostapi'``
             The ID of the corresponding host API.  Use
-            :func:`query_hostapis` to get information about a host API.
+            `query_hostapis()` to get information about a host API.
         ``'max_input_channels'``, ``'max_output_channels'``
             The maximum number of input/output channels supported by the
-            device.  See :attr:`default.channels`.
+            device.  See `default.channels`.
         ``'default_low_input_latency'``, ``'default_low_output_latency'``
             Default latency values for interactive performance.
-            This is used if :attr:`default.latency` (or the `latency`
-            argument of :func:`playrec`, :class:`Stream` etc.) is set to
-            ``'low'``.
+            This is used if `default.latency` (or the *latency* argument
+            of `playrec()`, `Stream` etc.) is set to ``'low'``.
         ``'default_high_input_latency'``, ``'default_high_output_latency'``
             Default latency values for robust non-interactive
             applications (e.g. playing sound files).
-            This is used if :attr:`default.latency` (or the `latency`
-            argument of :func:`playrec`, :class:`Stream` etc.) is set to
-            ``'high'``.
+            This is used if `default.latency` (or the *latency* argument
+            of `playrec()`, `Stream` etc.) is set to ``'high'``.
         ``'default_samplerate'``
             The default sampling frequency of the device.
-            This is used if :attr:`default.samplerate` is not set.
+            This is used if `default.samplerate` is not set.
 
     Notes
     -----
@@ -561,15 +558,14 @@ def query_devices(device=None, kind=None):
 
     Examples
     --------
-    The returned :class:`DeviceList` can be indexed and iterated over
-    like a normal :class:`tuple` (yielding the abovementioned
-    dictionaries), but it also has a special string representation which
-    is shown when used in an interactive Python session.
+    The returned `DeviceList` can be indexed and iterated over like any
+    sequence type (yielding the abovementioned dictionaries), but it
+    also has a special string representation which is shown when used in
+    an interactive Python session.
 
     Each available device is listed on one line together with the
-    corresponding device ID, which can be assigned to
-    :attr:`default.device` or used as `device` argument in :func:`play`,
-    :class:`Stream` etc.
+    corresponding device ID, which can be assigned to `default.device`
+    or used as *device* argument in `play()`, `Stream` etc.
 
     The first character of a line is ``>`` for the default input device,
     ``<`` for the default output device and ``*`` for the default
@@ -645,14 +641,14 @@ def query_hostapis(index=None):
     Parameters
     ----------
     index : int, optional
-        If specified, information about only the given host API `index`
+        If specified, information about only the given host API *index*
         is returned in a single dictionary.
 
     Returns
     -------
     dict or tuple of dict
-        A dictionary with information about the given host API `index`
-        or -- if no `index` was specified -- a tuple containing one
+        A dictionary with information about the given host API *index*
+        or -- if no *index* was specified -- a tuple containing one
         dictionary for each available host API.
         The dictionaries have the following keys:
 
@@ -660,16 +656,16 @@ def query_hostapis(index=None):
             The name of the host API.
         ``'devices'``
             A list of device IDs belonging to the host API.
-            Use :func:`query_devices` to get information about a device.
+            Use `query_devices()` to get information about a device.
         ``'default_input_device'``, ``'default_output_device'``
             The device ID of the default input/output device of the host
             API.  If no default input/output device exists for the given
             host API, this is -1.
 
             .. note:: The overall default device(s) -- which can be
-                overwritten by assigning to :attr:`default.device` --
-                take(s) precedence over :attr:`default.hostapi` and the
-                information in the abovementioned dictionaries.
+                overwritten by assigning to `default.device` -- take(s)
+                precedence over `default.hostapi` and the information in
+                the abovementioned dictionaries.
 
     See Also
     --------
@@ -696,20 +692,20 @@ def check_input_settings(device=None, channels=None, dtype=None,
                          samplerate=None):
     """Check if given input device settings are supported.
 
-    All parameters are optional, :obj:`default` settings are used for
-    any unspecified parameters.  If the settings are supported, the
-    function does nothing; if not, an exception is raised.
+    All parameters are optional, `default` settings are used for any
+    unspecified parameters.  If the settings are supported, the function
+    does nothing; if not, an exception is raised.
 
     Parameters
     ----------
     device : int or str, optional
-        Device ID or device name substring, see :attr:`default.device`.
+        Device ID or device name substring, see `default.device`.
     channels : int, optional
-        Number of input channels, see :attr:`default.channels`.
+        Number of input channels, see `default.channels`.
     dtype : str or numpy.dtype, optional
-        Data type for input samples, see :attr:`default.dtype`.
+        Data type for input samples, see `default.dtype`.
     samplerate : float, optional
-        Sampling frequency, see :attr:`default.samplerate`.
+        Sampling frequency, see `default.samplerate`.
 
     """
     parameters, dtype, samplesize, samplerate = _get_stream_parameters(
@@ -722,7 +718,7 @@ def check_output_settings(device=None, channels=None, dtype=None,
                           samplerate=None):
     """Check if given output device settings are supported.
 
-    Same as :func:`check_input_settings`, just for output device
+    Same as `check_input_settings()`, just for output device
     settings.
 
     """
@@ -733,7 +729,7 @@ def check_output_settings(device=None, channels=None, dtype=None,
 
 
 def sleep(msec):
-    """Put the caller to sleep for at least `msec` milliseconds.
+    """Put the caller to sleep for at least *msec* milliseconds.
 
     The function may sleep longer than requested so don't rely on this
     for accurate musical timing.
@@ -862,11 +858,10 @@ class _StreamBase(object):
 
         In cases where the hardware sampling frequency is inaccurate and
         PortAudio is aware of it, the value of this field may be
-        different from the `samplerate` parameter passed to
-        :class:`Stream`.  If information about the actual hardware
-        sampling frequency is not available, this field will have the
-        same value as the `samplerate` parameter passed to
-        :class:`Stream`.
+        different from the *samplerate* parameter passed to `Stream()`.
+        If information about the actual hardware sampling frequency is
+        not available, this field will have the same value as the
+        *samplerate* parameter passed to `Stream()`.
 
         """
         return self._samplerate
@@ -876,7 +871,7 @@ class _StreamBase(object):
         """Number of frames per block.
 
         The special value 0 means that the blocksize can change between
-        blocks.  See the `blocksize` argument of :class:`Stream`.
+        blocks.  See the *blocksize* argument of `Stream`.
 
         """
         return self._blocksize
@@ -919,8 +914,8 @@ class _StreamBase(object):
 
         This value provides the most accurate estimate of input/output
         latency available to the implementation.
-        It may differ significantly from the `latency` value(s) passed
-        to :class:`Stream()`.
+        It may differ significantly from the *latency* value(s) passed
+        to `Stream()`.
 
         """
         return self._latency
@@ -929,12 +924,11 @@ class _StreamBase(object):
     def active(self):
         """``True`` when the stream is active, ``False`` otherwise.
 
-        A stream is active after a successful call to :meth:`start`,
-        until it becomes inactive either as a result of a call to
-        :meth:`.stop` or :meth:`abort`, or as a result of an exception
-        raised in the stream callback.
-        In the latter case, the stream is considered inactive after the
-        last buffer has finished playing.
+        A stream is active after a successful call to `start()`, until
+        it becomes inactive either as a result of a call to `stop()` or
+        `abort()`, or as a result of an exception raised in the stream
+        callback.  In the latter case, the stream is considered inactive
+        after the last buffer has finished playing.
 
         See Also
         --------
@@ -948,8 +942,8 @@ class _StreamBase(object):
         """``True`` when the stream is stopped, ``False`` otherwise.
 
         A stream is considered to be stopped prior to a successful call
-        to :meth:`start` and after a successful call to :meth:`.stop` or
-        :meth:`abort`.  If a stream callback is cancelled (by raising an
+        to `start()` and after a successful call to `stop()` or
+        `abort()`.  If a stream callback is cancelled (by raising an
         exception) the stream is *not* considered to be stopped.
 
         See Also
@@ -964,8 +958,8 @@ class _StreamBase(object):
         """The current stream time in seconds.
 
         This is according to the same clock used to generate the
-        timestamps passed with the `time` argument to the stream
-        callback (see the `callback` argument of :class:`Stream`).
+        timestamps passed with the *time* argument to the stream
+        callback (see the *callback* argument of `Stream`).
         The time values are monotonically increasing and have
         unspecified origin.
 
@@ -1065,7 +1059,7 @@ class _StreamBase(object):
         """Close the stream.
 
         If the audio stream is active any pending buffers are discarded
-        as if :meth:`abort` had been called.
+        as if `abort()` had been called.
 
         """
         err = _lib.Pa_CloseStream(self._ptr)
@@ -1083,15 +1077,15 @@ class RawInputStream(_StreamBase):
                  prime_output_buffers_using_stream_callback=None):
         """Open a "raw" input stream.
 
-        This is the same as :class:`InputStream`, except that the
-        `callback` function and :meth:`~RawStream.read` work on plain
-        Python buffer objects instead of on NumPy arrays.
+        This is the same as `InputStream`, except that the *callback*
+        function and :meth:`~RawStream.read` work on plain Python buffer
+        objects instead of on NumPy arrays.
         NumPy is not necessary to use this.
 
         Parameters
         ----------
         dtype : str
-            See :class:`RawStream`.
+            See `RawStream`.
         callback : callable
             User-supplied function to consume audio data in response to
             requests from an active stream.
@@ -1100,8 +1094,8 @@ class RawInputStream(_StreamBase):
                 callback(indata: buffer, frames: int,
                          time: CData, status: CallbackFlags) -> None
 
-            The arguments are the same as in the `callback` parameter of
-            :class:`RawStream`, except that `outdata` is missing.
+            The arguments are the same as in the *callback* parameter of
+            `RawStream`, except that *outdata* is missing.
 
         See Also
         --------
@@ -1132,25 +1126,25 @@ class RawInputStream(_StreamBase):
     def read(self, frames):
         """Read samples from the stream into a buffer.
 
-        This is the same as :meth:`Stream.read`, except that it returns
+        This is the same as `Stream.read()`, except that it returns
         a plain Python buffer object instead of a NumPy array.
         NumPy is not necessary to use this.
 
         Parameters
         ----------
         frames : int
-            The number of frames to be read.  See :meth:`Stream.read`.
+            The number of frames to be read.  See `Stream.read()`.
 
         Returns
         -------
         data : buffer
             A buffer of interleaved samples. The buffer contains
-            samples in the format specified by the `dtype` parameter
+            samples in the format specified by the *dtype* parameter
             used to open the stream, and the number of channels
-            specified by `channels`.
-            See also :attr:`Stream.samplesize`.
+            specified by *channels*.
+            See also `samplesize`.
         overflowed : bool
-            See :meth:`Stream.read`.
+            See `Stream.read()`.
 
         """
         channels, _ = _split(self._channels)
@@ -1175,15 +1169,15 @@ class RawOutputStream(_StreamBase):
                  prime_output_buffers_using_stream_callback=None):
         """Open a "raw" output stream.
 
-        This is the same as :class:`OutputStream`, except that the
-        `callback` function and :meth:`~RawStream.write` work on plain
-        Python buffer objects instead of on NumPy arrays.
+        This is the same as `OutputStream`, except that the *callback*
+        function and :meth:`~RawStream.write` work on plain Python
+        buffer objects instead of on NumPy arrays.
         NumPy is not necessary to use this.
 
         Parameters
         ----------
         dtype : str
-            See :class:`RawStream`.
+            See `RawStream`.
         callback : callable
             User-supplied function to generate audio data in response to
             requests from an active stream.
@@ -1192,8 +1186,8 @@ class RawOutputStream(_StreamBase):
                 callback(outdata: buffer, frames: int,
                          time: CData, status: CallbackFlags) -> None
 
-            The arguments are the same as in the `callback` parameter of
-            :class:`RawStream`, except that `indata` is missing.
+            The arguments are the same as in the *callback* parameter of
+            `RawStream`, except that *indata* is missing.
 
         See Also
         --------
@@ -1224,7 +1218,7 @@ class RawOutputStream(_StreamBase):
     def write(self, data):
         """Write samples to the stream.
 
-        This is the same as :meth:`Stream.write`, except that it expects
+        This is the same as `Stream.write()`, except that it expects
         a plain Python buffer object instead of a NumPy array.
         NumPy is not necessary to use this.
 
@@ -1232,18 +1226,17 @@ class RawOutputStream(_StreamBase):
         ----------
         data : buffer or bytes or iterable of int
             A buffer of interleaved samples.  The buffer contains
-            samples in the format specified by the `dtype` argument used
+            samples in the format specified by the *dtype* argument used
             to open the stream, and the number of channels specified by
-            `channels`.  The length of the buffer is not constrained to
+            *channels*.  The length of the buffer is not constrained to
             a specific range, however high performance applications will
-            want to match this parameter to the `blocksize` parameter
-            used when opening the stream.
-            See also :attr:`Stream.samplesize`.
+            want to match this parameter to the *blocksize* parameter
+            used when opening the stream.  See also `samplesize`.
 
         Returns
         -------
         underflowed : bool
-            See :meth:`Stream.write`.
+            See `Stream.write()`.
 
         """
         try:
@@ -1279,29 +1272,27 @@ class RawStream(RawInputStream, RawOutputStream):
                  prime_output_buffers_using_stream_callback=None):
         """Open a "raw" input/output stream.
 
-        This is the same as :class:`Stream`, except that the `callback`
-        function and :meth:`read`/:meth:`write` work on plain Python
-        buffer objects instead of on NumPy arrays.
+        This is the same as `Stream`, except that the *callback*
+        function and `read()`/`write()` work on plain Python buffer
+        objects instead of on NumPy arrays.
         NumPy is not necessary to use this.
 
         To open "raw" input-only or output-only stream use
-        :class:`RawInputStream` or :class:`RawOutputStream`,
-        respectively.
+        `RawInputStream` or `RawOutputStream`, respectively.
         If you want to handle audio data as NumPy arrays instead of
-        buffer objects, use :class:`Stream`, :class:`InputStream` or
-        :class:`OutputStream`.
+        buffer objects, use `Stream`, `InputStream` or `OutputStream`.
 
         Parameters
         ----------
         dtype : str or pair of str
             The sample format of the buffers provided to the stream
-            callback, :meth:`read` or :meth:`write`.
-            In addition to the formats supported by :class:`Stream`
+            callback, `read()` or `write()`.
+            In addition to the formats supported by `Stream`
             (``'float32'``, ``'int32'``, ``'int16'``, ``'int8'``,
             ``'uint8'``), this also supports ``'int24'``, i.e.
             packed 24 bit format.
-            The default value can be changed with :attr:`default.dtype`.
-            See also :attr:`Stream.samplesize`.
+            The default value can be changed with `default.dtype`.
+            See also `samplesize`.
         callback : callable
             User-supplied function to consume, process or generate audio
             data in response to requests from an active stream.
@@ -1310,9 +1301,9 @@ class RawStream(RawInputStream, RawOutputStream):
                 callback(indata: buffer, outdata: buffer, frames: int,
                          time: CData, status: CallbackFlags) -> None
 
-            The arguments are the same as in the `callback` parameter of
-            :class:`Stream`, except that `indata` and `outdata` are
-            plain Python buffer objects instead of NumPy arrays.
+            The arguments are the same as in the *callback* parameter of
+            `Stream`, except that *indata* and *outdata* are plain
+            Python buffer objects instead of NumPy arrays.
 
         See Also
         --------
@@ -1344,10 +1335,10 @@ class InputStream(RawInputStream):
                  prime_output_buffers_using_stream_callback=None):
         """Open an input stream.
 
-        This has the same methods and attributes as :class:`Stream`,
-        except :meth:`~Stream.write` and
-        :attr:`~Stream.write_available`.  Furthermore, the stream
-        callback is expected to have a different signature (see below).
+        This has the same methods and attributes as `Stream`, except
+        :meth:`~Stream.write` and `write_available`.
+        Furthermore, the stream callback is expected to have a different
+        signature (see below).
 
         Parameters
         ----------
@@ -1359,8 +1350,8 @@ class InputStream(RawInputStream):
                 callback(indata: numpy.ndarray, frames: int,
                          time: CData, status: CallbackFlags) -> None
 
-            The arguments are the same as in the `callback` parameter of
-            :class:`Stream`, except that `outdata` is missing.
+            The arguments are the same as in the *callback* parameter of
+            `Stream`, except that *outdata* is missing.
 
         See Also
         --------
@@ -1382,12 +1373,12 @@ class InputStream(RawInputStream):
     def read(self, frames):
         """Read samples from the stream into a NumPy array.
 
-        The function doesn't return until all requested `frames` have
+        The function doesn't return until all requested *frames* have
         been read -- this may involve waiting for the operating system
-        to supply the data (except if no more than
-        :attr:`read_available` frames were requested).
+        to supply the data (except if no more than `read_available`
+        frames were requested).
 
-        This is the same as :meth:`RawStream.read`, except that it
+        This is the same as `RawStream.read()`, except that it
         returns a NumPy array instead of a plain Python buffer object.
 
         Parameters
@@ -1396,14 +1387,14 @@ class InputStream(RawInputStream):
             The number of frames to be read.  This parameter is not
             constrained to a specific range, however high performance
             applications will want to match this parameter to the
-            `blocksize` parameter used when opening the stream.
+            *blocksize* parameter used when opening the stream.
 
         Returns
         -------
         data : numpy.ndarray
-            A two-dimensional :class:`numpy.ndarray` with one column per
-            channel (i.e.  with a shape of `(frames, channels)`) and
-            with a data type specified by :attr:`dtype`.
+            A two-dimensional `numpy.ndarray` with one column per
+            channel (i.e.  with a shape of ``(frames, channels)``) and
+            with a data type specified by `dtype`.
         overflowed : bool
             ``True`` if input data was discarded by PortAudio after the
             previous call and before this call.
@@ -1426,8 +1417,8 @@ class OutputStream(RawOutputStream):
                  prime_output_buffers_using_stream_callback=None):
         """Open an output stream.
 
-        This has the same methods and attributes as :class:`Stream`,
-        except :meth:`~Stream.read` and :attr:`~Stream.read_available`.
+        This has the same methods and attributes as `Stream`, except
+        :meth:`~Stream.read` and `read_available`.
         Furthermore, the stream callback is expected to have a different
         signature (see below).
 
@@ -1441,8 +1432,8 @@ class OutputStream(RawOutputStream):
                 callback(outdata: numpy.ndarray, frames: int,
                          time: CData, status: CallbackFlags) -> None
 
-            The arguments are the same as in the `callback` parameter of
-            :class:`Stream`, except that `indata` is missing.
+            The arguments are the same as in the *callback* parameter of
+            `Stream`, except that *indata* is missing.
 
         See Also
         --------
@@ -1466,25 +1457,24 @@ class OutputStream(RawOutputStream):
 
         This function doesn't return until the entire buffer has been
         consumed -- this may involve waiting for the operating system to
-        consume the data (except if `data` contains no more than
-        :attr:`write_available` frames).
+        consume the data (except if *data* contains no more than
+        `write_available` frames).
 
-        This is the same as :meth:`RawStream.write`, except that it
+        This is the same as `RawStream.write()`, except that it
         expects a NumPy array instead of a plain Python buffer object.
 
         Parameters
         ----------
         data : array_like
             A two-dimensional array-like object with one column per
-            channel (i.e.  with a shape of `(frames, channels)`) and
-            with a data type specified by :attr:`dtype`.
-            A one-dimensional array can be used for mono data.
-            The array layout must be C-contiguous (see
-            :func:`numpy.ascontiguousarray`).
+            channel (i.e.  with a shape of ``(frames, channels)``) and
+            with a data type specified by `dtype`.  A one-dimensional
+            array can be used for mono data.  The array layout must be
+            C-contiguous (see :func:`numpy.ascontiguousarray`).
 
             The length of the buffer is not constrained to a specific
             range, however high performance applications will want to
-            match this parameter to the `blocksize` parameter used when
+            match this parameter to the *blocksize* parameter used when
             opening the stream.
 
         Returns
@@ -1518,11 +1508,10 @@ class Stream(InputStream, OutputStream):
                  prime_output_buffers_using_stream_callback=None):
         """Open a stream for input and output.
 
-        To open an input-only or output-only stream use
-        :class:`InputStream` or :class:`OutputStream`, respectively.
-        If you want to handle audio data as buffer objects instead of
-        NumPy arrays, use :class:`RawStream`, :class:`RawInputStream` or
-        :class:`RawOutputStream`.
+        To open an input-only or output-only stream use `InputStream` or
+        `OutputStream`, respectively.  If you want to handle audio data
+        as buffer objects instead of NumPy arrays, use `RawStream`,
+        `RawInputStream` or `RawOutputStream`.
 
         A single stream can provide multiple channels of real-time
         streaming audio input and output to a client application.  A
@@ -1533,106 +1522,100 @@ class Stream(InputStream, OutputStream):
         should assume that a device may be simultaneously used by at
         most one stream.
 
-        The arguments `device`, `channels`, `dtype` and `latency` can be
+        The arguments *device*, *channels*, *dtype* and *latency* can be
         either single values (which will be used for both input and
         output parameters) or pairs of values (where the first one is
         the value for the input and the second one for the output).
 
         All arguments are optional, the values for unspecified
-        parameters are taken from the :attr:`default` object.
+        parameters are taken from the `default` object.
         If one of the values of a parameter pair is ``None``, the
-        corresponding value from :attr:`default` will be used instead.
+        corresponding value from `default` will be used instead.
 
-        The created stream is inactive (see :attr:`active`,
-        :attr:`stopped`).  It can be started with :meth:`start`.
+        The created stream is inactive (see `active`, `stopped`).
+        It can be started with `start()`.
 
         Every stream object is also a
         :ref:`context manager <python:context-managers>`, i.e. it can be
         used in a :ref:`with statement <python:with>` to automatically
-        call :meth:`start` in the beginning of the statement and
-        :meth:`stop` and :meth:`close` on exit.
+        call `start()` in the beginning of the statement and `stop()`
+        and `close()` on exit.
 
         Parameters
         ----------
         samplerate : float, optional
             The desired sampling frequency (for both input and output).
-            The default value can be changed with
-            :attr:`default.samplerate`.
+            The default value can be changed with `default.samplerate`.
         blocksize : int, optional
             The number of frames passed to the stream callback function,
             or the preferred block granularity for a blocking read/write
             stream.
-            The special value `blocksize=0` (which is the default) may
+            The special value ``blocksize=0`` (which is the default) may
             be used to request that the stream callback will receive an
             optimal (and possibly varying) number of frames based on
             host requirements and the requested latency settings.
-            The default value can be changed with
-            :attr:`default.blocksize`.
+            The default value can be changed with `default.blocksize`.
 
             .. note:: With some host APIs, the use of non-zero
-               `blocksize` for a callback stream may introduce an
+               *blocksize* for a callback stream may introduce an
                additional layer of buffering which could introduce
                additional latency.  PortAudio guarantees that the
                additional latency will be kept to the theoretical
                minimum however, it is strongly recommended that a
-               non-zero `blocksize` value only be used when your
+               non-zero *blocksize* value only be used when your
                algorithm requires a fixed number of frames per stream
                callback.
         device : int or str or pair thereof, optional
             Device index(es) or query string(s) specifying the device(s)
             to be used.  The default value(s) can be changed with
-            :attr:`default.device`.
+            `default.device`.
         channels : int or pair of int, optional
             The number of channels of sound to be delivered to the
-            stream callback or accessed by :meth:`read` or
-            :meth:`write`.  It can range from 1 to the value of
-            ``'max_input_channels'``/``'max_output_channels'`` in the
-            dict returned by :func:`query_devices`.
-            By default, the maximum possible number of channels for the
-            selected device is used (which may not be what you want; see
-            :func:`query_devices`).  The default value(s) can be changed
-            with :attr:`default.channels`.
+            stream callback or accessed by `read()` or `write()`.  It
+            can range from 1 to the value of ``'max_input_channels'`` or
+            ``'max_output_channels'`` in the dict returned by
+            `query_devices()`.  By default, the maximum possible number
+            of channels for the selected device is used (which may not
+            be what you want; see `query_devices()`).  The default
+            value(s) can be changed with `default.channels`.
         dtype : str or numpy.dtype or pair thereof, optional
-            The sample format of the :class:`numpy.ndarray` provided to
-            the stream callback, :meth:`read` or :meth:`write`.
-            It may be any of `float32`, `int32`, `int16`, `int8`,
-            `uint8`. See :class:`numpy.dtype`.
-            The `float64` data type is not supported, this is only
-            supported for convenience in
-            :func:`play`/:func:`rec`/:func:`playrec`.
+            The sample format of the `numpy.ndarray` provided to the
+            stream callback, `read()` or `write()`.
+            It may be any of *float32*, *int32*, *int16*, *int8*,
+            *uint8*. See `numpy.dtype`.
+            The *float64* data type is not supported, this is only
+            supported for convenience in `play()`/`rec()`/`playrec()`.
             The packed 24 bit format ``'int24'`` is only supported in
-            the "raw" stream classes, see :class:`RawStream`.  The
-            default value(s) can be changed with :attr:`default.dtype`.
+            the "raw" stream classes, see `RawStream`.  The default
+            value(s) can be changed with `default.dtype`.
         latency : float or {'low', 'high'} or pair thereof, optional
             The desired latency in seconds.  The special values
             ``'low'`` and ``'high'`` (latter being the default) select
             the default low and high latency, respectively (see
-            :func:`query_devices`).  The default value(s) can be changed
-            with :attr:`default.latency`.
+            `query_devices()`).  The default value(s) can be changed
+            with `default.latency`.
             Where practical, implementations should configure their
             latency based on this parameter, otherwise they may choose
             the closest viable latency instead.  Unless the suggested
             latency is greater than the absolute upper limit for the
-            device, implementations should round the `latency` up to the
+            device, implementations should round the *latency* up to the
             next practical value -- i.e. to provide an equal or higher
             latency  wherever possible.  Actual latency values for an
-            open stream may be retrieved using the :attr:`latency`
-            attribute.
+            open stream may be retrieved using the `latency` attribute.
         callback : callable, optional
             User-supplied function to consume, process or generate audio
-            data in response to requests from an :attr:`active` stream.
+            data in response to requests from an `active` stream.
             When a stream is running, PortAudio calls the stream
             callback periodically.  The callback function is responsible
             for processing and filling input and output buffers,
             respectively.
 
-            If no `callback` is given, the stream will be opened in
+            If no *callback* is given, the stream will be opened in
             "blocking read/write" mode.  In blocking mode, the client
-            can receive sample data using :meth:`read` and write sample
-            data using :meth:`write`, the number of frames that may be
+            can receive sample data using `read()` and write sample
+            data using `write()`, the number of frames that may be
             read or written without blocking is returned by
-            :attr:`read_available` and :attr:`write_available`,
-            respectively.
+            `read_available` and `write_available`, respectively.
 
             The callback must have this signature::
 
@@ -1640,12 +1623,12 @@ class Stream(InputStream, OutputStream):
                          time: CData, status: CallbackFlags) -> None
 
             The first and second argument are the input and output
-            buffer, respectively, as two-dimensional
-            :class:`numpy.ndarray` with one column per channel (i.e.
-            with a shape of *(frames, channels)*) and with a data type
-            specified by :attr:`dtype`.
+            buffer, respectively, as two-dimensional `numpy.ndarray`
+            with one column per channel (i.e.  with a shape of
+            ``(frames, channels)``) and with a data type specified by
+            `dtype`.
             The output buffer contains uninitialized data and the
-            `callback` is supposed to fill it with proper audio data.
+            *callback* is supposed to fill it with proper audio data.
             If no data is available, the buffer should be filled with
             zeros (e.g. by using ``outdata.fill(0)``).
 
@@ -1672,39 +1655,37 @@ class Stream(InputStream, OutputStream):
 
             The forth argument provides a CFFI structure with
             timestamps indicating the ADC capture time of the first
-            sample in the input buffer (`time.inputBufferAdcTime`), the
-            DAC output time of the first sample in the output buffer
-            (`time.outputBufferDacTime`) and the time the callback was
-            invoked (`time.currentTime`).
+            sample in the input buffer (``time.inputBufferAdcTime``),
+            the DAC output time of the first sample in the output buffer
+            (``time.outputBufferDacTime``) and the time the callback was
+            invoked (``time.currentTime``).
             These time values are expressed in seconds and are
-            synchronised with the time base used by :attr:`time` for the
+            synchronised with the time base used by `time` for the
             associated stream.
 
-            The fifth argument is a :class:`CallbackFlags` instance
-            indicating whether input and/or output buffers have been
-            inserted or will be dropped to overcome underflow or
-            overflow conditions.
+            The fifth argument is a `CallbackFlags` instance indicating
+            whether input and/or output buffers have been inserted or
+            will be dropped to overcome underflow or overflow
+            conditions.
 
-            If an exception is raised in the `callback`, it will not be
-            called again.
-            If :class:`CallbackAbort` is raised, the stream will finish
-            as soon as possible.  If :class:`CallbackStop` is raised,
+            If an exception is raised in the *callback*, it will not be
+            called again.  If `CallbackAbort` is raised, the stream will
+            finish as soon as possible.  If `CallbackStop` is raised,
             the stream will continue until all buffers generated by the
             callback have been played.  This may be useful in
             applications such as soundfile players where a specific
-            duration of output is required.
-            If another exception is raised, its traceback is printed to
-            :obj:`sys.stderr`.
+            duration of output is required.  If another exception is
+            raised, its traceback is printed to `sys.stderr`.
             Exceptions are *not* propagated to the main thread, i.e. the
             main Python program keeps running as if nothing had
             happened.
 
-            .. note:: The `callback` must always fill the entire output
+            .. note:: The *callback* must always fill the entire output
                buffer, no matter if or which exceptions are raised.
 
-            If no exception is raised in the `callback`, it
-            automatically continues to be called until :meth:`.stop`,
-            :meth:`abort` or :meth:`close` are used to stop the stream.
+            If no exception is raised in the *callback*, it
+            automatically continues to be called until `stop()`,
+            `abort()` or `close()` are used to stop the stream.
 
             The PortAudio stream callback runs at very high or real-time
             priority.  It is required to consistently meet its time
@@ -1712,14 +1693,14 @@ class Stream(InputStream, OutputStream):
             call library functions or call other functions from the
             stream callback that may block or take an unpredictable
             amount of time to complete.  With the exception of
-            :attr:`cpu_load` it is not permissible to call PortAudio API
+            `cpu_load` it is not permissible to call PortAudio API
             functions from within the stream callback.
 
             In order for a stream to maintain glitch-free operation the
             callback must consume and return audio data faster than it
             is recorded and/or played.  PortAudio anticipates that each
             callback invocation may execute for a duration approaching
-            the duration of `frames` audio frames at the stream's
+            the duration of *frames* audio frames at the stream's
             sampling frequency.  It is reasonable to expect to be able
             to utilise 70% or more of the available CPU time in the
             PortAudio callback.  However, due to buffer size adaption
@@ -1727,30 +1708,30 @@ class Stream(InputStream, OutputStream):
             audio stability under heavy CPU load with arbitrary fixed
             callback buffer sizes.  When high callback CPU utilisation
             is required the most robust behavior can be achieved by
-            using `blocksize=0`.
+            using ``blocksize=0``.
         finished_callback : callable, optional
             User-supplied function which will be called when the stream
-            becomes inactive (i.e. once a call to :meth:`.stop` will not
+            becomes inactive (i.e. once a call to `stop()` will not
             block).
 
             A stream will become inactive after the stream callback
-            raises an exception or when :meth:`.stop` or :meth:`.abort`
-            is called.  For a stream providing audio output, if the
-            stream callback raises :class:`CallbackStop`, or
-            :meth:`.stop` is called, the stream finished callback will
-            not be called until all generated sample data has been
-            played.  The callback must have this signature::
+            raises an exception or when `stop()` or `abort()` is called.
+            For a stream providing audio output, if the stream callback
+            raises `CallbackStop`, or `stop()` is called, the stream
+            finished callback will not be called until all generated
+            sample data has been played.  The callback must have this
+            signature::
 
                 finished_callback() -> None
 
         clip_off : bool, optional
-            See :attr:`default.clip_off`.
+            See `default.clip_off`.
         dither_off : bool, optional
-            See :attr:`default.dither_off`.
+            See `default.dither_off`.
         never_drop_input : bool, optional
-            See :attr:`default.never_drop_input`.
+            See `default.never_drop_input`.
         prime_output_buffers_using_stream_callback : bool, optional
-            See :attr:`default.prime_output_buffers_using_stream_callback`.
+            See `default.prime_output_buffers_using_stream_callback`.
 
         """
 
@@ -1775,12 +1756,12 @@ class DeviceList(tuple):
     """A list with information about all available audio devices.
 
     This class is not meant to be instantiated by the user.
-    Instead, it is returned by :func:`query_devices`.
+    Instead, it is returned by `query_devices()`.
     It contains a dictionary for each available device, holding the keys
-    described in :func:`query_devices`.
+    described in `query_devices()`.
 
     This class has a special string representation that is shown as
-    return value of :func:`query_devices` if used in an interactive
+    return value of `query_devices()` if used in an interactive
     Python session.  It will also be shown when using the :func:`print`
     function.  Furthermore, it can be obtained with :func:`repr` and
     :class:`str() <str>`.
@@ -1812,7 +1793,7 @@ class DeviceList(tuple):
 
 
 class CallbackFlags(object):
-    """Flag bits for the `status` argument to a stream `callback`.
+    """Flag bits for the *status* argument to a stream *callback*.
 
     See Also
     --------
@@ -1820,7 +1801,7 @@ class CallbackFlags(object):
 
     Examples
     --------
-    This can be used to collect the errors of multiple `status` objects:
+    This can be used to collect the errors of multiple *status* objects:
 
     >>> import sounddevice as sd
     >>> errors = sd.CallbackFlags()
@@ -1863,11 +1844,11 @@ class CallbackFlags(object):
     def input_underflow(self):
         """Input underflow.
 
-        In a stream opened with `blocksize=0`, indicates that input data
-        is all silence (zeros) because no real data is available.  In a
-        stream opened with a non-zero `blocksize`, it indicates that one
-        or more zero samples have been inserted into the input buffer to
-        compensate for an input underflow.
+        In a stream opened with ``blocksize=0``, indicates that input
+        data is all silence (zeros) because no real data is available.
+        In a stream opened with a non-zero *blocksize*, it indicates
+        that one or more zero samples have been inserted into the input
+        buffer to compensate for an input underflow.
 
         """
         return self._hasflag(_lib.paInputUnderflow)
@@ -1876,11 +1857,11 @@ class CallbackFlags(object):
     def input_overflow(self):
         """Input overflow.
 
-        In a stream opened with `blocksize=0`, indicates that data prior
-        to the first sample of the input buffer was discarded due to an
-        overflow, possibly because the stream callback is using too much
-        CPU time.  Otherwise indicates that data prior to one or more
-        samples in the input buffer was discarded.
+        In a stream opened with ``blocksize=0``, indicates that data
+        prior to the first sample of the input buffer was discarded due
+        to an overflow, possibly because the stream callback is using
+        too much CPU time.  Otherwise indicates that data prior to one
+        or more samples in the input buffer was discarded.
 
         """
         return self._hasflag(_lib.paInputOverflow)
@@ -1946,14 +1927,13 @@ class _InputOutputPair(object):
 
 
 class default(object):
-    """Get/set defaults for the `sounddevice` module.
+    """Get/set defaults for the *sounddevice* module.
 
-    The attributes :attr:`device`, :attr:`channels`, :attr:`dtype` and
-    :attr:`latency` accept single values which specify the given
-    property for both input and output.
-    However, if the property differs between input and output, pairs of
-    values can be used, where the first value specifies the input and
-    the second value specifies the output.
+    The attributes `device`, `channels`, `dtype` and `latency` accept
+    single values which specify the given property for both input and
+    output.  However, if the property differs between input and output,
+    pairs of values can be used, where the first value specifies the
+    input and the second value specifies the output.
     All other attributes are always single values.
 
     Examples
@@ -1980,7 +1960,7 @@ class default(object):
     >>> sd.default.samplerate = None
     >>> sd.default.device = None, 4
 
-    Use :meth:`reset` to reset all attributes:
+    Use `reset()` to reset all attributes:
 
     >>> sd.default.reset()
 
@@ -2007,7 +1987,7 @@ class default(object):
     """Number of input/output channels.
 
     The maximum number of channels for a given device can be found out
-    with :func:`query_devices`.
+    with `query_devices()`.
 
     """
     dtype = _default_dtype = 'float32', 'float32'
@@ -2015,14 +1995,14 @@ class default(object):
 
     The types ``'float32'``, ``'int32'``, ``'int16'``, ``'int8'`` and
     ``'uint8'`` can be used for all streams and functions.
-    Additionally, :func:`play`, :func:`rec` and :func:`playrec` support
+    Additionally, `play()`, `rec()` and `playrec()` support
     ``'float64'`` (for convenience, data is merely converted from/to
-    ``'float32'``) and :class:`RawInputStream`, :class:`RawOutputStream`
-    and :class:`RawStream` support ``'int24'`` (packed 24 bit format --
+    ``'float32'``) and `RawInputStream`, `RawOutputStream` and
+    `RawStream` support ``'int24'`` (packed 24 bit format, which is
     *not* supported in NumPy!).
 
-    If NumPy is available, the corresponding :class:`numpy.dtype`
-    objects can be used as well.
+    If NumPy is available, the corresponding `numpy.dtype` objects can
+    be used as well.
 
     The floating point representations ``'float32'`` and ``'float64'``
     use +1.0 and -1.0 as the maximum and minimum values, respectively.
@@ -2054,7 +2034,7 @@ class default(object):
 
     """
     blocksize = _lib.paFramesPerBufferUnspecified
-    """See the `blocksize` argument of :class:`Stream`."""
+    """See the *blocksize* argument of `Stream`."""
     clip_off = False
     """Disable clipping.
 
@@ -2073,10 +2053,10 @@ class default(object):
     Set to ``True`` to request that where possible a full duplex stream
     will not discard overflowed input samples without calling the stream
     callback.  This flag is only valid for full-duplex callback streams
-    (i.e. only :class:`Stream` and :class:`RawStream` and only if
-    `callback` was specified; this includes :func:`playrec`) and only
-    when used in combination with `blocksize=0` (the default).  Using
-    this flag incorrectly results in an error being raised.
+    (i.e. only `Stream` and `RawStream` and only if *callback* was
+    specified; this includes `playrec()`) and only when used in
+    combination with ``blocksize=0`` (the default).
+    Using this flag incorrectly results in an error being raised.
 
     """
     prime_output_buffers_using_stream_callback = False
@@ -2085,8 +2065,8 @@ class default(object):
     Set to ``True`` to call the stream callback to fill initial output
     buffers, rather than the default behavior of priming the buffers
     with zeros (silence).  This flag has no effect for input-only
-    (:class:`InputStream` and :class:`RawInputStream`) and blocking
-    read/write streams (i.e. if `callback` wasn't specified).
+    (`InputStream` and `RawInputStream`) and blocking read/write streams
+    (i.e. if *callback* wasn't specified).
 
     """
 
