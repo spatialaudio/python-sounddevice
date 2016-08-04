@@ -2,6 +2,7 @@
 """Plot the live microphone signal(s) with matplotlib."""
 import argparse
 from queue import Queue, Empty
+import numpy as np
 
 
 def int_or_str(text):
@@ -86,7 +87,7 @@ try:
         device_info = sd.query_devices(args.device, 'input')
         args.samplerate = device_info['default_samplerate']
 
-    length = np.ceil(args.window * args.samplerate / (1000 * args.downsample))
+    length = np.ceil(args.window * args.samplerate / (1000 * args.downsample)).astype(int)
     plotdata = np.zeros((length, len(args.channels)))
 
     fig, ax = plt.subplots()
@@ -101,6 +102,7 @@ try:
                    right='off', left='off', labelleft='off')
     fig.tight_layout(pad=0)
 
+    queue.put(np.zeros((length, 1)))
     stream = sd.InputStream(
         device=args.device, channels=max(args.channels),
         samplerate=args.samplerate, callback=audio_callback)
