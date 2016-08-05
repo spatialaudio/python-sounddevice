@@ -1,3 +1,6 @@
+Version 0.3.4 (2016-08-05):
+ * Example application ``rec_unlimited.py``
+
 Version 0.3.3 (2016-04-11):
  * Add ``loop`` argument to `sounddevice.play()`
 
