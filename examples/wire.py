@@ -7,9 +7,19 @@ See https://www.assembla.com/spaces/portaudio/subversion/source/HEAD/portaudio/t
 import argparse
 import logging
 
+
+def int_or_str(text):
+    """Helper function for argument parsing."""
+    try:
+        return int(text)
+    except ValueError:
+        return text
+
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument("-i", "--input-device", type=int, help="input device ID")
-parser.add_argument("-o", "--output-device", type=int, help="output device ID")
+parser.add_argument("-i", "--input-device", type=int_or_str,
+                    help="input device ID or substring")
+parser.add_argument("-o", "--output-device", type=int_or_str,
+                    help="output device ID or substring")
 parser.add_argument("-c", "--channels", type=int, default=2,
                     help="number of channels")
 parser.add_argument("-t", "--dtype", help="audio data type")

@@ -7,9 +7,18 @@ PySoundFile (https://github.com/bastibe/PySoundFile/) has to be installed!
 import argparse
 import logging
 
+
+def int_or_str(text):
+    """Helper function for argument parsing."""
+    try:
+        return int(text)
+    except ValueError:
+        return text
+
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("filename", help="audio file to be played back")
-parser.add_argument("-d", "--device", type=int, help="device ID")
+parser.add_argument('-d', '--device', type=int_or_str,
+                    help='output device (numeric ID or substring)')
 args = parser.parse_args()
 
 try:

@@ -7,6 +7,14 @@ import shutil
 
 usage_line = ' press <enter> to quit, +<enter> or -<enter> to change scaling '
 
+
+def int_or_str(text):
+    """Helper function for argument parsing."""
+    try:
+        return int(text)
+    except ValueError:
+        return text
+
 try:
     columns, _ = shutil.get_terminal_size()
 except AttributeError:
@@ -20,7 +28,8 @@ parser.add_argument('-b', '--block-duration', type=float,
                     help='block size (default %(default)s milliseconds)')
 parser.add_argument('-c', '--columns', type=int, default=columns,
                     help='width of spectrogram')
-parser.add_argument('-d', '--device', type=int, help='input device ID')
+parser.add_argument('-d', '--device', type=int_or_str,
+                    help='input device (numeric ID or substring)')
 parser.add_argument('-g', '--gain', type=float, default=10,
                     help='initial gain factor (default %(default)s)')
 parser.add_argument('-r', '--range', type=float, nargs=2,
@@ -30,7 +39,7 @@ args = parser.parse_args()
 
 low, high = args.range
 if high <= low:
-    parser.error("HIGH must be greater than LOW")
+    parser.error('HIGH must be greater than LOW')
 
 # Create a nice output gradient using ANSI escape sequences.
 # Stolen from https://gist.github.com/maurisvh/df919538bcef391bc89f
