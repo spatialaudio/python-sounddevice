@@ -2,6 +2,7 @@
 """Show a text-mode spectrogram using live microphone data."""
 import argparse
 import logging
+import math
 import numpy as np
 import shutil
 
@@ -63,8 +64,8 @@ try:
     samplerate = sd.query_devices(args.device, 'input')['default_samplerate']
 
     delta_f = (high - low) / (args.columns - 1)
-    fftsize = np.ceil(samplerate / delta_f).astype(int)
-    low_bin = np.floor(low / delta_f)
+    fftsize = math.ceil(samplerate / delta_f)
+    low_bin = math.floor(low / delta_f)
 
     cumulated_status = sd.CallbackFlags()
 
