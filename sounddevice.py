@@ -224,6 +224,19 @@ signed long Pa_GetStreamWriteAvailable( PaStream* stream );
 /* not implemented: Pa_GetStreamHostApiType */
 PaError Pa_GetSampleSize( PaSampleFormat format );
 void Pa_Sleep( long msec );
+
+/* pa_asio.h */
+
+#define paAsioUseChannelSelectors 0x01
+
+typedef struct PaAsioStreamInfo
+{
+    unsigned long size;
+    PaHostApiTypeId hostApiType;
+    unsigned long version;
+    unsigned long flags;
+    int *channelSelectors;
+} PaAsioStreamInfo;
 """)
 
 try:
@@ -754,7 +767,7 @@ class _StreamBase(object):
     """Base class for Raw{Input,Output}Stream."""
 
     def __init__(self, kind, samplerate, blocksize, device, channels, dtype,
-                 latency, callback_wrapper, finished_callback,
+                 latency, extra_settings, callback_wrapper, finished_callback,
                  clip_off, dither_off, never_drop_input,
                  prime_output_buffers_using_stream_callback):
         if blocksize is None:
@@ -784,10 +797,13 @@ class _StreamBase(object):
             ichannels, ochannels = _split(channels)
             idtype, odtype = _split(dtype)
             ilatency, olatency = _split(latency)
+            iextra, oextra = _split(extra_settings)
             iparameters, idtype, isize, isamplerate = _get_stream_parameters(
-                'input', idevice, ichannels, idtype, ilatency, samplerate)
+                'input', idevice, ichannels, idtype, ilatency, iextra,
+                samplerate)
             oparameters, odtype, osize, osamplerate = _get_stream_parameters(
-                'output', odevice, ochannels, odtype, olatency, samplerate)
+                'output', odevice, ochannels, odtype, olatency, oextra,
+                samplerate)
             self._dtype = idtype, odtype
             self._device = iparameters.device, oparameters.device
             self._channels = iparameters.channelCount, oparameters.channelCount
@@ -799,8 +815,8 @@ class _StreamBase(object):
                 samplerate = isamplerate
         else:
             parameters, self._dtype, self._samplesize, samplerate = \
-                _get_stream_parameters(
-                    kind, device, channels, dtype, latency, samplerate)
+                _get_stream_parameters(kind, device, channels, dtype, latency,
+                                       extra_settings, samplerate)
             self._device = parameters.device
             self._channels = parameters.channelCount
 
@@ -1072,7 +1088,7 @@ class RawInputStream(_StreamBase):
 
     def __init__(self, samplerate=None, blocksize=None,
                  device=None, channels=None, dtype=None, latency=None,
-                 callback=None, finished_callback=None,
+                 extra_settings=None, callback=None, finished_callback=None,
                  clip_off=None, dither_off=None, never_drop_input=None,
                  prime_output_buffers_using_stream_callback=None):
         """Open a "raw" input stream.
@@ -1109,8 +1125,8 @@ class RawInputStream(_StreamBase):
 
         _StreamBase.__init__(
             self, 'input', samplerate, blocksize, device, channels, dtype,
-            latency, callback and callback_wrapper, finished_callback,
-            clip_off, dither_off, never_drop_input,
+            latency, extra_settings, callback and callback_wrapper,
+            finished_callback, clip_off, dither_off, never_drop_input,
             prime_output_buffers_using_stream_callback)
 
     @property
@@ -1164,7 +1180,7 @@ class RawOutputStream(_StreamBase):
 
     def __init__(self, samplerate=None, blocksize=None,
                  device=None, channels=None, dtype=None, latency=None,
-                 callback=None, finished_callback=None,
+                 extra_settings=None, callback=None, finished_callback=None,
                  clip_off=None, dither_off=None, never_drop_input=None,
                  prime_output_buffers_using_stream_callback=None):
         """Open a "raw" output stream.
@@ -1201,8 +1217,8 @@ class RawOutputStream(_StreamBase):
 
         _StreamBase.__init__(
             self, 'output', samplerate, blocksize, device, channels, dtype,
-            latency, callback and callback_wrapper, finished_callback,
-            clip_off, dither_off, never_drop_input,
+            latency, extra_settings, callback and callback_wrapper,
+            finished_callback, clip_off, dither_off, never_drop_input,
             prime_output_buffers_using_stream_callback)
 
     @property
@@ -1267,7 +1283,7 @@ class RawStream(RawInputStream, RawOutputStream):
 
     def __init__(self, samplerate=None, blocksize=None,
                  device=None, channels=None, dtype=None, latency=None,
-                 callback=None, finished_callback=None,
+                 extra_settings=None, callback=None, finished_callback=None,
                  clip_off=None, dither_off=None, never_drop_input=None,
                  prime_output_buffers_using_stream_callback=None):
         """Open a "raw" input/output stream.
@@ -1320,8 +1336,8 @@ class RawStream(RawInputStream, RawOutputStream):
 
         _StreamBase.__init__(
             self, 'duplex', samplerate, blocksize, device, channels, dtype,
-            latency, callback and callback_wrapper, finished_callback,
-            clip_off, dither_off, never_drop_input,
+            latency, extra_settings, callback and callback_wrapper,
+            finished_callback, clip_off, dither_off, never_drop_input,
             prime_output_buffers_using_stream_callback)
 
 
@@ -1330,7 +1346,7 @@ class InputStream(RawInputStream):
 
     def __init__(self, samplerate=None, blocksize=None,
                  device=None, channels=None, dtype=None, latency=None,
-                 callback=None, finished_callback=None,
+                 extra_settings=None, callback=None, finished_callback=None,
                  clip_off=None, dither_off=None, never_drop_input=None,
                  prime_output_buffers_using_stream_callback=None):
         """Open an input stream.
@@ -1366,8 +1382,8 @@ class InputStream(RawInputStream):
 
         _StreamBase.__init__(
             self, 'input', samplerate, blocksize, device, channels, dtype,
-            latency, callback and callback_wrapper, finished_callback,
-            clip_off, dither_off, never_drop_input,
+            latency, extra_settings, callback and callback_wrapper,
+            finished_callback, clip_off, dither_off, never_drop_input,
             prime_output_buffers_using_stream_callback)
 
     def read(self, frames):
@@ -1412,7 +1428,7 @@ class OutputStream(RawOutputStream):
 
     def __init__(self, samplerate=None, blocksize=None,
                  device=None, channels=None, dtype=None, latency=None,
-                 callback=None, finished_callback=None,
+                 extra_settings=None, callback=None, finished_callback=None,
                  clip_off=None, dither_off=None, never_drop_input=None,
                  prime_output_buffers_using_stream_callback=None):
         """Open an output stream.
@@ -1448,8 +1464,8 @@ class OutputStream(RawOutputStream):
 
         _StreamBase.__init__(
             self, 'output', samplerate, blocksize, device, channels, dtype,
-            latency, callback and callback_wrapper, finished_callback,
-            clip_off, dither_off, never_drop_input,
+            latency, extra_settings, callback and callback_wrapper,
+            finished_callback, clip_off, dither_off, never_drop_input,
             prime_output_buffers_using_stream_callback)
 
     def write(self, data):
@@ -1503,7 +1519,7 @@ class Stream(InputStream, OutputStream):
 
     def __init__(self, samplerate=None, blocksize=None,
                  device=None, channels=None, dtype=None, latency=None,
-                 callback=None, finished_callback=None,
+                 extra_settings=None, callback=None, finished_callback=None,
                  clip_off=None, dither_off=None, never_drop_input=None,
                  prime_output_buffers_using_stream_callback=None):
         """Open a stream for input and output.
@@ -1602,6 +1618,9 @@ class Stream(InputStream, OutputStream):
             next practical value -- i.e. to provide an equal or higher
             latency  wherever possible.  Actual latency values for an
             open stream may be retrieved using the `latency` attribute.
+        extra_settings : settings object or pair thereof, optional
+            This can be used for host-API-specific input/output
+            settings.  See `default.extra_settings`.
         callback : callable, optional
             User-supplied function to consume, process or generate audio
             data in response to requests from an `active` stream.
@@ -1747,8 +1766,8 @@ class Stream(InputStream, OutputStream):
 
         _StreamBase.__init__(
             self, 'duplex', samplerate, blocksize, device, channels, dtype,
-            latency, callback and callback_wrapper, finished_callback,
-            clip_off, dither_off, never_drop_input,
+            latency, extra_settings, callback and callback_wrapper,
+            finished_callback, clip_off, dither_off, never_drop_input,
             prime_output_buffers_using_stream_callback)
 
 
@@ -1929,12 +1948,12 @@ class _InputOutputPair(object):
 class default(object):
     """Get/set defaults for the *sounddevice* module.
 
-    The attributes `device`, `channels`, `dtype` and `latency` accept
-    single values which specify the given property for both input and
-    output.  However, if the property differs between input and output,
-    pairs of values can be used, where the first value specifies the
-    input and the second value specifies the output.
-    All other attributes are always single values.
+    The attributes `device`, `channels`, `dtype`, `latency` and
+    `extra_settings` accept single values which specify the given
+    property for both input and output.  However, if the property
+    differs between input and output, pairs of values can be used, where
+    the first value specifies the input and the second value specifies
+    the output.  All other attributes are always single values.
 
     Examples
     --------
@@ -2025,6 +2044,15 @@ class default(object):
 
     """
 
+    extra_settings = _default_extra_settings = None, None
+    """Host-API-specific input/output settings.
+
+    See Also
+    --------
+    AsioSettings
+
+    """
+
     samplerate = None
     """Sampling frequency in Hertz (= frames per second).
 
@@ -2076,6 +2104,8 @@ class default(object):
         vars(self)['channels'] = _InputOutputPair(self, '_default_channels')
         vars(self)['dtype'] = _InputOutputPair(self, '_default_dtype')
         vars(self)['latency'] = _InputOutputPair(self, '_default_latency')
+        vars(self)['extra_settings'] = _InputOutputPair(self,
+                '_default_extra_settings')
 
     def __setattr__(self, name, value):
         """Only allow setting existing attributes."""
@@ -2135,6 +2165,58 @@ class CallbackAbort(Exception):
     CallbackStop, :meth:`Stream.abort`, Stream
 
     """
+
+
+class AsioSettings(object):
+
+    def __init__(self, channel_selectors):
+        """ASIO-specific input/output settings.
+
+        Objects of this class can be used as *extra_settings* argument
+        to `Stream()` (and variants) or as `default.extra_settings`.
+
+        Parameters
+        ----------
+        channel_selectors : list of int
+            Support for opening only specific channels of an ASIO
+            device.  *channel_selectors* is a list of integers
+            specifying the (zero-based) channel numbers to use.
+            The length of *channel_selectors* must match the
+            corresponding *channels* parameter of `Stream()` (or
+            variants), otherwise a crash may result.
+            The values in the selectors array must specify channels
+            within the range of supported channels.
+
+        Examples
+        --------
+        Setting output channels when calling `play()`:
+
+        >>> import sounddevice as sd
+        >>> asio_out = sd.AsioSettings(channel_selectors=[12, 13])
+        >>> sd.play(..., extra_settings=asio_out)
+
+        Setting default output channels:
+
+        >>> sd.default.extra_settings = asio_out
+        >>> sd.play(...)
+
+        Setting input channels as well:
+
+        >>> asio_in = sd.AsioSettings(channel_selectors=[8])
+        >>> sd.default.extra_settings = asio_in, asio_out
+        >>> sd.playrec(..., channels=1, ...)
+
+        """
+        if isinstance(channel_selectors, int):
+            raise TypeError('channel_selectors must be a list or tuple')
+        # int array must be kept alive!
+        self._selectors = _ffi.new('int[]', channel_selectors)
+        self._streaminfo = _ffi.new('PaAsioStreamInfo*', dict(
+            size=_ffi.sizeof('PaAsioStreamInfo'),
+            hostApiType=_lib.paASIO,
+            version=1,
+            flags=_lib.paAsioUseChannelSelectors,
+            channelSelectors=self._selectors))
 
 
 class _CallbackContext(object):
@@ -2317,7 +2399,8 @@ def _check_dtype(dtype):
     return dtype
 
 
-def _get_stream_parameters(kind, device, channels, dtype, latency, samplerate):
+def _get_stream_parameters(kind, device, channels, dtype, latency,
+        extra_settings, samplerate):
     """Get parameters for one direction (input or output) of a stream."""
     if device is None:
         device = default.device[kind]
@@ -2327,6 +2410,8 @@ def _get_stream_parameters(kind, device, channels, dtype, latency, samplerate):
         dtype = default.dtype[kind]
     if latency is None:
         latency = default.latency[kind]
+    if extra_settings is None:
+        extra_settings = default.extra_settings[kind]
     if samplerate is None:
         samplerate = default.samplerate
 
@@ -2348,9 +2433,9 @@ def _get_stream_parameters(kind, device, channels, dtype, latency, samplerate):
         latency = info['default_' + latency + '_' + kind + '_latency']
     if samplerate is None:
         samplerate = info['default_samplerate']
-    parameters = _ffi.new(
-        'PaStreamParameters*',
-        (device, channels, sampleformat, latency, _ffi.NULL))
+    parameters = _ffi.new('PaStreamParameters*', (
+        device, channels, sampleformat, latency,
+        extra_settings._streaminfo if extra_settings else _ffi.NULL))
     return parameters, dtype, samplesize, samplerate
 
 
