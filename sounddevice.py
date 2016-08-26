@@ -2053,9 +2053,9 @@ class default(object):
     >>> sd.default.reset()
 
     """
-    # The class attributes device, channels, dtype and latency are only
-    # provided here for static analysis tools and for the docs.
-    # They're overwritten in __init__().
+    _pairs = 'device', 'channels', 'dtype', 'latency', 'extra_settings'
+    # The class attributes listed in _pairs are only provided here for static
+    # analysis tools and for the docs.  They're overwritten in __init__().
     device = None, None
     """Index or query string of default input/output device.
 
@@ -2112,7 +2112,6 @@ class default(object):
     :func:`query_devices`
 
     """
-
     extra_settings = _default_extra_settings = None, None
     """Host-API-specific input/output settings.
 
@@ -2121,7 +2120,6 @@ class default(object):
     AsioSettings, WasapiSettings
 
     """
-
     samplerate = None
     """Sampling frequency in Hertz (= frames per second).
 
@@ -2168,17 +2166,13 @@ class default(object):
     """
 
     def __init__(self):
-        # __setattr__() must be avoided here
-        vars(self)['device'] = _InputOutputPair(self, '_default_device')
-        vars(self)['channels'] = _InputOutputPair(self, '_default_channels')
-        vars(self)['dtype'] = _InputOutputPair(self, '_default_dtype')
-        vars(self)['latency'] = _InputOutputPair(self, '_default_latency')
-        vars(self)['extra_settings'] = _InputOutputPair(self,
-                '_default_extra_settings')
+        for attr in self._pairs:
+            # __setattr__() must be avoided here
+            vars(self)[attr] = _InputOutputPair(self, '_default_' + attr)
 
     def __setattr__(self, name, value):
         """Only allow setting existing attributes."""
-        if name in ('device', 'channels', 'dtype', 'latency'):
+        if name in self._pairs:
             getattr(self, name)._pair[:] = _split(value)
         elif name in dir(self) and name != 'reset':
             object.__setattr__(self, name, value)
