@@ -22,7 +22,7 @@ API Documentation
    :exclude-members: RawInputStream, RawOutputStream, RawStream,
                      InputStream, OutputStream, Stream,
                      CallbackFlags, CallbackStop, CallbackAbort,
-                     PortAudioError, DeviceList, AsioSettings
+                     PortAudioError, DeviceList, AsioSettings, WasapiSettings
 
 .. autoclass:: Stream
    :members:
@@ -52,6 +52,8 @@ API Documentation
 .. autoclass:: PortAudioError
 
 .. autoclass:: AsioSettings
+
+.. autoclass:: WasapiSettings
 
 .. only:: html
 

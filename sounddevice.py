@@ -225,6 +225,10 @@ signed long Pa_GetStreamWriteAvailable( PaStream* stream );
 PaError Pa_GetSampleSize( PaSampleFormat format );
 void Pa_Sleep( long msec );
 
+/* pa_win_waveformat.h */
+
+typedef unsigned long PaWinWaveFormatChannelMask;
+
 /* pa_asio.h */
 
 #define paAsioUseChannelSelectors 0x01
@@ -237,6 +241,68 @@ typedef struct PaAsioStreamInfo
     unsigned long flags;
     int *channelSelectors;
 } PaAsioStreamInfo;
+
+/* pa_win_wasapi.h */
+
+typedef enum PaWasapiFlags
+{
+    paWinWasapiExclusive                = 1,
+    paWinWasapiRedirectHostProcessor    = 2,
+    paWinWasapiUseChannelMask           = 4,
+    paWinWasapiPolling                  = 8,
+    paWinWasapiThreadPriority           = 16
+} PaWasapiFlags;
+
+typedef void (*PaWasapiHostProcessorCallback) (
+    void *inputBuffer,  long inputFrames,
+    void *outputBuffer, long outputFrames, void *userData);
+
+typedef enum PaWasapiThreadPriority
+{
+    eThreadPriorityNone = 0,
+    eThreadPriorityAudio,
+    eThreadPriorityCapture,
+    eThreadPriorityDistribution,
+    eThreadPriorityGames,
+    eThreadPriorityPlayback,
+    eThreadPriorityProAudio,
+    eThreadPriorityWindowManager
+} PaWasapiThreadPriority;
+
+typedef enum PaWasapiStreamCategory
+{
+    eAudioCategoryOther           = 0,
+    eAudioCategoryCommunications  = 3,
+    eAudioCategoryAlerts          = 4,
+    eAudioCategorySoundEffects    = 5,
+    eAudioCategoryGameEffects     = 6,
+    eAudioCategoryGameMedia       = 7,
+    eAudioCategoryGameChat        = 8,
+    eAudioCategorySpeech          = 9,
+    eAudioCategoryMovie           = 10,
+    eAudioCategoryMedia           = 11
+} PaWasapiStreamCategory;
+
+typedef enum PaWasapiStreamOption
+{
+    eStreamOptionNone        = 0,
+    eStreamOptionRaw         = 1,
+    eStreamOptionMatchFormat = 2
+} PaWasapiStreamOption;
+
+typedef struct PaWasapiStreamInfo
+{
+    unsigned long size;
+    PaHostApiTypeId hostApiType;
+    unsigned long version;
+    unsigned long flags;
+    PaWinWaveFormatChannelMask channelMask;
+    PaWasapiHostProcessorCallback hostProcessorOutput;
+    PaWasapiHostProcessorCallback hostProcessorInput;
+    PaWasapiThreadPriority threadPriority;
+    PaWasapiStreamCategory streamCategory;
+    PaWasapiStreamOption streamOption;
+} PaWasapiStreamInfo;
 """)
 
 try:
@@ -2052,7 +2118,7 @@ class default(object):
 
     See Also
     --------
-    AsioSettings
+    AsioSettings, WasapiSettings
 
     """
 
@@ -2220,6 +2286,47 @@ class AsioSettings(object):
             version=1,
             flags=_lib.paAsioUseChannelSelectors,
             channelSelectors=self._selectors))
+
+
+class WasapiSettings(object):
+
+    def __init__(self, exclusive=False):
+        """WASAPI-specific input/output settings.
+
+        Objects of this class can be used as *extra_settings* argument
+        to `Stream()` (and variants) or as `default.extra_settings`.
+        They can also be used in `check_input_settings()` and
+        `check_output_settings()`.
+
+        Parameters
+        ----------
+        exclusive : bool
+            Exclusive mode allows to deliver audio data directly to
+            hardware bypassing software mixing.
+
+        Examples
+        --------
+        Setting exclusive mode when calling `play()`:
+
+        >>> import sounddevice as sd
+        >>> wasapi_exclusive = sd.WasapiSettings(exclusive=True)
+        >>> sd.play(..., extra_settings=wasapi_exclusive)
+
+        Setting exclusive mode as default:
+
+        >>> sd.default.extra_settings = wasapi_exclusive
+        >>> sd.play(...)
+
+        """
+        flags = 0x0
+        if exclusive:
+            flags |= _lib.paWinWasapiExclusive
+        self._streaminfo = _ffi.new('PaWasapiStreamInfo*', dict(
+            size=_ffi.sizeof('PaWasapiStreamInfo'),
+            hostApiType=_lib.paWASAPI,
+            version=1,
+            flags=flags,
+        ))
 
 
 class _CallbackContext(object):
