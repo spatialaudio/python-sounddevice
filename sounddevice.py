@@ -702,7 +702,7 @@ def query_hostapis(index=None):
 
 
 def check_input_settings(device=None, channels=None, dtype=None,
-                         samplerate=None):
+                         extra_settings=None, samplerate=None):
     """Check if given input device settings are supported.
 
     All parameters are optional, `default` settings are used for any
@@ -717,18 +717,21 @@ def check_input_settings(device=None, channels=None, dtype=None,
         Number of input channels, see `default.channels`.
     dtype : str or numpy.dtype, optional
         Data type for input samples, see `default.dtype`.
+    extra_settings : settings object, optional
+        This can be used for host-API-specific input settings.
+        See `default.extra_settings`.
     samplerate : float, optional
         Sampling frequency, see `default.samplerate`.
 
     """
     parameters, dtype, samplesize, samplerate = _get_stream_parameters(
         'input', device=device, channels=channels, dtype=dtype, latency=None,
-        samplerate=samplerate)
+        extra_settings=extra_settings, samplerate=samplerate)
     _check(_lib.Pa_IsFormatSupported(parameters, _ffi.NULL, samplerate))
 
 
 def check_output_settings(device=None, channels=None, dtype=None,
-                          samplerate=None):
+                          extra_settings=None, samplerate=None):
     """Check if given output device settings are supported.
 
     Same as `check_input_settings()`, just for output device
@@ -737,7 +740,7 @@ def check_output_settings(device=None, channels=None, dtype=None,
     """
     parameters, dtype, samplesize, samplerate = _get_stream_parameters(
         'output', device=device, channels=channels, dtype=dtype, latency=None,
-        samplerate=samplerate)
+        extra_settings=extra_settings, samplerate=samplerate)
     _check(_lib.Pa_IsFormatSupported(_ffi.NULL, parameters, samplerate))
 
 
@@ -2400,7 +2403,7 @@ def _check_dtype(dtype):
 
 
 def _get_stream_parameters(kind, device, channels, dtype, latency,
-        extra_settings, samplerate):
+                           extra_settings, samplerate):
     """Get parameters for one direction (input or output) of a stream."""
     if device is None:
         device = default.device[kind]
