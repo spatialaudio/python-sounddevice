@@ -73,8 +73,8 @@ const char *Pa_GetErrorText( PaError errorCode );
 PaError Pa_Initialize( void );
 PaError Pa_Terminate( void );
 typedef int PaDeviceIndex;
-/* not implemented: paNoDevice */
-/* not implemented: paUseHostApiSpecificDeviceSpecification */
+#define paNoDevice -1
+#define paUseHostApiSpecificDeviceSpecification -2
 typedef int PaHostApiIndex;
 PaHostApiIndex Pa_GetHostApiCount( void );
 PaHostApiIndex Pa_GetDefaultHostApi( void );
@@ -149,7 +149,7 @@ typedef struct PaStreamParameters
     PaTime suggestedLatency;
     void *hostApiSpecificStreamInfo;
 } PaStreamParameters;
-/* not implemented: paFormatIsSupported */
+#define paFormatIsSupported 0
 PaError Pa_IsFormatSupported( const PaStreamParameters *inputParameters,
                               const PaStreamParameters *outputParameters,
                               double sampleRate );
@@ -193,7 +193,14 @@ PaError Pa_OpenStream( PaStream** stream,
                        PaStreamFlags streamFlags,
                        PaStreamCallback *streamCallback,
                        void *userData );
-/* not implemented: Pa_OpenDefaultStream */
+PaError Pa_OpenDefaultStream( PaStream** stream,
+                              int numInputChannels,
+                              int numOutputChannels,
+                              PaSampleFormat sampleFormat,
+                              double sampleRate,
+                              unsigned long framesPerBuffer,
+                              PaStreamCallback *streamCallback,
+                              void *userData );
 PaError Pa_CloseStream( PaStream *stream );
 typedef void PaStreamFinishedCallback( void *userData );
 PaError Pa_SetStreamFinishedCallback( PaStream *stream,
@@ -221,7 +228,7 @@ PaError Pa_WriteStream( PaStream* stream,
                         unsigned long frames );
 signed long Pa_GetStreamReadAvailable( PaStream* stream );
 signed long Pa_GetStreamWriteAvailable( PaStream* stream );
-/* not implemented: Pa_GetStreamHostApiType */
+PaHostApiTypeId Pa_GetStreamHostApiType( PaStream* stream );
 PaError Pa_GetSampleSize( PaSampleFormat format );
 void Pa_Sleep( long msec );
 
