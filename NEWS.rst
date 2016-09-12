@@ -1,3 +1,7 @@
+Version 0.3.5 (2016-09-12):
+ * Add ``extra_settings`` option for host-API-specific stream settings
+ * Add `sounddevice.AsioSettings` and `sounddevice.WasapiSettings`
+
 Version 0.3.4 (2016-08-05):
  * Example application ``rec_unlimited.py``
 
