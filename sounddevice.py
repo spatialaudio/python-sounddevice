@@ -336,6 +336,7 @@ _sampleformats = {
     'uint8': _lib.paUInt8,
 }
 
+_initialized = 0
 _last_callback = None
 
 
@@ -2672,14 +2673,22 @@ def _get_device_id(id_or_query_string, kind, raise_on_error=False):
 
 def _initialize():
     """Initialize PortAudio."""
+    global _initialized
     _check(_lib.Pa_Initialize(), 'Error initializing PortAudio')
-    _atexit.register(_lib.Pa_Terminate)
+    _initialized += 1
 
 
 def _terminate():
     """Terminate PortAudio."""
-    _atexit.unregister(_lib.Pa_Terminate)
+    global _initialized
     _check(_lib.Pa_Terminate(), 'Error terminating PortAudio')
+    _initialized -= 1
+
+
+def _exit_handler():
+    assert _initialized >= 0
+    while _initialized:
+        _terminate()
 
 
 def _ignore_stderr():
@@ -2707,6 +2716,7 @@ def _ignore_stderr():
 
 
 _ignore_stderr()
+_atexit.register(_exit_handler)
 _initialize()
 
 if __name__ == '__main__':
