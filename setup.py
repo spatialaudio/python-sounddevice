@@ -71,7 +71,7 @@ setup(
     packages=packages,
     package_data=package_data,
     zip_safe=zip_safe,
-    install_requires=['CFFI'],
+    install_requires=['CFFI>=1.0'],
     extras_require={'NumPy': ['NumPy']},
     author='Matthias Geier',
     author_email='Matthias.Geier@gmail.com',
