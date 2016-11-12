@@ -10,6 +10,13 @@ Play a Sound File
 
 .. literalinclude:: ../examples/play_file.py
 
+Play a Very Long Sound File
+---------------------------
+
+:download:`play_long_file.py <../examples/play_long_file.py>`
+
+.. literalinclude:: ../examples/play_long_file.py
+
 Input to Output Pass-Through
 ----------------------------
 
