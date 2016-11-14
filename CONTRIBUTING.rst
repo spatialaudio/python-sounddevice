@@ -28,7 +28,7 @@ If you used the ``--recursive`` option when cloning, the dynamic libraries for
 Mac OS X and Windows should be available.
 If not, you can get the submodule with::
 
-   git submodule update --init --recursive
+   git submodule update --init
 
 If you make changes to the documentation, you can re-create the HTML pages
 using Sphinx_.
