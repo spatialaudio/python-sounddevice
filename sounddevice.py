@@ -1183,10 +1183,6 @@ class _StreamBase(object):
         """
         return _lib.Pa_GetStreamCpuLoad(self._ptr)
 
-    def __del__(self):
-        """Close stream at garbage collection."""
-        self.close()
-
     def __enter__(self):
         """Start  the stream in the beginning of a "with" statement."""
         self.start()
