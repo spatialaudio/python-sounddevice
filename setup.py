@@ -82,7 +82,6 @@ setup(
     url='http://python-sounddevice.rtfd.org/',
     platforms='any',
     classifiers=[
-        'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
