@@ -23,7 +23,7 @@
 http://python-sounddevice.readthedocs.io/
 
 """
-__version__ = "0.3.5"
+__version__ = '0.3.6'
 
 import atexit as _atexit
 from cffi import FFI as _FFI

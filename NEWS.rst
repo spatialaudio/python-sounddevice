@@ -1,3 +1,6 @@
+0.3.6 (2016-12-19):
+ * Example application ``play_long_file.py``
+
 0.3.5 (2016-09-12):
  * Add ``extra_settings`` option for host-API-specific stream settings
  * Add `sounddevice.AsioSettings` and `sounddevice.WasapiSettings`
