@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
-"""Plot the live microphone signal(s) with matplotlib."""
+"""Plot the live microphone signal(s) with matplotlib.
+
+Matplotlib and NumPy have to be installed.
+
+"""
 import argparse
-from queue import Queue, Empty
+import queue
+import sys
 
 
 def int_or_str(text):
@@ -39,15 +44,15 @@ args = parser.parse_args()
 if any(c < 1 for c in args.channels):
     parser.error('argument CHANNEL: must be >= 1')
 mapping = [c - 1 for c in args.channels]  # Channel numbers start with 1
-queue = Queue()
+q = queue.Queue()
 
 
 def audio_callback(indata, frames, time, status):
     """This is called (from a separate thread) for each audio block."""
     if status:
-        print(status, flush=True)
+        print(status, file=sys.stderr)
     # Fancy indexing with mapping creates a (necessary!) copy:
-    queue.put(indata[::args.downsample, mapping])
+    q.put(indata[::args.downsample, mapping])
 
 
 def update_plot(frame):
@@ -61,8 +66,8 @@ def update_plot(frame):
     block = True  # The first read from the queue is blocking ...
     while True:
         try:
-            data = queue.get(block=block)
-        except Empty:
+            data = q.get(block=block)
+        except queue.Empty:
             break
         shift = len(data)
         plotdata = np.roll(plotdata, -shift, axis=0)
@@ -81,7 +86,7 @@ try:
 
     if args.list_devices:
         print(sd.query_devices())
-        parser.exit()
+        parser.exit(0)
     if args.samplerate is None:
         device_info = sd.query_devices(args.device, 'input')
         args.samplerate = device_info['default_samplerate']

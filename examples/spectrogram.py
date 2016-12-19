@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Show a text-mode spectrogram using live microphone data."""
 import argparse
-import logging
 import math
 import numpy as np
 import shutil
@@ -59,7 +58,7 @@ try:
 
     if args.list_devices:
         print(sd.query_devices())
-        parser.exit()
+        parser.exit(0)
 
     samplerate = sd.query_devices(args.device, 'input')['default_samplerate']
 
@@ -67,11 +66,11 @@ try:
     fftsize = math.ceil(samplerate / delta_f)
     low_bin = math.floor(low / delta_f)
 
-    cumulated_status = sd.CallbackFlags()
-
     def callback(indata, frames, time, status):
-        global cumulated_status
-        cumulated_status |= status
+        if status:
+            text = ' ' + str(status) + ' '
+            print('\x1b[34;40m', text.center(args.columns, '#'),
+                  '\x1b[0m', sep='', flush=True)
         if any(indata):
             magnitude = np.abs(np.fft.rfft(indata[:, 0], n=fftsize))
             magnitude *= args.gain / fftsize
@@ -97,8 +96,6 @@ try:
                     print('\x1b[31;40m', usage_line.center(args.columns, '#'),
                           '\x1b[0m', sep='', flush=True)
                     break
-    if cumulated_status:
-        logging.warning(str(cumulated_status))
 except KeyboardInterrupt:
     parser.exit('Interrupted by user')
 except Exception as e:

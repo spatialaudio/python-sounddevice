@@ -31,11 +31,9 @@ args = parser.parse_args()
 try:
     import sounddevice as sd
 
-    cumulated_status = sd.CallbackFlags()
-
     def callback(indata, outdata, frames, time, status):
-        global cumulated_status
-        cumulated_status |= status
+        if status:
+            print(status, flush=True)
         outdata[:] = indata
 
     with sd.Stream(device=(args.input_device, args.output_device),
@@ -46,9 +44,6 @@ try:
         print('press Return to quit')
         print('#' * 80)
         input()
-
-    if cumulated_status:
-        logging.warning(str(cumulated_status))
 except KeyboardInterrupt:
     parser.exit('\nInterrupted by user')
 except Exception as e:

@@ -10,7 +10,6 @@ To play very long files, you should use play_long_file.py instead.
 
 """
 import argparse
-import logging
 
 
 def int_or_str(text):
@@ -33,7 +32,7 @@ try:
     sd.play(data, fs, device=args.device, blocking=True)
     status = sd.get_status()
     if status:
-        logging.warning(str(status))
+        parser.exit('Error during playback: ' + str(status))
 except KeyboardInterrupt:
     parser.exit('\nInterrupted by user')
 except Exception as e:

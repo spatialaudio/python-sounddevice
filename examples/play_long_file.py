@@ -10,12 +10,13 @@ of audio blocks in memory and is therefore able to play files that are
 larger than the available RAM.
 
 """
-from __future__ import division
+from __future__ import division, print_function
 import argparse
 try:
     import queue  # Python 3.x
 except ImportError:
     import Queue as queue  # Python 2.x
+import sys
 import threading
 
 def int_or_str(text):
@@ -47,12 +48,13 @@ event = threading.Event()
 def callback(outdata, frames, time, status):
     assert frames == args.blocksize
     if status.output_underflow:
-        parser.error('An output underflow occurred: increase blocksize?')
+        print('Output underflow: increase blocksize?', file=sys.stderr)
         raise sd.CallbackAbort
+    assert not status
     try:
         data = q.get_nowait()
     except queue.Empty:
-        parser.error('Buffer is empty: increase buffersize?')
+        print('Buffer is empty: increase buffersize?', file=sys.stderr)
         raise sd.CallbackAbort
     if len(data) < len(outdata):
         outdata[:len(data)] = data

@@ -3,12 +3,11 @@
 
 PySoundFile (https://github.com/bastibe/PySoundFile/) has to be installed!
 
-WARNING: This works only in Python 3.x!
-
 """
 import argparse
 import tempfile
-from queue import Queue
+import queue
+import sys
 
 
 def int_or_str(text):
@@ -42,7 +41,7 @@ try:
 
     if args.list_devices:
         print(sd.query_devices())
-        parser.exit()
+        parser.exit(0)
     if args.samplerate is None:
         device_info = sd.query_devices(args.device, 'input')
         # soundfile expects an int, sounddevice provides a float:
@@ -50,13 +49,13 @@ try:
     if args.filename is None:
         args.filename = tempfile.mktemp(prefix='rec_unlimited_',
                                         suffix='.wav', dir='')
-    queue = Queue()
+    q = queue.Queue()
 
     def callback(indata, frames, time, status):
         """This is called (from a separate thread) for each audio block."""
         if status:
-            print(status, flush=True)
-        queue.put(indata.copy())
+            print(status, file=sys.stderr)
+        q.put(indata.copy())
 
     # Make sure the file is opened before recording anything:
     with sf.SoundFile(args.filename, mode='x', samplerate=args.samplerate,
@@ -67,9 +66,10 @@ try:
             print('press Ctrl+C to stop the recording')
             print('#' * 80)
             while True:
-                file.write(queue.get())
+                file.write(q.get())
 
 except KeyboardInterrupt:
-    parser.exit('\nRecording finished: ' + repr(args.filename))
+    print('\nRecording finished: ' + repr(args.filename))
+    parser.exit(0)
 except Exception as e:
     parser.exit(type(e).__name__ + ': ' + str(e))
