@@ -85,7 +85,7 @@ try:
             event.wait()  # Wait until playback is finished
 except KeyboardInterrupt:
     parser.exit('\nInterrupted by user')
-except (queue.Full):
+except queue.Full:
     # A timeout occured, i.e. there was an error in the callback
     parser.exit(1)
 except Exception as e:
