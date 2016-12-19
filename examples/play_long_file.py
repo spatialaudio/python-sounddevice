@@ -47,7 +47,7 @@ event = threading.Event()
 def callback(outdata, frames, time, status):
     assert frames == args.blocksize
     if status.output_underflow:
-        parser.error("An output underflow occurred: increase blocksize?")
+        parser.error('An output underflow occurred: increase blocksize?')
         raise sd.CallbackAbort
     try:
         data = q.get_nowait()
