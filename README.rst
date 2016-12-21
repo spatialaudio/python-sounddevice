@@ -87,6 +87,11 @@ To un-install, use::
 
    python3 -m pip uninstall sounddevice
 
+If you are using Windows, you can alternatively install one of the packages
+provided at http://www.lfd.uci.edu/~gohlke/pythonlibs/#sounddevice.
+The PortAudio library is also included in the package and you can get the rest
+of the dependencies on the same page.
+
 Usage
 -----
 
