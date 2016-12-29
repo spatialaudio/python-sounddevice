@@ -79,7 +79,7 @@ setup(
     long_description=open('README.rst').read(),
     license='MIT',
     keywords='sound audio PortAudio play record playrec'.split(),
-    url='http://python-sounddevice.rtfd.org/',
+    url='http://python-sounddevice.readthedocs.io/',
     platforms='any',
     classifiers=[
         'License :: OSI Approved :: MIT License',
