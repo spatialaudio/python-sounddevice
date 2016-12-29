@@ -843,10 +843,12 @@ def get_portaudio_version():
 class _StreamBase(object):
     """Base class for Raw{Input,Output}Stream."""
 
-    def __init__(self, kind, samplerate, blocksize, device, channels, dtype,
-                 latency, extra_settings, callback_wrapper, finished_callback,
-                 clip_off, dither_off, never_drop_input,
-                 prime_output_buffers_using_stream_callback):
+    def __init__(self, kind, samplerate=None, blocksize=None, device=None,
+                 channels=None, dtype=None, latency=None, extra_settings=None,
+                 callback=None, finished_callback=None, clip_off=None,
+                 dither_off=None, never_drop_input=None,
+                 prime_output_buffers_using_stream_callback=None,
+                 userdata=None):
         if blocksize is None:
             blocksize = default.blocksize
         if clip_off is None:
@@ -904,16 +906,22 @@ class _StreamBase(object):
                 iparameters = _ffi.NULL
                 oparameters = parameters
 
-        if callback_wrapper:
-            self._callback = _ffi.callback(
-                'PaStreamCallback', callback_wrapper, error=_lib.paAbort)
+        if callback is None:
+            callback = _ffi.NULL
+        elif isinstance(callback, _ffi.CData):
+            # Use cast() to allow CData from different FFI instance:
+            callback = _ffi.cast('PaStreamCallback*', callback)
         else:
-            self._callback = _ffi.NULL
-
+            callback = _ffi.callback(
+                'PaStreamCallback', callback, error=_lib.paAbort)
+            # CFFI callback object is kept alive during stream lifetime:
+            self._callback = callback
+        if userdata is None:
+            userdata = _ffi.NULL
         self._ptr = _ffi.new('PaStream**')
         _check(_lib.Pa_OpenStream(self._ptr, iparameters, oparameters,
                                   samplerate, blocksize, stream_flags,
-                                  self._callback, _ffi.NULL),
+                                  callback, userdata),
                'Error opening {0}'.format(self.__class__.__name__))
 
         # dereference PaStream** --> PaStream*
@@ -933,14 +941,17 @@ class _StreamBase(object):
             self._latency = info.inputLatency, info.outputLatency
 
         if finished_callback:
+            if not isinstance(finished_callback, _ffi.CData):
 
-            def finished_callback_wrapper(_):
-                return finished_callback()
+                def finished_callback_wrapper(_):
+                    return finished_callback()
 
-            self._finished_callback = _ffi.callback(
-                'PaStreamFinishedCallback', finished_callback_wrapper)
+                finished_callback = _ffi.callback(
+                    'PaStreamFinishedCallback', finished_callback_wrapper)
+                # CFFI callback object is kept alive during stream lifetime:
+                self._finished_callback = finished_callback
             _check(_lib.Pa_SetStreamFinishedCallback(self._ptr,
-                                                     self._finished_callback))
+                                                     finished_callback))
 
     # Avoid confusion if something goes wrong before assigning self._ptr:
     _ptr = _ffi.NULL
