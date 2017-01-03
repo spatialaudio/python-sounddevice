@@ -946,12 +946,11 @@ class _StreamBase(object):
                 def finished_callback_wrapper(_):
                     return finished_callback()
 
-                finished_callback = _ffi.callback(
-                    'PaStreamFinishedCallback', finished_callback_wrapper)
                 # CFFI callback object is kept alive during stream lifetime:
-                self._finished_callback = finished_callback
+                self._finished_callback = _ffi.callback(
+                    'PaStreamFinishedCallback', finished_callback_wrapper)
             _check(_lib.Pa_SetStreamFinishedCallback(self._ptr,
-                                                     finished_callback))
+                                                     self._finished_callback))
 
     # Avoid confusion if something goes wrong before assigning self._ptr:
     _ptr = _ffi.NULL
