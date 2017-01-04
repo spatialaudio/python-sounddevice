@@ -941,7 +941,9 @@ class _StreamBase(object):
             self._latency = info.inputLatency, info.outputLatency
 
         if finished_callback:
-            if not isinstance(finished_callback, _ffi.CData):
+            if isinstance(finished_callback, _ffi.CData):
+                self._finished_callback = finished_callback
+            else:
 
                 def finished_callback_wrapper(_):
                     return finished_callback()
