@@ -841,14 +841,15 @@ def get_portaudio_version():
 
 
 class _StreamBase(object):
-    """Base class for Raw{Input,Output}Stream."""
+    """Direct or indirect base class for all stream classes."""
 
-    def __init__(self, kind, samplerate=None, blocksize=None, device=None,
+    def __init__(self, kind=None, samplerate=None, blocksize=None, device=None,
                  channels=None, dtype=None, latency=None, extra_settings=None,
                  callback=None, finished_callback=None, clip_off=None,
                  dither_off=None, never_drop_input=None,
                  prime_output_buffers_using_stream_callback=None,
-                 userdata=None):
+                 userdata=None, wrap_callback=None):
+        assert wrap_callback in ('array', 'buffer', None)
         if blocksize is None:
             blocksize = default.blocksize
         if clip_off is None:
@@ -871,7 +872,7 @@ class _StreamBase(object):
         if prime_output_buffers_using_stream_callback:
             stream_flags |= _lib.paPrimeOutputBuffersUsingStreamCallback
 
-        if kind == 'duplex':
+        if kind is None:
             idevice, odevice = _split(device)
             ichannels, ochannels = _split(channels)
             idtype, odtype = _split(dtype)
@@ -898,7 +899,6 @@ class _StreamBase(object):
                                        extra_settings, samplerate)
             self._device = parameters.device
             self._channels = parameters.channelCount
-
             if kind == 'input':
                 iparameters = parameters
                 oparameters = _ffi.NULL
@@ -906,22 +906,79 @@ class _StreamBase(object):
                 iparameters = _ffi.NULL
                 oparameters = parameters
 
+        ffi_callback = _ffi.callback('PaStreamCallback', error=_lib.paAbort)
+
         if callback is None:
-            callback = _ffi.NULL
-        elif isinstance(callback, _ffi.CData):
-            # Use cast() to allow CData from different FFI instance:
-            callback = _ffi.cast('PaStreamCallback*', callback)
+            callback_ptr = _ffi.NULL
+        elif kind == 'input' and wrap_callback == 'buffer':
+
+            @ffi_callback
+            def callback_ptr(iptr, optr, frames, time, status, _):
+                data = _buffer(iptr, frames, self._channels, self._samplesize)
+                return _wrap_callback(callback, data, frames, time, status)
+
+        elif kind == 'input' and wrap_callback == 'array':
+
+            @ffi_callback
+            def callback_ptr(iptr, optr, frames, time, status, _):
+                data = _array(
+                    _buffer(iptr, frames, self._channels, self._samplesize),
+                    self._channels, self._dtype)
+                return _wrap_callback(callback, data, frames, time, status)
+
+        elif kind == 'output' and wrap_callback == 'buffer':
+
+            @ffi_callback
+            def callback_ptr(iptr, optr, frames, time, status, _):
+                data = _buffer(optr, frames, self._channels, self._samplesize)
+                return _wrap_callback(callback, data, frames, time, status)
+
+        elif kind == 'output' and wrap_callback == 'array':
+
+            @ffi_callback
+            def callback_ptr(iptr, optr, frames, time, status, _):
+                data = _array(
+                    _buffer(optr, frames, self._channels, self._samplesize),
+                    self._channels, self._dtype)
+                return _wrap_callback(callback, data, frames, time, status)
+
+        elif kind is None and wrap_callback == 'buffer':
+
+            @ffi_callback
+            def callback_ptr(iptr, optr, frames, time, status, _):
+                ichannels, ochannels = self._channels
+                isize, osize = self._samplesize
+                idata = _buffer(iptr, frames, ichannels, isize)
+                odata = _buffer(optr, frames, ochannels, osize)
+                return _wrap_callback(
+                    callback, idata, odata, frames, time, status)
+
+        elif kind is None and wrap_callback == 'array':
+
+            @ffi_callback
+            def callback_ptr(iptr, optr, frames, time, status, _):
+                ichannels, ochannels = self._channels
+                idtype, odtype = self._dtype
+                isize, osize = self._samplesize
+                idata = _array(_buffer(iptr, frames, ichannels, isize),
+                               ichannels, idtype)
+                odata = _array(_buffer(optr, frames, ochannels, osize),
+                               ochannels, odtype)
+                return _wrap_callback(
+                    callback, idata, odata, frames, time, status)
+
         else:
-            callback = _ffi.callback(
-                'PaStreamCallback', callback, error=_lib.paAbort)
-            # CFFI callback object is kept alive during stream lifetime:
-            self._callback = callback
+            # Use cast() to allow CData from different FFI instance:
+            callback_ptr = _ffi.cast('PaStreamCallback*', callback)
+
+        # CFFI callback object must be kept alive during stream lifetime:
+        self._callback = callback_ptr
         if userdata is None:
             userdata = _ffi.NULL
         self._ptr = _ffi.new('PaStream**')
         _check(_lib.Pa_OpenStream(self._ptr, iparameters, oparameters,
                                   samplerate, blocksize, stream_flags,
-                                  callback, userdata),
+                                  callback_ptr, userdata),
                'Error opening {0}'.format(self.__class__.__name__))
 
         # dereference PaStream** --> PaStream*
@@ -1207,16 +1264,8 @@ class RawInputStream(_StreamBase):
         RawStream, Stream
 
         """
-
-        def callback_wrapper(iptr, optr, frames, time, status, _):
-            data = _buffer(iptr, frames, self._channels, self._samplesize)
-            return _wrap_callback(callback, data, frames, time, status)
-
-        _StreamBase.__init__(
-            self, 'input', samplerate, blocksize, device, channels, dtype,
-            latency, extra_settings, callback and callback_wrapper,
-            finished_callback, clip_off, dither_off, never_drop_input,
-            prime_output_buffers_using_stream_callback)
+        _StreamBase.__init__(self, kind='input', wrap_callback='buffer',
+                             **_remove_self(locals()))
 
     @property
     def read_available(self):
@@ -1299,16 +1348,8 @@ class RawOutputStream(_StreamBase):
         RawStream, Stream
 
         """
-
-        def callback_wrapper(iptr, optr, frames, time, status, _):
-            data = _buffer(optr, frames, self._channels, self._samplesize)
-            return _wrap_callback(callback, data, frames, time, status)
-
-        _StreamBase.__init__(
-            self, 'output', samplerate, blocksize, device, channels, dtype,
-            latency, extra_settings, callback and callback_wrapper,
-            finished_callback, clip_off, dither_off, never_drop_input,
-            prime_output_buffers_using_stream_callback)
+        _StreamBase.__init__(self, kind='output', wrap_callback='buffer',
+                             **_remove_self(locals()))
 
     @property
     def write_available(self):
@@ -1415,19 +1456,8 @@ class RawStream(RawInputStream, RawOutputStream):
         RawInputStream, RawOutputStream, Stream
 
         """
-
-        def callback_wrapper(iptr, optr, frames, time, status, _):
-            ichannels, ochannels = self._channels
-            isize, osize = self._samplesize
-            idata = _buffer(iptr, frames, ichannels, isize)
-            odata = _buffer(optr, frames, ochannels, osize)
-            return _wrap_callback(callback, idata, odata, frames, time, status)
-
-        _StreamBase.__init__(
-            self, 'duplex', samplerate, blocksize, device, channels, dtype,
-            latency, extra_settings, callback and callback_wrapper,
-            finished_callback, clip_off, dither_off, never_drop_input,
-            prime_output_buffers_using_stream_callback)
+        _StreamBase.__init__(self, kind=None, wrap_callback='buffer',
+                             **_remove_self(locals()))
 
 
 class InputStream(RawInputStream):
@@ -1463,17 +1493,8 @@ class InputStream(RawInputStream):
         Stream, RawInputStream
 
         """
-
-        def callback_wrapper(iptr, optr, frames, time, status, _):
-            buffer = _buffer(iptr, frames, self._channels, self._samplesize)
-            data = _array(buffer, self._channels, self._dtype)
-            return _wrap_callback(callback, data, frames, time, status)
-
-        _StreamBase.__init__(
-            self, 'input', samplerate, blocksize, device, channels, dtype,
-            latency, extra_settings, callback and callback_wrapper,
-            finished_callback, clip_off, dither_off, never_drop_input,
-            prime_output_buffers_using_stream_callback)
+        _StreamBase.__init__(self, kind='input', wrap_callback='array',
+                             **_remove_self(locals()))
 
     def read(self, frames):
         """Read samples from the stream into a NumPy array.
@@ -1545,17 +1566,8 @@ class OutputStream(RawOutputStream):
         Stream, RawOutputStream
 
         """
-
-        def callback_wrapper(iptr, optr, frames, time, status, _):
-            buffer = _buffer(optr, frames, self._channels, self._samplesize)
-            data = _array(buffer, self._channels, self._dtype)
-            return _wrap_callback(callback, data, frames, time, status)
-
-        _StreamBase.__init__(
-            self, 'output', samplerate, blocksize, device, channels, dtype,
-            latency, extra_settings, callback and callback_wrapper,
-            finished_callback, clip_off, dither_off, never_drop_input,
-            prime_output_buffers_using_stream_callback)
+        _StreamBase.__init__(self, kind='output', wrap_callback='array',
+                             **_remove_self(locals()))
 
     def write(self, data):
         """Write samples to the stream.
@@ -1842,22 +1854,8 @@ class Stream(InputStream, OutputStream):
             See `default.prime_output_buffers_using_stream_callback`.
 
         """
-
-        def callback_wrapper(iptr, optr, frames, time, status, _):
-            ichannels, ochannels = self._channels
-            idtype, odtype = self._dtype
-            isize, osize = self._samplesize
-            ibuffer = _buffer(iptr, frames, ichannels, isize)
-            obuffer = _buffer(optr, frames, ochannels, osize)
-            idata = _array(ibuffer, ichannels, idtype)
-            odata = _array(obuffer, ochannels, odtype)
-            return _wrap_callback(callback, idata, odata, frames, time, status)
-
-        _StreamBase.__init__(
-            self, 'duplex', samplerate, blocksize, device, channels, dtype,
-            latency, extra_settings, callback and callback_wrapper,
-            finished_callback, clip_off, dither_off, never_drop_input,
-            prime_output_buffers_using_stream_callback)
+        _StreamBase.__init__(self, kind=None, wrap_callback='array',
+                             **_remove_self(locals()))
 
 
 class DeviceList(tuple):
@@ -2494,6 +2492,13 @@ class _CallbackContext(object):
         finally:
             self.stream.close()
         return self.status if self.status else None
+
+
+def _remove_self(d):
+    """Return a copy of d without the 'self' entry."""
+    d = d.copy()
+    del d['self']
+    return d
 
 
 def _check_mapping(mapping, channels):
