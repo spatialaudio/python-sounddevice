@@ -15,6 +15,7 @@ def int_or_str(text):
     except ValueError:
         return text
 
+
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('-i', '--input-device', type=int_or_str,
                     help='input device ID or substring')
@@ -33,7 +34,7 @@ try:
 
     def callback(indata, outdata, frames, time, status):
         if status:
-            print(status, flush=True)
+            print(status)
         outdata[:] = indata
 
     with sd.Stream(device=(args.input_device, args.output_device),

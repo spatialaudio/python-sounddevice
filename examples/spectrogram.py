@@ -70,15 +70,15 @@ try:
         if status:
             text = ' ' + str(status) + ' '
             print('\x1b[34;40m', text.center(args.columns, '#'),
-                  '\x1b[0m', sep='', flush=True)
+                  '\x1b[0m', sep='')
         if any(indata):
             magnitude = np.abs(np.fft.rfft(indata[:, 0], n=fftsize))
             magnitude *= args.gain / fftsize
             line = (gradient[int(np.clip(x, 0, 1) * (len(gradient) - 1))]
                     for x in magnitude[low_bin:low_bin + args.columns])
-            print(*line, sep='', end='\x1b[0m\n', flush=True)
+            print(*line, sep='', end='\x1b[0m\n')
         else:
-            print('no input', flush=True)
+            print('no input')
 
     with sd.InputStream(device=args.device, channels=1, callback=callback,
                         blocksize=int(samplerate * args.block_duration / 1000),
@@ -94,7 +94,7 @@ try:
                     args.gain /= 2
                 else:
                     print('\x1b[31;40m', usage_line.center(args.columns, '#'),
-                          '\x1b[0m', sep='', flush=True)
+                          '\x1b[0m', sep='')
                     break
 except KeyboardInterrupt:
     parser.exit('Interrupted by user')
