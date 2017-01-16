@@ -863,12 +863,13 @@ def get_portaudio_version():
 class _StreamBase(object):
     """Direct or indirect base class for all stream classes."""
 
-    def __init__(self, kind=None, samplerate=None, blocksize=None, device=None,
+    def __init__(self, kind, samplerate=None, blocksize=None, device=None,
                  channels=None, dtype=None, latency=None, extra_settings=None,
                  callback=None, finished_callback=None, clip_off=None,
                  dither_off=None, never_drop_input=None,
                  prime_output_buffers_using_stream_callback=None,
                  userdata=None, wrap_callback=None):
+        assert kind in ('input', 'output', 'duplex')
         assert wrap_callback in ('array', 'buffer', None)
         if blocksize is None:
             blocksize = default.blocksize
@@ -892,7 +893,7 @@ class _StreamBase(object):
         if prime_output_buffers_using_stream_callback:
             stream_flags |= _lib.paPrimeOutputBuffersUsingStreamCallback
 
-        if kind is None:
+        if kind == 'duplex':
             idevice, odevice = _split(device)
             ichannels, ochannels = _split(channels)
             idtype, odtype = _split(dtype)
@@ -962,7 +963,7 @@ class _StreamBase(object):
                     self._channels, self._dtype)
                 return _wrap_callback(callback, data, frames, time, status)
 
-        elif kind is None and wrap_callback == 'buffer':
+        elif kind == 'duplex' and wrap_callback == 'buffer':
 
             @ffi_callback
             def callback_ptr(iptr, optr, frames, time, status, _):
@@ -973,7 +974,7 @@ class _StreamBase(object):
                 return _wrap_callback(
                     callback, idata, odata, frames, time, status)
 
-        elif kind is None and wrap_callback == 'array':
+        elif kind == 'duplex' and wrap_callback == 'array':
 
             @ffi_callback
             def callback_ptr(iptr, optr, frames, time, status, _):
@@ -1476,7 +1477,7 @@ class RawStream(RawInputStream, RawOutputStream):
         RawInputStream, RawOutputStream, Stream
 
         """
-        _StreamBase.__init__(self, kind=None, wrap_callback='buffer',
+        _StreamBase.__init__(self, kind='duplex', wrap_callback='buffer',
                              **_remove_self(locals()))
 
 
@@ -1874,7 +1875,7 @@ class Stream(InputStream, OutputStream):
             See `default.prime_output_buffers_using_stream_callback`.
 
         """
-        _StreamBase.__init__(self, kind=None, wrap_callback='array',
+        _StreamBase.__init__(self, kind='duplex', wrap_callback='array',
                              **_remove_self(locals()))
 
 
@@ -2549,6 +2550,7 @@ def _check_dtype(dtype):
 def _get_stream_parameters(kind, device, channels, dtype, latency,
                            extra_settings, samplerate):
     """Get parameters for one direction (input or output) of a stream."""
+    assert kind in ('input', 'output')
     if device is None:
         device = default.device[kind]
     if channels is None:
