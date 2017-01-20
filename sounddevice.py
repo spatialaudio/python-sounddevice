@@ -1913,7 +1913,7 @@ class DeviceList(tuple):
                 outs=info['max_output_channels'])
             for idx, info in enumerate(self))
         if _sys.version_info.major < 3:
-            return text.encode(_sys.stdout.encoding or 'utf-8')
+            return text.encode(_sys.stdout.encoding or 'utf-8', 'replace')
         return text
 
 
