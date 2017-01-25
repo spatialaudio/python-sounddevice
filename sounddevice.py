@@ -588,9 +588,9 @@ def get_status():
 
 
 def get_stream():
-    """Get a reference to the current Stream.
+    """Get a reference to the current stream.
 
-    This applies only to Streams created by calls to `play()`, `rec()`,
+    This applies only to streams created by calls to `play()`, `rec()`,
     or `playrec()`.
 
     Returns
@@ -603,15 +603,17 @@ def get_stream():
     Examples
     --------
 
+    >>> # Display progress indicator while audio is playing
     >>> import sounddevice as sd
     >>> from time import sleep
-    >>> sd.play('test.wav')
-    >>> print('Playing test.wav...', end='')
+    >>> sd.play(...)
+    >>> print('Playing sound...', end='')
     >>> stream = sd.get_stream()
     >>> while stream.active:
     >>>     sleep(1.0)
     >>>     print('.', end='')
     >>> print(' Done.')
+
     """
     if _last_callback:
         return _last_callback.stream
