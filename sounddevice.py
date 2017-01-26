@@ -600,20 +600,6 @@ def get_stream():
         the last invocation of `play()`, `rec()` or `playrec()`
         respectively.
 
-    Examples
-    --------
-
-    >>> # Display progress indicator while audio is playing
-    >>> import sounddevice as sd
-    >>> from time import sleep
-    >>> sd.play(...)
-    >>> print('Playing sound...', end='')
-    >>> stream = sd.get_stream()
-    >>> while stream.active:
-    >>>     sleep(1.0)
-    >>>     print('.', end='')
-    >>> print(' Done.')
-
     """
     if _last_callback:
         return _last_callback.stream
