@@ -1897,10 +1897,8 @@ class DeviceList(tuple):
     __slots__ = ()
 
     def __repr__(self):
-        idev, odev = [
-            dev if isinstance(dev, int) else _get_device_id(dev, kind)
-            for kind, dev in zip(('input', 'output'), default.device)
-        ]
+        idev = _get_device_id(default.device['input'], 'input')
+        odev = _get_device_id(default.device['output'], 'output')
         digits = len(str(_lib.Pa_GetDeviceCount() - 1))
         hostapi_names = [hostapi['name'] for hostapi in query_hostapis()]
         text = '\n'.join(
