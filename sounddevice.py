@@ -587,6 +587,26 @@ def get_status():
         raise RuntimeError('play()/rec()/playrec() was not called yet')
 
 
+def get_stream():
+    """Get a reference to the current stream.
+
+    This applies only to streams created by calls to `play()`, `rec()`,
+    or `playrec()`.
+
+    Returns
+    -------
+    Stream
+        An `OutputStream`, `InputStream`, or `Stream` associated with
+        the last invocation of `play()`, `rec()` or `playrec()`
+        respectively.
+
+    """
+    if _last_callback:
+        return _last_callback.stream
+    else:
+        raise RuntimeError('play()/rec()/playrec() was not called yet')
+
+
 def query_devices(device=None, kind=None):
     """Return information about available devices.
 
