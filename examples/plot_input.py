@@ -63,16 +63,14 @@ def update_plot(frame):
 
     """
     global plotdata
-    block = True  # The first read from the queue is blocking ...
     while True:
         try:
-            data = q.get(block=block)
+            data = q.get_nowait()
         except queue.Empty:
             break
         shift = len(data)
         plotdata = np.roll(plotdata, -shift, axis=0)
         plotdata[-shift:, :] = data
-        block = False  # ... all further reads are non-blocking
     for column, line in enumerate(lines):
         line.set_ydata(plotdata[:, column])
     return lines
