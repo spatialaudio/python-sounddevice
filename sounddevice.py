@@ -723,10 +723,23 @@ def query_devices(device=None, kind=None):
     if not info:
         raise PortAudioError('Error querying device {0}'.format(device))
     assert info.structVersion == 2
+    name_bytes = _ffi.string(info.name)
+    try:
+        # We don't know beforehand if DirectSound and MME device names use
+        # 'utf-8' or 'mbcs' encoding.  Let's try 'utf-8' first, because it more
+        # likely raises an exception on 'mbcs' data than vice versa, see also
+        # https://github.com/spatialaudio/python-sounddevice/issues/72.
+        # All other host APIs use 'utf-8' anyway.
+        name = name_bytes.decode('utf-8')
+    except UnicodeDecodeError:
+        if info.hostApi in (
+                _lib.Pa_HostApiTypeIdToHostApiIndex(_lib.paDirectSound),
+                _lib.Pa_HostApiTypeIdToHostApiIndex(_lib.paMME)):
+            name = name_bytes.decode('mbcs')
+        else:
+            raise
     device_dict = {
-        'name': _ffi.string(info.name).decode('mbcs' if info.hostApi in (
-            _lib.Pa_HostApiTypeIdToHostApiIndex(_lib.paDirectSound),
-            _lib.Pa_HostApiTypeIdToHostApiIndex(_lib.paMME)) else 'utf-8'),
+        'name': name,
         'hostapi': info.hostApi,
         'max_input_channels': info.maxInputChannels,
         'max_output_channels': info.maxOutputChannels,
