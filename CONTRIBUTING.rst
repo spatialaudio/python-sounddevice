@@ -25,13 +25,13 @@ If you prefer, you can also replace the last command with::
 ... where ``-e`` stands for ``--editable``.
 
 If you used the ``--recursive`` option when cloning, the dynamic libraries for
-Mac OS X and Windows should be available.
+*macOS* and *Windows* should already be available.
 If not, you can get the submodule with::
 
    git submodule update --init
 
-If you make changes to the documentation, you can re-create the HTML pages
-using Sphinx_.
+If you make changes to the documentation, you can locally re-create the HTML
+pages using Sphinx_.
 You can install it and a few other necessary packages with::
 
    python3 -m pip install -r doc/requirements.txt --user

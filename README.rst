@@ -140,8 +140,8 @@ To record audio data from your sound device into a NumPy array, use
 
 .. code:: python
 
-   duration = 10  # seconds
-   myrecording = sd.rec(duration * fs, samplerate=fs, channels=2)
+   duration = 10.5  # seconds
+   myrecording = sd.rec(int(duration * fs), samplerate=fs, channels=2)
 
 Again, for repeated use you can set defaults using `sounddevice.default`:
 
@@ -237,30 +237,30 @@ Callback "wire" with `sounddevice.Stream`:
 .. code:: python
 
    import sounddevice as sd
-   duration = 5  # seconds
+   duration = 5.5  # seconds
 
    def callback(indata, outdata, frames, time, status):
        if status:
-           print(status, flush=True)
+           print(status)
        outdata[:] = indata
 
    with sd.Stream(channels=2, callback=callback):
-       sd.sleep(duration * 1000)
+       sd.sleep(int(duration * 1000))
 
 Same thing with `sounddevice.RawStream`:
 
 .. code:: python
 
    import sounddevice as sd
-   duration = 5  # seconds
+   duration = 5.5  # seconds
 
    def callback(indata, outdata, frames, time, status):
        if status:
-           print(status, flush=True)
+           print(status)
        outdata[:] = indata
 
    with sd.RawStream(channels=2, dtype='int24', callback=callback):
-       sd.sleep(duration * 1000)
+       sd.sleep(int(duration * 1000))
 
 .. note:: We are using 24-bit samples here for no particular reason
    (just because we can).

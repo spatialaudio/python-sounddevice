@@ -352,13 +352,14 @@ def play(data, samplerate=None, mapping=None, blocking=False, loop=False,
         treated as mono data.
         The data types *float64*, *float32*, *int32*, *int16*, *int8*
         and *uint8* can be used.
-        *float64* data is converted to *float32* before passing it to
-        PortAudio, because it's not supported natively.
+        *float64* data is simply converted to *float32* before passing
+        it to PortAudio, because it's not supported natively.
     mapping : array_like, optional
         List of channel numbers (starting with 1) where the columns of
         *data* shall be played back on.  Must have the same length as
-        number of channels in *data* (except if *data* is mono).
-        Each channel may only appear once in *mapping*.
+        number of channels in *data* (except if *data* is mono, in which
+        case the signal is played back on all given output channels).
+        Each channel number may only appear once in *mapping*.
     blocking : bool, optional
         If ``False`` (the default), return immediately (but playback
         continues in the background), if ``True``, wait until playback
@@ -428,7 +429,7 @@ def rec(frames=None, samplerate=None, channels=None, dtype=None,
         The recorded data.
 
         .. note:: By default (``blocking=False``), an array of data is
-           returned which is still being written to while recording.
+           returned which is still being written to while recording!
            The returned data is only valid once recording has stopped.
            Use `wait()` to make sure the recording is finished.
 
@@ -590,14 +591,14 @@ def get_status():
 def get_stream():
     """Get a reference to the current stream.
 
-    This applies only to streams created by calls to `play()`, `rec()`,
+    This applies only to streams created by calls to `play()`, `rec()`
     or `playrec()`.
 
     Returns
     -------
     Stream
-        An `OutputStream`, `InputStream`, or `Stream` associated with
-        the last invocation of `play()`, `rec()` or `playrec()`
+        An `OutputStream`, `InputStream` or `Stream` associated with
+        the last invocation of `play()`, `rec()` or `playrec()`,
         respectively.
 
     """
@@ -630,7 +631,7 @@ def query_devices(device=None, kind=None):
     -------
     dict or DeviceList
         A dictionary with information about the given *device* or -- if
-        no *device* was specified -- a `DeviceList` containing one
+        no arguments were specified -- a `DeviceList` containing one
         dictionary for each available device.
         The dictionaries have the following keys:
 
@@ -703,7 +704,7 @@ def query_devices(device=None, kind=None):
     devices.  The latter sometimes have a ridiculously high number of
     (virtual) inputs and outputs.
 
-    On Mac OS X, you might get something similar to this:
+    On macOS, you might get something similar to this:
 
     >>> sd.query_devices()
       0 Built-in Line Input, Core Audio (2 in, 0 out)
@@ -819,7 +820,7 @@ def check_input_settings(device=None, channels=None, dtype=None,
     Parameters
     ----------
     device : int or str, optional
-        Device ID or device name substring, see `default.device`.
+        Device ID or device name substring(s), see `default.device`.
     channels : int, optional
         Number of input channels, see `default.channels`.
     dtype : str or numpy.dtype, optional
@@ -1272,7 +1273,7 @@ class RawInputStream(_StreamBase):
         This is the same as `InputStream`, except that the *callback*
         function and :meth:`~RawStream.read` work on plain Python buffer
         objects instead of on NumPy arrays.
-        NumPy is not necessary to use this.
+        NumPy is not necessary for using this.
 
         Parameters
         ----------
@@ -1312,7 +1313,7 @@ class RawInputStream(_StreamBase):
 
         This is the same as `Stream.read()`, except that it returns
         a plain Python buffer object instead of a NumPy array.
-        NumPy is not necessary to use this.
+        NumPy is not necessary for using this.
 
         Parameters
         ----------
@@ -1356,7 +1357,7 @@ class RawOutputStream(_StreamBase):
         This is the same as `OutputStream`, except that the *callback*
         function and :meth:`~RawStream.write` work on plain Python
         buffer objects instead of on NumPy arrays.
-        NumPy is not necessary to use this.
+        NumPy is not necessary for using this.
 
         Parameters
         ----------
@@ -1396,7 +1397,7 @@ class RawOutputStream(_StreamBase):
 
         This is the same as `Stream.write()`, except that it expects
         a plain Python buffer object instead of a NumPy array.
-        NumPy is not necessary to use this.
+        NumPy is not necessary for using this.
 
         Parameters
         ----------
@@ -1451,9 +1452,9 @@ class RawStream(RawInputStream, RawOutputStream):
         This is the same as `Stream`, except that the *callback*
         function and `read()`/`write()` work on plain Python buffer
         objects instead of on NumPy arrays.
-        NumPy is not necessary to use this.
+        NumPy is not necessary for using this.
 
-        To open "raw" input-only or output-only stream use
+        To open a "raw" input-only or output-only stream use
         `RawInputStream` or `RawOutputStream`, respectively.
         If you want to handle audio data as NumPy arrays instead of
         buffer objects, use `Stream`, `InputStream` or `OutputStream`.
@@ -1653,17 +1654,17 @@ class Stream(InputStream, OutputStream):
                  extra_settings=None, callback=None, finished_callback=None,
                  clip_off=None, dither_off=None, never_drop_input=None,
                  prime_output_buffers_using_stream_callback=None):
-        """Open a stream for input and output.
+        """Open a stream for simultaneous input and output.
 
         To open an input-only or output-only stream use `InputStream` or
         `OutputStream`, respectively.  If you want to handle audio data
-        as buffer objects instead of NumPy arrays, use `RawStream`,
-        `RawInputStream` or `RawOutputStream`.
+        as plain buffer objects instead of NumPy arrays, use
+        `RawStream`, `RawInputStream` or `RawOutputStream`.
 
         A single stream can provide multiple channels of real-time
         streaming audio input and output to a client application.  A
         stream provides access to audio hardware represented by one or
-        more devices.  Depending on the underlying Host API, it may be
+        more devices.  Depending on the underlying host API, it may be
         possible to open multiple streams using the same device, however
         this behavior is implementation defined.  Portable applications
         should assume that a device may be simultaneously used by at
@@ -1984,6 +1985,9 @@ class CallbackFlags(object):
         that one or more zero samples have been inserted into the input
         buffer to compensate for an input underflow.
 
+        This can only happen in full-duplex streams (including
+        `playrec()`).
+
         """
         return self._hasflag(_lib.paInputUnderflow)
 
@@ -1997,6 +2001,9 @@ class CallbackFlags(object):
         too much CPU time.  Otherwise indicates that data prior to one
         or more samples in the input buffer was discarded.
 
+        This can happen in full-duplex and input-only streams (including
+        `playrec()` and `rec()`).
+
         """
         return self._hasflag(_lib.paInputOverflow)
 
@@ -2006,6 +2013,9 @@ class CallbackFlags(object):
 
         Indicates that output data (or a gap) was inserted, possibly
         because the stream callback is using too much CPU time.
+
+        This can happen in full-duplex and output-only streams
+        (including `playrec()` and `play()`).
 
         """
         return self._hasflag(_lib.paOutputUnderflow)
@@ -2017,6 +2027,10 @@ class CallbackFlags(object):
         Indicates that output data will be discarded because no room is
         available.
 
+        This can only happen in full-duplex streams (including
+        `playrec()`), but only when ``never_drop_input=True`` was
+        specified.  See `default.never_drop_input`.
+
         """
         return self._hasflag(_lib.paOutputOverflow)
 
@@ -2026,6 +2040,11 @@ class CallbackFlags(object):
 
         Some of all of the output data will be used to prime the stream,
         input data may be zero.
+
+        This will only take place with some of the host APIs, and only
+        if ``prime_output_buffers_using_stream_callback=True`` was
+        specified.
+        See `default.prime_output_buffers_using_stream_callback`.
 
         """
         return self._hasflag(_lib.paPrimingOutput)
@@ -2196,8 +2215,9 @@ class default(object):
     callback.  This flag is only valid for full-duplex callback streams
     (i.e. only `Stream` and `RawStream` and only if *callback* was
     specified; this includes `playrec()`) and only when used in
-    combination with ``blocksize=0`` (the default).
-    Using this flag incorrectly results in an error being raised.
+    combination with ``blocksize=0`` (the default).  Using this flag
+    incorrectly results in an error being raised.  See also
+    http://www.portaudio.com/docs/proposals/001-UnderflowOverflowHandling.html.
 
     """
     prime_output_buffers_using_stream_callback = False
@@ -2207,7 +2227,8 @@ class default(object):
     buffers, rather than the default behavior of priming the buffers
     with zeros (silence).  This flag has no effect for input-only
     (`InputStream` and `RawInputStream`) and blocking read/write streams
-    (i.e. if *callback* wasn't specified).
+    (i.e. if *callback* wasn't specified).  See also
+    http://www.portaudio.com/docs/proposals/020-AllowCallbackToPrimeStream.html.
 
     """
 
@@ -2293,8 +2314,8 @@ class AsioSettings(object):
             The length of *channel_selectors* must match the
             corresponding *channels* parameter of `Stream()` (or
             variants), otherwise a crash may result.
-            The values in the selectors array must specify channels
-            within the range of supported channels.
+            The values in the *channel_selectors* array must specify
+            channels within the range of supported channels.
 
         Examples
         --------
@@ -2745,7 +2766,7 @@ def _ignore_stderr():
     FILE* fopen(const char* path, const char* mode);
     int fclose(FILE* fp);
     FILE* stderr;  /* GNU C library */
-    FILE* __stderrp;  /* Mac OS X */
+    FILE* __stderrp;  /* macOS */
     """)
     try:
         stdio = ffi.dlopen(None)
