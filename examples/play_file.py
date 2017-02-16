@@ -29,8 +29,8 @@ try:
     import sounddevice as sd
     import soundfile as sf
     data, fs = sf.read(args.filename, dtype='float32')
-    sd.play(data, fs, device=args.device, blocking=True)
-    status = sd.get_status()
+    sd.play(data, fs, device=args.device)
+    status = sd.wait()
     if status:
         parser.exit('Error during playback: ' + str(status))
 except KeyboardInterrupt:
