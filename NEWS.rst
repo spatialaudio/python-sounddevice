@@ -1,3 +1,7 @@
+0.3.7 (2017-02-16):
+ * Add `sounddevice.get_stream()`
+ * Support for CData function pointers as callbacks
+
 0.3.6 (2016-12-19):
  * Example application ``play_long_file.py``
 
