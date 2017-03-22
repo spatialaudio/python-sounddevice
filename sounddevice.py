@@ -2754,6 +2754,15 @@ def _terminate():
 
 def _exit_handler():
     assert _initialized >= 0
+
+    # We cleanup any open streams here since older versions of portaudio don't
+    # manage this (see github issue #1)
+    if _last_callback:
+        # NB: calling stop() first is required; without it portaudio hangs when
+        # calling close()
+        _last_callback.stream.stop()
+        _last_callback.stream.close()
+
     while _initialized:
         _terminate()
 
