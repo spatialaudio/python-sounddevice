@@ -544,7 +544,7 @@ def playrec(data, samplerate=None, channels=None, dtype=None,
     input_frames = ctx.check_out(out, output_frames, channels, dtype,
                                  input_mapping)
     if input_frames != output_frames:
-        raise PortAudioError('len(data) != len(out)')
+        raise ValueError('len(data) != len(out)')
     ctx.frames = input_frames
 
     def callback(indata, outdata, frames, time, status):
@@ -951,7 +951,7 @@ class _StreamBase(object):
             self._channels = iparameters.channelCount, oparameters.channelCount
             self._samplesize = isize, osize
             if isamplerate != osamplerate:
-                raise PortAudioError(
+                raise ValueError(
                     'Input and output device must have the same samplerate')
             else:
                 samplerate = isamplerate
@@ -2289,13 +2289,39 @@ class default(object):
         vars(self).clear()
         self.__init__()
 
+
 if not hasattr(_ffi, 'I_AM_FAKE'):
     # This object shadows the 'default' class, except when building the docs.
     default = default()
 
 
 class PortAudioError(Exception):
-    """This exception will be raised on PortAudio errors."""
+    """This exception will be raised on PortAudio errors.
+
+    Attributes
+    ----------
+    args
+        A variable length tuple containing the following elements when
+        available:
+
+        1) A string describing the error
+        2) The PortAudio ``PaErrorCode`` value
+        3) A 3-tuple containing the host API index, host error code, and the
+           host error message (which may be an empty string)
+
+    """
+
+    def __str__(self):
+        errormsg = self.args[0] if self.args else ''
+        if len(self.args) > 1:
+            errormsg = "{0} [PaErrorCode {1}]".format(errormsg, self.args[1])
+        if len(self.args) > 2:
+            host_api, hosterror_code, hosterror_text = self.args[2]
+            hostname = query_hostapis(host_api)['name']
+            errormsg = "{0}: '{1}' [{2} error {3}]".format(
+                errormsg, hosterror_text, hostname, hosterror_code)
+
+        return errormsg
 
 
 class CallbackStop(Exception):
@@ -2776,19 +2802,27 @@ def _split(value):
     return invalue, outvalue
 
 
-def _check(err, msg=""):
+def _check(err, msg=''):
     """Raise error for non-zero error codes."""
-    if err < 0:
-        msg += ': ' if msg else ''
-        if err == _lib.paUnanticipatedHostError:
-            info = _lib.Pa_GetLastHostErrorInfo()
-            hostapi = _lib.Pa_HostApiTypeIdToHostApiIndex(info.hostApiType)
-            msg += 'Unanticipated host API {0} error {1}: {2!r}'.format(
-                hostapi, info.errorCode, _ffi.string(info.errorText).decode())
-        else:
-            msg += _ffi.string(_lib.Pa_GetErrorText(err)).decode()
-        raise PortAudioError(msg)
-    return err
+    if err >= 0:
+        return err
+
+    errormsg = _ffi.string(_lib.Pa_GetErrorText(err)).decode()
+    if msg:
+        errormsg = "{0}: {1}".format(msg, errormsg)
+
+    if err == _lib.paUnanticipatedHostError:
+        # (gh82) We grab the host error info here rather than inside
+        # PortAudioError since _check should only ever be called after a
+        # failing API function call. This way we can avoid any potential issues
+        # in scenarios where multiple APIs are being used simultaneously.
+        info = _lib.Pa_GetLastHostErrorInfo()
+        host_api = _lib.Pa_HostApiTypeIdToHostApiIndex(info.hostApiType)
+        hosterror_text = _ffi.string(info.errorText).decode()
+        hosterror_info = host_api, info.errorCode, hosterror_text
+        raise PortAudioError(errormsg, err, hosterror_info)
+
+    raise PortAudioError(errormsg, err)
 
 
 def _get_device_id(id_or_query_string, kind, raise_on_error=False):
