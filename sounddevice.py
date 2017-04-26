@@ -818,7 +818,7 @@ def query_hostapis(index=None):
         The dictionaries have the following keys:
 
         ``'name'``
-            The name of the host API.
+            The name of the host API and suitable for user display.
         ``'devices'``
             A list of device IDs belonging to the host API.
             Use `query_devices()` to get information about a device.
@@ -831,6 +831,16 @@ def query_hostapis(index=None):
                 overwritten by assigning to `default.device` -- take(s)
                 precedence over `default.hostapi` and the information in
                 the abovementioned dictionaries.
+        ``'apiname'``
+            *apiname* is a string that is suitable for use as a Python
+            identifier.  Unlike *name*, *apiname* does not contain
+            spaces or any other characters that are not suitable as a
+            Python identifier.  These strings are derived from
+            PortAudio's PaHostApiTypeId enumeration and thus correspond
+            on a one-to-one basis with that enumeration.  These strings
+            shall never be eubject to locale settings such as LANG,
+            LC_ALL, or LC_MESSAGES.  In short, these strings are safer
+            than *name* for hard coding into an application.
         ``'api'``
             A namedtuple containing the platform-specific API from
             PortAudio.  If a platform-specific API is unavailable, this
@@ -858,6 +868,7 @@ def query_hostapis(index=None):
                     for i in range(info.deviceCount)],
         'default_input_device': info.defaultInputDevice,
         'default_output_device': info.defaultOutputDevice,
+        'apiname': _get_host_apiname(info.type),
         'api': api,
     }
 
@@ -2353,6 +2364,48 @@ class CallbackAbort(Exception):
 # Host-API:
 
 
+# Is there a way to query the names used in "enum PaHostApiTypeId"?
+# If so, then I wouldn't bother with this dict, _typeid_to_apiname.
+#
+# Q: Should _typeid_to_apiname be brought out to global scope, with
+# the leading underscore?  I'm averse to relying upon converting the
+# current .name field as an api identifier, since those strings are
+# intended for user consumption.  (For example, will Port Audio one
+# day provide language translations of those names?  If they did,
+# these names could differ for each user purely based on locale
+# settings, such as LANG, LC_ALL, or LC_MESSAGES!)
+_typeid_to_apiname = {
+    _lib.paInDevelopment   : str.lower('InDevelopment'),
+    _lib.paDirectSound     : str.lower('DirectSound'),
+    _lib.paMME             : str.lower('MME'),
+    _lib.paASIO            : str.lower('ASIO'),
+    _lib.paSoundManager    : str.lower('SoundManager'),
+    _lib.paCoreAudio       : str.lower('CoreAudio'),
+    _lib.paOSS             : str.lower('OSS'),
+    _lib.paALSA            : str.lower('ALSA'),
+    _lib.paAL              : str.lower('AL'),
+    _lib.paBeOS            : str.lower('BeOS'),
+    _lib.paWDMKS           : str.lower('WDMKS'),
+    _lib.paJACK            : str.lower('JACK'),
+    _lib.paWASAPI          : str.lower('WASAPI'),
+    _lib.paAudioScienceHPI : str.lower('AudioScienceHPI'),
+}
+def _get_host_apiname(hostapi_typeid):
+    # Assume int for building '_hostapi###' strings.
+    assert isinstance(hostapi_typeid, int)
+    try:
+        # Pre-assigned name:
+        return _typeid_to_apiname[hostapi_typeid]
+    except KeyError:
+        # Make up new names on the fly:
+        if hostapi_typeid>=0:
+            # 42 -> '_hostapi42'
+            return '_hostapi'+str(hostapi_typeid)
+        else:
+            # -37 -> '_hostapi_37'
+            return '_hostapi_'+str(-hostapi_typeid)
+
+
 _api_dicts = {}
 def _get_host_api(hostapi_typeid):
     """Lookup hostapi_typeid and return the results as a namedtuple.
@@ -2376,9 +2429,32 @@ def _get_host_api(hostapi_typeid):
 
     """
     api_dict = _api_dicts[hostapi_typeid]
-    API = _namedtuple('_API_'+str(hostapi_typeid), api_dict.keys())
+    # Using .upper() to distinguish that we're using _get_host_apiname
+    # to name a type:
+    API = _namedtuple(_get_host_apiname(hostapi_typeid).upper(),
+                      api_dict.keys())
     api = API(**api_dict)
     return api
+
+
+# hostapis is an alternative interface to query_hostapis and populated during _initialize().
+hostapis = None
+
+
+def _populate_hostapis():
+    global hostapis
+    # For now, just invoke query_hostapis() to get the list.  Later if
+    # we deprecate query_hostapis, we can move its guts into here.
+    hostapi_list = query_hostapis()
+    # There is one _HostAPI for each field in _HostAPIs:
+    _HostAPI = _namedtuple('_HostAPI', ('name', 'devices',
+                                        'default_input_device',
+                                        'default_output_device',
+                                        'apiname', 'api'))
+    class HostAPIs(_namedtuple('HostAPIs', (h['apiname'] for h in hostapi_list))):
+        """Access to PortAudio Host API's"""
+        __slots__ = ()
+    hostapis = HostAPIs(*(_HostAPI(**h) for h in hostapi_list))
 
 
 # Host-API: ASIO
@@ -3176,6 +3252,7 @@ def _initialize():
     global _initialized
     _check(_lib.Pa_Initialize(), 'Error initializing PortAudio')
     _initialized += 1
+    _populate_hostapis()
 
 
 def _terminate():
