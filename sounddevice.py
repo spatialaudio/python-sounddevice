@@ -2454,6 +2454,12 @@ def _populate_hostapis():
     class HostAPIs(_namedtuple('HostAPIs', (h['apiname'] for h in hostapi_list))):
         """Access to PortAudio Host API's"""
         __slots__ = ()
+
+    all_apinames = set(_typeid_to_apiname.values())
+    missing_apinames = all_apinames - set(h['apiname'] for h in hostapi_list)
+    for apiname in missing_apinames:
+        setattr(HostAPIs, apiname, None)
+
     hostapis = HostAPIs(*(_HostAPI(**h) for h in hostapi_list))
 
 
