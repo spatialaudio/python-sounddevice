@@ -2364,31 +2364,12 @@ class CallbackAbort(Exception):
 # Host-API:
 
 
-# Is there a way to query the names used in "enum PaHostApiTypeId"?
-# If so, then I wouldn't bother with this dict, _typeid_to_apiname.
-#
-# Q: Should _typeid_to_apiname be brought out to global scope, with
-# the leading underscore?  I'm averse to relying upon converting the
-# current .name field as an api identifier, since those strings are
-# intended for user consumption.  (For example, will Port Audio one
-# day provide language translations of those names?  If they did,
-# these names could differ for each user purely based on locale
-# settings, such as LANG, LC_ALL, or LC_MESSAGES!)
+# Turn enum PaHostApiTypeId names into strings.  For example:
+#   paASIO          -> 'asio'
+#   paCoreAudio     -> 'coreaudio'
+# to make a mapping of host API typeid's to names:
 _typeid_to_apiname = {
-    _lib.paInDevelopment   : str.lower('InDevelopment'),
-    _lib.paDirectSound     : str.lower('DirectSound'),
-    _lib.paMME             : str.lower('MME'),
-    _lib.paASIO            : str.lower('ASIO'),
-    _lib.paSoundManager    : str.lower('SoundManager'),
-    _lib.paCoreAudio       : str.lower('CoreAudio'),
-    _lib.paOSS             : str.lower('OSS'),
-    _lib.paALSA            : str.lower('ALSA'),
-    _lib.paAL              : str.lower('AL'),
-    _lib.paBeOS            : str.lower('BeOS'),
-    _lib.paWDMKS           : str.lower('WDMKS'),
-    _lib.paJACK            : str.lower('JACK'),
-    _lib.paWASAPI          : str.lower('WASAPI'),
-    _lib.paAudioScienceHPI : str.lower('AudioScienceHPI'),
+    k: v[2:].lower() for k,v in _ffi.typeof('PaHostApiTypeId').elements.items()
 }
 def _get_host_apiname(hostapi_typeid):
     # Assume int for building '_hostapi###' strings.
