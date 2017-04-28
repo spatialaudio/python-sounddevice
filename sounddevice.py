@@ -800,7 +800,7 @@ def query_devices(device=None, kind=None):
     return device_dict
 
 
-def query_hostapis(index=None):
+def query_hostapis(index=None, apiname=None):
     """Return information about available host APIs.
 
     Parameters
@@ -808,6 +808,9 @@ def query_hostapis(index=None):
     index : int, optional
         If specified, information about only the given host API *index*
         is returned in a single dictionary.
+    apiname : str, optional
+        If specified, information about only the given host API
+        *apiname* is returned in a single dictionary.
 
     Returns
     -------
@@ -851,6 +854,17 @@ def query_hostapis(index=None):
     query_devices
 
     """
+    if apiname is not None:
+        if index is not None:
+            raise ValueError('May not specify both index and apiname')
+        hostapi_list = tuple(query_hostapis(i) for i in
+                             range(_check(_lib.Pa_GetHostApiCount())))
+        hostapi_list = filter(lambda x: x['apiname'] == apiname, hostapi_list)
+        assert len(hostapi_list) <= 1
+        try:
+            return hostapi_list[0]
+        except IndexError:
+            raise PortAudioError('Host API {0!r} not found'.format(apiname))
     if index is None:
         return tuple(query_hostapis(i)
                      for i in range(_check(_lib.Pa_GetHostApiCount())))
