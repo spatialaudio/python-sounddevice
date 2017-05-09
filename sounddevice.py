@@ -2803,7 +2803,7 @@ def _split(value):
 
 
 def _check(err, msg=''):
-    """Raise error for non-zero error codes."""
+    """Raise PortAudioError for below-zero error codes."""
     if err >= 0:
         return err
 
