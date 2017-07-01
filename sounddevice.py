@@ -563,7 +563,7 @@ def playrec(data, samplerate=None, channels=None, dtype=None,
     return ctx.out
 
 
-def wait():
+def wait(ignore_errors=True):
     """Wait for `play()`/`rec()`/`playrec()` to be finished.
 
     Playback/recording can be stopped with a `KeyboardInterrupt`.
@@ -580,7 +580,7 @@ def wait():
 
     """
     if _last_callback:
-        return _last_callback.wait()
+        return _last_callback.wait(ignore_errors)
 
 
 def stop(ignore_errors=True):
@@ -1246,7 +1246,7 @@ class _StreamBase(object):
         if err != _lib.paStreamIsNotStopped:
             _check(err, 'Error starting stream')
 
-    def stop(self):
+    def stop(self, ignore_errors=True):
         """Terminate audio processing.
 
         This waits until all pending audio buffers have been played
@@ -1258,10 +1258,10 @@ class _StreamBase(object):
 
         """
         err = _lib.Pa_StopStream(self._ptr)
-        if err != _lib.paStreamIsStopped:
+        if not ignore_errors:
             _check(err, 'Error stopping stream')
 
-    def abort(self):
+    def abort(self, ignore_errors=True):
         """Terminate audio processing immediately.
 
         This does not wait for pending buffers to complete.
@@ -1272,7 +1272,7 @@ class _StreamBase(object):
 
         """
         err = _lib.Pa_AbortStream(self._ptr)
-        if err != _lib.paStreamIsStopped:
+        if not ignore_errors:
             _check(err, 'Error aborting stream')
 
     def close(self, ignore_errors=True):
@@ -2675,7 +2675,7 @@ class _CallbackContext(object):
         if blocking:
             self.wait()
 
-    def wait(self):
+    def wait(self, ignore_errors=True):
         """Wait for finished_callback.
 
         Can be interrupted with a KeyboardInterrupt.
@@ -2684,7 +2684,7 @@ class _CallbackContext(object):
         try:
             self.event.wait()
         finally:
-            self.stream.close()
+            self.stream.close(ignore_errors)
         return self.status if self.status else None
 
 
