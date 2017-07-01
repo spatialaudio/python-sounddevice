@@ -592,6 +592,9 @@ def stop(ignore_errors=True):
 
     """
     if _last_callback:
+        # Calling stop() before close() is necessary for older PortAudio
+        # versions, see issue #87:
+        _last_callback.stream.stop(ignore_errors)
         _last_callback.stream.close(ignore_errors)
 
 
