@@ -1,3 +1,8 @@
+0.3.8 (2017-07-11):
+ * Add more ``ignore_errors`` arguments
+ * Add `sounddevice.PortAudioError.args`
+ * Add `sounddevice.CoreAudioSettings`
+
 0.3.7 (2017-02-16):
  * Add `sounddevice.get_stream()`
  * Support for CData function pointers as callbacks
