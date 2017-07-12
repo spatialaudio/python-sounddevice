@@ -344,7 +344,7 @@ const char *PaMacCore_GetChannelName( int device, int channelIndex, bool input )
 #define paMacCorePro                         0x01
 #define paMacCoreMinimizeCPUButPlayNice      0x0100
 #define paMacCoreMinimizeCPU                 0x0101
-""")
+""", override=True)
 elif OS == 'Windows':
     ffibuilder.cdef("""
 /* pa_asio.h */
