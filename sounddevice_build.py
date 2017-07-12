@@ -205,7 +205,13 @@ signed long Pa_GetStreamWriteAvailable( PaStream* stream );
 PaHostApiTypeId Pa_GetStreamHostApiType( PaStream* stream );
 PaError Pa_GetSampleSize( PaSampleFormat format );
 void Pa_Sleep( long msec );
+"""
 
+ffibuilder = FFI()
+ffibuilder.cdef(portaudio_dot_h)
+
+if OS == 'Darwin':
+    ffibuilder.cdef("""
 /* pa_mac_core.h */
 
 typedef int32_t SInt32;
@@ -232,119 +238,7 @@ const char *PaMacCore_GetChannelName( int device, int channelIndex, bool input )
 #define paMacCorePro                         0x01
 #define paMacCoreMinimizeCPUButPlayNice      0x0100
 #define paMacCoreMinimizeCPU                 0x0101
-
-/* pa_win_waveformat.h */
-
-typedef unsigned long PaWinWaveFormatChannelMask;
-
-/* pa_asio.h */
-
-#define paAsioUseChannelSelectors 0x01
-
-typedef struct PaAsioStreamInfo
-{
-    unsigned long size;
-    PaHostApiTypeId hostApiType;
-    unsigned long version;
-    unsigned long flags;
-    int *channelSelectors;
-} PaAsioStreamInfo;
-
-/* pa_win_wasapi.h */
-
-typedef enum PaWasapiFlags
-{
-    paWinWasapiExclusive                = 1,
-    paWinWasapiRedirectHostProcessor    = 2,
-    paWinWasapiUseChannelMask           = 4,
-    paWinWasapiPolling                  = 8,
-    paWinWasapiThreadPriority           = 16
-} PaWasapiFlags;
-
-typedef void (*PaWasapiHostProcessorCallback) (
-    void *inputBuffer,  long inputFrames,
-    void *outputBuffer, long outputFrames, void *userData);
-
-typedef enum PaWasapiThreadPriority
-{
-    eThreadPriorityNone = 0,
-    eThreadPriorityAudio,
-    eThreadPriorityCapture,
-    eThreadPriorityDistribution,
-    eThreadPriorityGames,
-    eThreadPriorityPlayback,
-    eThreadPriorityProAudio,
-    eThreadPriorityWindowManager
-} PaWasapiThreadPriority;
-
-typedef enum PaWasapiStreamCategory
-{
-    eAudioCategoryOther           = 0,
-    eAudioCategoryCommunications  = 3,
-    eAudioCategoryAlerts          = 4,
-    eAudioCategorySoundEffects    = 5,
-    eAudioCategoryGameEffects     = 6,
-    eAudioCategoryGameMedia       = 7,
-    eAudioCategoryGameChat        = 8,
-    eAudioCategorySpeech          = 9,
-    eAudioCategoryMovie           = 10,
-    eAudioCategoryMedia           = 11
-} PaWasapiStreamCategory;
-
-typedef enum PaWasapiStreamOption
-{
-    eStreamOptionNone        = 0,
-    eStreamOptionRaw         = 1,
-    eStreamOptionMatchFormat = 2
-} PaWasapiStreamOption;
-
-typedef struct PaWasapiStreamInfo
-{
-    unsigned long size;
-    PaHostApiTypeId hostApiType;
-    unsigned long version;
-    unsigned long flags;
-    PaWinWaveFormatChannelMask channelMask;
-    PaWasapiHostProcessorCallback hostProcessorOutput;
-    PaWasapiHostProcessorCallback hostProcessorInput;
-    PaWasapiThreadPriority threadPriority;
-    PaWasapiStreamCategory streamCategory;
-    PaWasapiStreamOption streamOption;
-} PaWasapiStreamInfo;
-"""
-
-ffibuilder = FFI()
-ffibuilder.cdef(portaudio_dot_h)
-
-if OS == 'Darwin':
-    ffibuilder.cdef("""
-/* pa_mac_core.h */
-
-typedef int32_t SInt32;
-typedef struct PaMacCoreStreamInfo
-{
-    unsigned long size;
-    PaHostApiTypeId hostApiType;
-    unsigned long version;
-    unsigned long flags;
-    SInt32 const * channelMap;
-    unsigned long channelMapSize;
-} PaMacCoreStreamInfo;
-void PaMacCore_SetupStreamInfo( PaMacCoreStreamInfo *data, unsigned long flags );
-void PaMacCore_SetupChannelMap( PaMacCoreStreamInfo *data, const SInt32 * const channelMap, unsigned long channelMapSize );
-const char *PaMacCore_GetChannelName( int device, int channelIndex, bool input );
-#define paMacCoreChangeDeviceParameters 0x01
-#define paMacCoreFailIfConversionRequired 0x02
-#define paMacCoreConversionQualityMin    0x0100
-#define paMacCoreConversionQualityMedium 0x0200
-#define paMacCoreConversionQualityLow    0x0300
-#define paMacCoreConversionQualityHigh   0x0400
-#define paMacCoreConversionQualityMax    0x0000
-#define paMacCorePlayNice                    0x00
-#define paMacCorePro                         0x01
-#define paMacCoreMinimizeCPUButPlayNice      0x0100
-#define paMacCoreMinimizeCPU                 0x0101
-""", override=True)
+""")
 elif OS == 'Windows':
     ffibuilder.cdef("""
 /* pa_asio.h */
