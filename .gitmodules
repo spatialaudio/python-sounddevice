@@ -1,3 +1,0 @@
-[submodule "_sounddevice_data"]
-	path = _sounddevice_data
-	url = https://github.com/spatialaudio/portaudio-binaries.git
