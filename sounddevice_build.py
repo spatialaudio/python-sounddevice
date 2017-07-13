@@ -6,7 +6,7 @@ from cffi import FFI
 
 OS = platform.system()
 
-portaudio_dot_h = """
+DECLARATIONS = """
 int Pa_GetVersion( void );
 const char* Pa_GetVersionText( void );
 typedef int PaError;
@@ -207,15 +207,12 @@ PaError Pa_GetSampleSize( PaSampleFormat format );
 void Pa_Sleep( long msec );
 """
 
-ffibuilder = FFI()
-ffibuilder.cdef(portaudio_dot_h)
-
 if OS == 'Darwin':
-    ffibuilder.cdef("""
+    DECLARATIONS += """
 /* pa_mac_core.h */
 
 typedef int32_t SInt32;
-typedef struct
+typedef struct 
 {
     unsigned long size;
     PaHostApiTypeId hostApiType;
@@ -238,9 +235,9 @@ const char *PaMacCore_GetChannelName( int device, int channelIndex, bool input )
 #define paMacCorePro                         0x01
 #define paMacCoreMinimizeCPUButPlayNice      0x0100
 #define paMacCoreMinimizeCPU                 0x0101
-""")
+"""
 elif OS == 'Windows':
-    ffibuilder.cdef("""
+    DECLARATIONS += """
 /* pa_asio.h */
 
 #define paAsioUseChannelSelectors 0x01
@@ -319,11 +316,13 @@ typedef struct PaWasapiStreamInfo
 /* pa_win_waveformat.h */
 
 typedef unsigned long PaWinWaveFormatChannelMask;
-""")
+"""
 
+ffibuilder = FFI()
+ffibuilder.cdef(DECLARATIONS)
 ffibuilder.set_source(
     '_sounddevice',
-    'typedef int bool;\n' + portaudio_dot_h,
+    'typedef int bool;\n' + DECLARATIONS,
     libraries=['portaudio'],
 )
 
