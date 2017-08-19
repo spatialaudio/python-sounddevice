@@ -1286,6 +1286,7 @@ class _StreamBase(object):
 
         """
         err = _lib.Pa_CloseStream(self._ptr)
+        self._ptr = _ffi.NULL
         if not ignore_errors:
             _check(err, 'Error closing stream')
 
