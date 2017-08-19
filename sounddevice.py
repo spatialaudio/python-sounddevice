@@ -1162,6 +1162,8 @@ class _StreamBase(object):
         stopped
 
         """
+        if self.closed:
+            return False
         return _check(_lib.Pa_IsStreamActive(self._ptr)) == 1
 
     @property
