@@ -1181,6 +1181,11 @@ class _StreamBase(object):
         return _check(_lib.Pa_IsStreamStopped(self._ptr)) == 1
 
     @property
+    def closed(self):
+        """``True`` after a call to `close()`, ``False`` otherwise."""
+        return self._ptr == _ffi.NULL
+
+    @property
     def time(self):
         """The current stream time in seconds.
 
