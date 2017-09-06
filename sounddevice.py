@@ -27,6 +27,7 @@ __version__ = '0.3.8'
 
 import atexit as _atexit
 from cffi import FFI as _FFI
+from collections import namedtuple as _namedtuple
 import os as _os
 import platform as _platform
 import sys as _sys
@@ -247,6 +248,7 @@ typedef struct
 void PaMacCore_SetupStreamInfo( PaMacCoreStreamInfo *data, unsigned long flags );
 void PaMacCore_SetupChannelMap( PaMacCoreStreamInfo *data, const SInt32 * const channelMap, unsigned long channelMapSize );
 const char *PaMacCore_GetChannelName( int device, int channelIndex, bool input );
+PaError PaMacCore_GetBufferSizeRange( PaDeviceIndex device, long *minBufferSizeFrames, long *maxBufferSizeFrames );
 #define paMacCoreChangeDeviceParameters 0x01
 #define paMacCoreFailIfConversionRequired 0x02
 #define paMacCoreConversionQualityMin    0x0100
@@ -265,6 +267,11 @@ typedef unsigned long PaWinWaveFormatChannelMask;
 
 /* pa_asio.h */
 
+PaError PaAsio_GetAvailableBufferSizes( PaDeviceIndex device, long *minBufferSizeFrames, long *maxBufferSizeFrames, long *preferredBufferSizeFrames, long *granularity );
+PaError PaAsio_GetInputChannelName( PaDeviceIndex device, int channelIndex, const char** channelName );
+PaError PaAsio_GetOutputChannelName( PaDeviceIndex device, int channelIndex, const char** channelName );
+PaError PaAsio_SetStreamSampleRate( PaStream* stream, double sampleRate );
+
 #define paAsioUseChannelSelectors 0x01
 
 typedef struct PaAsioStreamInfo
@@ -275,6 +282,14 @@ typedef struct PaAsioStreamInfo
     unsigned long flags;
     int *channelSelectors;
 } PaAsioStreamInfo;
+
+/* pa_linux_alsa.h */
+
+void PaAlsa_EnableRealtimeScheduling( PaStream *s, int enable );
+PaError PaAlsa_GetStreamInputCard( PaStream *s, int *card );
+PaError PaAlsa_GetStreamOutputCard( PaStream *s, int *card );
+PaError PaAlsa_SetNumPeriods( int numPeriods );
+PaError PaAlsa_SetRetriesBusy( int retries );
 
 /* pa_win_wasapi.h */
 
@@ -337,6 +352,8 @@ typedef struct PaWasapiStreamInfo
     PaWasapiStreamCategory streamCategory;
     PaWasapiStreamOption streamOption;
 } PaWasapiStreamInfo;
+
+PaError PaWasapi_GetFramesPerHostBuffer( PaStream *pStream, unsigned int *nInput, unsigned int *nOutput );
 """)
 
 try:
@@ -786,7 +803,7 @@ def query_devices(device=None, kind=None):
     return device_dict
 
 
-def query_hostapis(index=None):
+def query_hostapis(index=None, apiname=None):
     """Return information about available host APIs.
 
     Parameters
@@ -794,6 +811,9 @@ def query_hostapis(index=None):
     index : int, optional
         If specified, information about only the given host API *index*
         is returned in a single dictionary.
+    apiname : str, optional
+        If specified, information about only the given host API
+        *apiname* is returned in a single dictionary.
 
     Returns
     -------
@@ -804,7 +824,7 @@ def query_hostapis(index=None):
         The dictionaries have the following keys:
 
         ``'name'``
-            The name of the host API.
+            The name of the host API and suitable for user display.
         ``'devices'``
             A list of device IDs belonging to the host API.
             Use `query_devices()` to get information about a device.
@@ -817,12 +837,37 @@ def query_hostapis(index=None):
                 overwritten by assigning to `default.device` -- take(s)
                 precedence over `default.hostapi` and the information in
                 the abovementioned dictionaries.
+        ``'apiname'``
+            *apiname* is a string that is suitable for use as a Python
+            identifier.  Unlike *name*, *apiname* does not contain
+            spaces or any other characters that are not suitable as a
+            Python identifier.  These strings are derived from
+            PortAudio's PaHostApiTypeId enumeration and thus correspond
+            on a one-to-one basis with that enumeration.  These strings
+            shall never be eubject to locale settings such as LANG,
+            LC_ALL, or LC_MESSAGES.  In short, these strings are safer
+            than *name* for hard coding into an application.
+        ``'api'``
+            A namedtuple containing the platform-specific API from
+            PortAudio.  If a platform-specific API is unavailable, this
+            is None.
 
     See Also
     --------
     query_devices
 
     """
+    if apiname is not None:
+        if index is not None:
+            raise ValueError('May not specify both index and apiname')
+        hostapi_list = tuple(query_hostapis(i) for i in
+                             range(_check(_lib.Pa_GetHostApiCount())))
+        hostapi_list = filter(lambda x: x['apiname'] == apiname, hostapi_list)
+        assert len(hostapi_list) <= 1
+        try:
+            return hostapi_list[0]
+        except IndexError:
+            raise PortAudioError('Host API {0!r} not found'.format(apiname))
     if index is None:
         return tuple(query_hostapis(i)
                      for i in range(_check(_lib.Pa_GetHostApiCount())))
@@ -830,12 +875,18 @@ def query_hostapis(index=None):
     if not info:
         raise PortAudioError('Error querying host API {0}'.format(index))
     assert info.structVersion == 1
+    try:
+        api = _get_host_api(info.type)
+    except KeyError:
+        api = None
     return {
         'name': _ffi.string(info.name).decode(),
         'devices': [_lib.Pa_HostApiDeviceIndexToDeviceIndex(index, i)
                     for i in range(info.deviceCount)],
         'default_input_device': info.defaultInputDevice,
         'default_output_device': info.defaultOutputDevice,
+        'apiname': _get_host_apiname(info.type),
+        'api': api,
     }
 
 
@@ -2363,6 +2414,92 @@ class CallbackAbort(Exception):
     """
 
 
+# Host-API:
+
+
+# Turn enum PaHostApiTypeId names into strings.  For example:
+#   paASIO          -> 'asio'
+#   paCoreAudio     -> 'coreaudio'
+# to make a mapping of host API typeid's to names:
+_typeid_to_apiname = {
+    k: v[2:].lower() for k,v in _ffi.typeof('PaHostApiTypeId').elements.items()
+}
+def _get_host_apiname(hostapi_typeid):
+    # Assume int for building '_hostapi###' strings.
+    assert isinstance(hostapi_typeid, int)
+    try:
+        # Pre-assigned name:
+        return _typeid_to_apiname[hostapi_typeid]
+    except KeyError:
+        # Make up new names on the fly:
+        if hostapi_typeid>=0:
+            # 42 -> '_hostapi42'
+            return '_hostapi'+str(hostapi_typeid)
+        else:
+            # -37 -> '_hostapi_37'
+            return '_hostapi_'+str(-hostapi_typeid)
+
+
+_api_dicts = {}
+def _get_host_api(hostapi_typeid):
+    """Lookup hostapi_typeid and return the results as a namedtuple.
+
+    Parameters
+    ----------
+    hostapi_typeid : int
+        *hostapi_typeid* is a value from enum PaHostApiTypeId, such as
+        _lib.paASIO
+
+    Example
+    -------
+    api = _get_host_api(_lib.paASIO)
+    extra_settings = api.Settings(channel_selectors=[12, 13])
+    available_buffer_sizes = api.get_available_buffer_sizes(device)
+
+    Implementation Notes
+    --------------------
+    The fields in the returned namedtuple are formed from a dict, and thus,
+    index and iteration order is not guaranteed.
+
+    """
+    api_dict = _api_dicts[hostapi_typeid]
+    # Using .upper() to distinguish that we're using _get_host_apiname
+    # to name a type:
+    API = _namedtuple(_get_host_apiname(hostapi_typeid).upper(),
+                      api_dict.keys())
+    api = API(**api_dict)
+    return api
+
+
+# hostapis is an alternative interface to query_hostapis and populated during _initialize().
+hostapis = None
+
+
+def _populate_hostapis():
+    global hostapis
+    # For now, just invoke query_hostapis() to get the list.  Later if
+    # we deprecate query_hostapis, we can move its guts into here.
+    hostapi_list = query_hostapis()
+    # There is one _HostAPI for each field in _HostAPIs:
+    _HostAPI = _namedtuple('_HostAPI', ('name', 'devices',
+                                        'default_input_device',
+                                        'default_output_device',
+                                        'apiname', 'api'))
+    class HostAPIs(_namedtuple('HostAPIs', (h['apiname'] for h in hostapi_list))):
+        """Access to PortAudio Host API's"""
+        __slots__ = ()
+
+    all_apinames = set(_typeid_to_apiname.values())
+    missing_apinames = all_apinames - set(h['apiname'] for h in hostapi_list)
+    for apiname in missing_apinames:
+        setattr(HostAPIs, apiname, None)
+
+    hostapis = HostAPIs(*(_HostAPI(**h) for h in hostapi_list))
+
+
+# Host-API: ASIO
+
+
 class AsioSettings(object):
 
     def __init__(self, channel_selectors):
@@ -2413,6 +2550,109 @@ class AsioSettings(object):
             version=1,
             flags=_lib.paAsioUseChannelSelectors,
             channelSelectors=self._selectors))
+
+
+_api_asio_buf_sz = _namedtuple('_api_asio_buf_sz', ('min', 'max', 'preferred',
+                                                    'granularity'))
+def _api_asio_get_available_buffer_sizes(device):
+    """Retrieve legal native buffer sizes for the specificed device, in
+    sample frames.
+
+    Parameters
+    ----------
+    device : int
+        Device ID.  (aka The global index of the PortAudio device.)
+
+    Returns
+    -------
+    namedtuple containing:
+    min : int
+        the minimum buffer size value.
+    max : int
+        the maximum buffer size value.
+    preferred : int
+        the preferred buffer size value.
+    granularity : int
+        the step size used to compute the legal values between
+        minBufferSizeFrames and maxBufferSizeFrames.  If granularity is
+        -1 then available buffer size values are powers of two.
+
+    @see ASIOGetBufferSize in the ASIO SDK.
+
+    """
+    min = _ffi.new('long[1]')
+    max = _ffi.new('long[1]')
+    pref = _ffi.new('long[1]')
+    gran = _ffi.new('long[1]')
+    _check(_lib.PaAsio_GetAvailableBufferSizes(device, min, max, pref, gran))
+    # Let's be friendly and return a namedtuple...
+    return _api_asio_buf_sz(min=min[0], max=max[0], preferred=pref[0],
+                            granularity=gran[0])
+
+
+def _api_asio_get_input_channel_name(device, channel):
+    """Retrieve the name of the specified output channel.
+
+    Parameters
+    ----------
+    device : int
+        Device ID.  (aka The global index of the PortAudio device.)
+    channel : int
+        Channel number from 0 to max_*_channels-1.
+
+    Returns
+    -------
+    The channel's name : str
+
+    """
+    channel_name = _ffi.new('char*[1]')
+    _check(_lib.PaAsio_GetInputChannelName(device, channel, channel_name))
+    return _ffi.string(channel_name[0]).decode()
+
+
+def _api_asio_get_output_channel_name(device, channel):
+    """Retrieve the name of the specified output channel.
+
+    Parameters
+    ----------
+    device : int
+        Device ID.  (aka The global index of the PortAudio device.)
+    channel : int
+        Channel number from 0 to max_*_channels-1.
+
+    Returns
+    -------
+    The channel's name : str
+
+    """
+    channel_name = _ffi.new('char*[1]')
+    _check(_lib.PaAsio_GetOutputChannelName(device, channel, channel_name))
+    return _ffi.string(channel_name[0]).decode()
+
+
+def _api_asio_set_stream_sample_rate(stream, sample_rate):
+    """Set stream sample rate.
+
+    Parameters
+    ----------
+    stream : an open stream
+        Device ID.  (aka The global index of the PortAudio device.)
+    sample_rate : float
+
+    """
+    _check(_lib.PaAsio_SetStreamSampleRate(stream._ptr, sample_rate))
+
+
+_api_dicts[_lib.paASIO] = dict(
+    Settings = AsioSettings,
+    get_available_buffer_sizes = _api_asio_get_available_buffer_sizes,
+    get_input_channel_name = _api_asio_get_input_channel_name,
+    get_output_channel_name = _api_asio_get_output_channel_name,
+    set_stream_sample_rate = _api_asio_set_stream_sample_rate,
+)
+
+
+# Host-API: Core Audio
 
 
 class CoreAudioSettings(object):
@@ -2507,6 +2747,133 @@ class CoreAudioSettings(object):
                                            len(self._channel_map))
 
 
+def _api_coreaudio_get_input_channel_name(device, channel):
+    """Retrieve the name of the specified input channel.
+
+    Parameters
+    ----------
+    device : int
+        Device ID.  (aka The global index of the PortAudio device.)
+    channel : int
+        Channel number from 0 to max_*_channels-1.
+
+    """
+    return _ffi.string(_lib.PaMacCore_GetChannelName(device, channel, True)
+                       ).decode()
+
+
+def _api_coreaudio_get_output_channel_name(device, channel):
+    """Retrieve the name of the specified output channel.
+
+    Parameters
+    ----------
+    device : int
+        Device ID.  (aka The global index of the PortAudio device.)
+    channel : int
+        Channel number from 0 to max_*_channels-1.
+
+    """
+    return _ffi.string(_lib.PaMacCore_GetChannelName(device, channel, False)
+                       ).decode()
+
+
+_api_coreaudio_buf_sz = _namedtuple('_api_coreaudio_buf_sz', ('min', 'max'))
+def _api_coreaudio_get_buffer_size_range(device):
+    """Retrieve the range of legal native buffer sizes for the
+    specificed device, in sample frames.
+
+    Parameters
+    ----------
+    device : int
+        Device ID.  (aka The global index of the PortAudio device.)
+
+    Returns
+    -------
+    namedtuple containing:
+    min : int
+        the minimum buffer size value.
+    max : int
+        the maximum buffer size value.
+
+    See Also
+    --------
+    kAudioDevicePropertyBufferFrameSizeRange in the CoreAudio SDK.
+
+    """
+    min = _ffi.new('long[1]')
+    max = _ffi.new('long[1]')
+    _check(_lib.PaMacCore_GetBufferSizeRange(device, min, max))
+    return _api_coreaudio_buf_sz(min=min[0], max=max[0])
+
+
+_api_dicts[_lib.paCoreAudio] = dict(
+    Settings = CoreAudioSettings,
+    get_input_channel_name = _api_coreaudio_get_input_channel_name,
+    get_output_channel_name = _api_coreaudio_get_output_channel_name,
+    get_buffer_size_range = _api_coreaudio_get_buffer_size_range,
+)
+
+
+# Host-API: ALSA
+
+
+def _api_alsa_enable_realtime_scheduling(stream, enable):
+    """ Instruct whether to enable real-time priority when starting the
+    audio thread.
+
+    If this is turned on by the stream is started, the audio callback
+    thread will be created with the FIFO scheduling policy, which is
+    suitable for realtime operation.
+
+    """
+    _lib.PaAlsa_EnableRealtimeScheduling(stream._ptr, enable)
+
+
+def _api_alsa_get_stream_input_card(stream):
+    """Get the ALSA-lib card index of this stream's input device."""
+    card = _ffi.new('int[1]')
+    _check(_lib.PaAlsa_GetStreamInputCard(stream._ptr, card))
+    return card[0]
+
+
+def _api_alsa_get_stream_output_card(stream):
+    """Get the ALSA-lib card index of this stream's output device."""
+    card = _ffi.new('int[1]')
+    _check(_lib.PaAlsa_GetStreamOutputCard(stream._ptr, card))
+    return card[0]
+
+
+def _api_alsa_set_num_periods(num_periods):
+    """Set the number of periods (buffer fragments) to configure devices
+    with.
+
+    By default the number of periods is 4, this is the lowest number of
+    periods that works well on the author's soundcard.
+
+    """
+    _check(_lib.PaAlsa_SetNumPeriods(num_periods))
+
+
+def _api_alsa_set_retries_busy(retries):
+    """Set the maximum number of times to retry opening busy device
+    (sleeping for a short interval inbetween).
+
+    """
+    _check(_lib.PaAlsa_SetRetriesBusy(retries))
+
+
+_api_dicts[_lib.paALSA] = dict(
+    enable_realtime_scheduling = _api_alsa_enable_realtime_scheduling,
+    get_stream_input_card = _api_alsa_get_stream_input_card,
+    get_stream_output_card = _api_alsa_get_stream_output_card,
+    set_num_periods = _api_alsa_set_num_periods,
+    set_retries_busy = _api_alsa_set_retries_busy,
+)
+
+
+# Host-API: WASAPI
+
+
 class WasapiSettings(object):
 
     def __init__(self, exclusive=False):
@@ -2546,6 +2913,30 @@ class WasapiSettings(object):
             version=1,
             flags=flags,
         ))
+
+
+_api_wasapi_buf_sz = _namedtuple('_api_wasapi_buf_sz', ('max_in', 'max_out'))
+def _api_wasapi_get_frames_per_host_buffer(stream):
+    """Get number of frames per host buffer.
+
+    Returns
+    -------
+    This returns the maximal value of frames of WASAPI buffer which can
+    be locked for operations.  Use this method as helper to findout
+    maximal values of inputFrames / outputFrames of
+    PaWasapiHostProcessorCallback.
+
+    """
+    max_in = _ffi.new('unsigned int[1]')
+    max_out = _ffi.new('unsigned int[1]')
+    _check(_lib.PaWasapi_GetFramesPerHostBuffer(stream._ptr, max_in, max_out))
+    return _api_wasapi_buf_sz(max_in=max_in[0], max_out=max_out[0])
+
+
+_api_dicts[_lib.paWASAPI] = dict(
+    Settings = WasapiSettings,
+    get_frames_per_host_buffer = _api_wasapi_get_frames_per_host_buffer,
+)
 
 
 class _CallbackContext(object):
@@ -2909,6 +3300,7 @@ def _initialize():
     global _initialized
     _check(_lib.Pa_Initialize(), 'Error initializing PortAudio')
     _initialized += 1
+    _populate_hostapis()
 
 
 def _terminate():
