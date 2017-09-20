@@ -1,5 +1,6 @@
 include LICENSE
 include *.rst
 include doc/requirements.txt
+include sounddevice_build.py
 recursive-include doc *.rst *.py
 recursive-include examples *.py
