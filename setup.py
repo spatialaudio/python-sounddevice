@@ -2,10 +2,11 @@ import os
 import platform
 from setuptools import setup
 
-__version__ = 'unknown'
+package_dir = {'': 'src'}
 
 # "import" __version__
-for line in open('sounddevice.py'):
+__version__ = 'unknown'
+for line in open(os.path.join('src', 'sounddevice.py')):
     if line.startswith('__version__'):
         exec(line)
         break
@@ -35,6 +36,7 @@ else:
 if libname and os.path.isdir('_sounddevice_data'):
     packages = ['_sounddevice_data']
     package_data = {'_sounddevice_data': [libname, 'README.md']}
+    package_dir['_sounddevice_data'] = '_sounddevice_data'
     zip_safe = False
 else:
     packages = None
@@ -67,6 +69,7 @@ else:
 setup(
     name='sounddevice',
     version=__version__,
+    package_dir=package_dir,
     py_modules=['sounddevice'],
     packages=packages,
     package_data=package_data,
