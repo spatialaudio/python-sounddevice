@@ -2497,7 +2497,7 @@ def _array(buffer, channels, dtype):
 
 def _split(value):
     """Split input/output value into two values."""
-    if isinstance(value, str):
+    if isinstance(value, basestring):
         # iterable, but not meant for splitting
         return value, value
     try:
