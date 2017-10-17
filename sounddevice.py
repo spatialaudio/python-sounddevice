@@ -60,6 +60,11 @@ _sampleformats = {
 _initialized = 0
 _last_callback = None
 
+try:
+  basestring
+except NameError:
+  basestring = str
+
 
 def play(data, samplerate=None, mapping=None, blocking=False, loop=False,
          **kwargs):
