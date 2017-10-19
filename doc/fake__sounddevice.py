@@ -1,16 +1,16 @@
 """Mock module for Sphinx autodoc."""
 
 
-class FFI(object):
+class ffi(object):
 
     NULL = NotImplemented
     I_AM_FAKE = True  # This is used for the documentation of "default"
 
-    def cdef(self, _):
-        pass
-
     def dlopen(self, _):
         return FakeLibrary()
+
+
+ffi = ffi()
 
 
 class FakeLibrary(object):
