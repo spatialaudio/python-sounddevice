@@ -61,9 +61,9 @@ _initialized = 0
 _last_callback = None
 
 try:
-  basestring
+    _basestring = basestring
 except NameError:
-  basestring = str
+    _basestring = (str, bytes)
 
 
 def play(data, samplerate=None, mapping=None, blocking=False, loop=False,
@@ -2502,7 +2502,7 @@ def _array(buffer, channels, dtype):
 
 def _split(value):
     """Split input/output value into two values."""
-    if isinstance(value, basestring):
+    if isinstance(value, _basestring):
         # iterable, but not meant for splitting
         return value, value
     try:
