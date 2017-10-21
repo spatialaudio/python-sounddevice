@@ -63,7 +63,7 @@ _last_callback = None
 try:
     _basestring = basestring
 except NameError:
-    _basestring = (str, bytes)
+    _basestring = str, bytes
 
 
 def play(data, samplerate=None, mapping=None, blocking=False, loop=False,
