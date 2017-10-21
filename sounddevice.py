@@ -60,6 +60,11 @@ _sampleformats = {
 _initialized = 0
 _last_callback = None
 
+try:
+    _basestring = basestring
+except NameError:
+    _basestring = (str, bytes)
+
 
 def play(data, samplerate=None, mapping=None, blocking=False, loop=False,
          **kwargs):
@@ -2497,7 +2502,7 @@ def _array(buffer, channels, dtype):
 
 def _split(value):
     """Split input/output value into two values."""
-    if isinstance(value, str):
+    if isinstance(value, _basestring):
         # iterable, but not meant for splitting
         return value, value
     try:
