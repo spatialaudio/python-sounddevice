@@ -18,9 +18,34 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-"""Play and Record Sound with Python.
+"""Play and Record Sound with Python
 
-http://python-sounddevice.readthedocs.io/
+API overview:
+  * Convenience functions to play and record NumPy arrays:
+    `play()`, `rec()`, `playrec()` and the related functions
+    `wait()`, `stop()`, `get_status()`, `get_stream()`
+
+  * Module-wide default settings: `default`
+
+  * PortAudio streams, using NumPy arrays:
+    `Stream`, `InputStream`, `OutputStream`
+
+  * PortAudio streams, using Python buffer objects (NumPy not needed):
+    `RawStream`, `RawInputStream`, `RawOutputStream`
+
+  * Functions to get information about the available hardware:
+    `query_devices()`, `query_hostapis()`,
+    `check_input_settings()`, `check_output_settings()`
+
+  * Miscellaneous functions and classes:
+    `sleep()`, `get_portaudio_version()`, `CallbackFlags`,
+    `CallbackStop`, `CallbackAbort`
+
+  * Platform-specific settings:
+    `AsioSettings`, `CoreAudioSettings`, `WasapiSettings`
+
+Online documentation:
+    http://python-sounddevice.readthedocs.io/
 
 """
 __version__ = '0.3.8'
