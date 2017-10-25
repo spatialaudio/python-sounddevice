@@ -1,3 +1,7 @@
+0.3.9 (2017-10-25):
+ * Add `sounddevice.Stream.closed`
+ * Switch CFFI usage to "out-of-line ABI" mode
+
 0.3.8 (2017-07-11):
  * Add more ``ignore_errors`` arguments
  * Add `sounddevice.PortAudioError.args`
