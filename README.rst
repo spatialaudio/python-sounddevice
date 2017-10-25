@@ -10,11 +10,14 @@ Documentation:
 Source code repository and issue tracker:
    http://github.com/spatialaudio/python-sounddevice/
 
-Python Package Index:
-   http://pypi.python.org/pypi/sounddevice/
-
 License:
    MIT -- see the file ``LICENSE`` for details.
+
+.. image:: https://badge.fury.io/py/sounddevice.svg
+   :target: https://pypi.python.org/pypi/sounddevice/
+
+.. image:: https://repology.org/badge/vertical-allrepos/python:sounddevice.svg
+   :target: https://repology.org/metapackage/python:sounddevice
 
 Requirements
 ------------
