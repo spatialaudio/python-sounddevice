@@ -67,11 +67,9 @@ except OSError:
         _libname = 'libportaudio' + _platform.architecture()[0] + '.dll'
     else:
         raise
-    _lib = _ffi.dlopen(_os.path.join(
-        _os.path.dirname(_os.path.abspath(__file__)),
-        '_sounddevice_data',
-        _libname
-    ))
+    import _sounddevice_data
+    _lib = _ffi.dlopen(
+        _os.path.join(next(iter(_sounddevice_data.__path__)), _libname))
 
 _sampleformats = {
     'float32': _lib.paFloat32,
