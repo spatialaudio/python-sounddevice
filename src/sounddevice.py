@@ -59,7 +59,10 @@ from _sounddevice import ffi as _ffi
 
 
 try:
-    _lib = _ffi.dlopen(_find_library('portaudio'))
+    _libname = _find_library('portaudio')
+    if _libname is None:
+        raise OSError('PortAudio library not found')
+    _lib = _ffi.dlopen(_libname)
 except OSError:
     if _platform.system() == 'Darwin':
         _libname = 'libportaudio.dylib'
