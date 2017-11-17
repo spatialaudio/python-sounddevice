@@ -68,8 +68,8 @@ except OSError:
     else:
         raise
     import _sounddevice_data
-    _lib = _ffi.dlopen(
-        _os.path.join(next(iter(_sounddevice_data.__path__)), _libname))
+    _lib = _ffi.dlopen(_os.path.join(next(iter(_sounddevice_data.__path__)),
+                                     'portaudio-binaries', _libname))
 
 _sampleformats = {
     'float32': _lib.paFloat32,

@@ -33,9 +33,10 @@ elif system == 'Windows':
 else:
     libname = None
 
-if libname and os.path.isdir('_sounddevice_data'):
+if libname and os.path.isdir('_sounddevice_data/portaudio-binaries'):
     packages = ['_sounddevice_data']
-    package_data = {'_sounddevice_data': [libname, 'README.md']}
+    package_data = {'_sounddevice_data': ['portaudio-binaries/' + libname,
+                                          'portaudio-binaries/README.md']}
     package_dir['_sounddevice_data'] = '_sounddevice_data'
     zip_safe = False
 else:
