@@ -25,8 +25,8 @@ If you prefer, you can also replace the last command with::
 ... where ``-e`` stands for ``--editable``.
 
 Whenever the file ``sounddevice_build.py`` changes (either because you edited it
-or it was updated by pulling from Github), you have to run the last command
-again.
+or it was updated by pulling from Github or switching branches), you have to run
+the last command again.
 
 If you used the ``--recursive`` option when cloning, the dynamic libraries for
 *macOS* and *Windows* should already be available.
