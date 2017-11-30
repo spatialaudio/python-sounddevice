@@ -1,3 +1,4 @@
+_sounddevice.py
 *.pyc
 __pycache__/
 build/

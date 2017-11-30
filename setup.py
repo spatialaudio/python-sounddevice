@@ -2,11 +2,9 @@ import os
 import platform
 from setuptools import setup
 
-package_dir = {'': 'src'}
-
 # "import" __version__
 __version__ = 'unknown'
-for line in open(os.path.join('src', 'sounddevice.py')):
+for line in open('sounddevice.py'):
     if line.startswith('__version__'):
         exec(line)
         break
@@ -37,7 +35,6 @@ if libname and os.path.isdir('_sounddevice_data/portaudio-binaries'):
     packages = ['_sounddevice_data']
     package_data = {'_sounddevice_data': ['portaudio-binaries/' + libname,
                                           'portaudio-binaries/README.md']}
-    package_dir['_sounddevice_data'] = '_sounddevice_data'
     zip_safe = False
 else:
     packages = None
@@ -70,7 +67,6 @@ else:
 setup(
     name='sounddevice',
     version=__version__,
-    package_dir=package_dir,
     py_modules=['sounddevice'],
     packages=packages,
     package_data=package_data,
