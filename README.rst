@@ -8,7 +8,7 @@ Documentation:
    http://python-sounddevice.readthedocs.io/
 
 Source code repository and issue tracker:
-   http://github.com/spatialaudio/python-sounddevice/
+   https://github.com/spatialaudio/python-sounddevice/
 
 License:
    MIT -- see the file ``LICENSE`` for details.
@@ -33,10 +33,14 @@ pip/setuptools:
    Those are needed for the installation of the Python module and its
    dependencies.  Most systems will have these installed already, but if not,
    you should install it with your package manager or you can download and
-   install pip and setuptools as described on the `pip installation`_ page.
-   If you happen to have pip but not setuptools, use this command::
+   install ``pip`` and ``setuptools`` as described on the `pip installation`_
+   page.
+   If you happen to have ``pip`` but not ``setuptools``, use this command::
 
       python3 -m pip install setuptools --user
+
+   To upgrade to a newer version of an already installed package (including
+   ``pip`` itself), use the ``--upgrade`` flag.
 
 CFFI:
    The `C Foreign Function Interface for Python`_ is used to access the C-API
@@ -63,17 +67,19 @@ NumPy (optional):
    NumPy at all.
    If you need NumPy, you should install it with your package manager or use a
    Python distribution that already includes NumPy (see above).
-   Installing NumPy with pip requires a compiler and several additional
-   libraries and is therefore not recommended for beginners.
+   You can also install NumPy with ``pip``, but depending on your platform, this
+   might require a compiler and several additional libraries::
+
+      python3 -m pip install NumPy --user
 
 .. _PortAudio: http://www.portaudio.com/
 .. _NumPy: http://www.numpy.org/
-.. _Python: http://www.python.org/
-.. _Anaconda: http://docs.continuum.io/anaconda/
+.. _Python: https://www.python.org/
+.. _Anaconda: https://www.anaconda.com/download/
 .. _WinPython: http://winpython.github.io/
 .. _C Foreign Function Interface for Python: http://cffi.readthedocs.io/
 .. _PyPy: http://pypy.org/
-.. _pip installation: http://www.pip-installer.org/en/latest/installing.html
+.. _pip installation: https://pip.pypa.io/en/latest/installing/
 
 Installation
 ------------
@@ -85,13 +91,15 @@ to download and install the latest release with a single command::
 
 If you want to install it system-wide for all users (assuming you have the
 necessary rights), you can just drop the ``--user`` option.
+If you have installed the module already, you can use the ``--upgrade`` flag to
+get the newest release.
 
 To un-install, use::
 
    python3 -m pip uninstall sounddevice
 
 If you are using Windows, you can alternatively install one of the packages
-provided at http://www.lfd.uci.edu/~gohlke/pythonlibs/#sounddevice.
+provided at https://www.lfd.uci.edu/~gohlke/pythonlibs/#sounddevice.
 The PortAudio library is also included in the package and you can get the rest
 of the dependencies on the same page.
 

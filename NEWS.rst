@@ -54,7 +54,7 @@
  * `sounddevice.playrec()`: Rename the arguments *input_channels* and
    *input_dtype* to *channels* and *dtype*, respectively
 
-   .. _PySoundFile: https://github.com/bastibe/PySoundFile/
+   .. _PySoundFile: https://github.com/bastibe/SoundFile/
 
 0.1.0 (2015-06-20):
    Initial release.  Some ideas are taken from PySoundCard_.  Thanks to Bastian

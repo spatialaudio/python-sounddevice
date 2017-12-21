@@ -3,7 +3,7 @@ Contributing
 
 If you find bugs, errors, omissions or other things that need improvement,
 please create an issue or a pull request at
-http://github.com/spatialaudio/python-sounddevice/.
+https://github.com/spatialaudio/python-sounddevice/.
 Contributions are always welcome!
 
 Instead of pip-installing the latest release from PyPI, you should get the
@@ -13,7 +13,7 @@ newest development version from Github_::
    cd python-sounddevice
    python3 setup.py develop --user
 
-.. _Github: http://github.com/spatialaudio/python-sounddevice/
+.. _Github: https://github.com/spatialaudio/python-sounddevice/
 
 This way, your installation always stays up-to-date, even if you pull new
 changes from the Github repository.
