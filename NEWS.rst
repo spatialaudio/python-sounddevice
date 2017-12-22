@@ -1,3 +1,6 @@
+0.3.10 (2017-12-22):
+ * Change the way how the PortAudio library is located
+
 0.3.9 (2017-10-25):
  * Add `sounddevice.Stream.closed`
  * Switch CFFI usage to "out-of-line ABI" mode
