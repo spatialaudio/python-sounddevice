@@ -59,8 +59,14 @@ from _sounddevice import ffi as _ffi
 
 
 try:
-    _libname = _find_library('portaudio')
-    if _libname is None:
+    for _libname in (
+            'portaudio',  # Default name on POSIX systems
+            'bin\\libportaudio-2.dll',  # DLL from conda-forge
+            ):
+        _libname = _find_library(_libname)
+        if _libname is not None:
+            break
+    else:
         raise OSError('PortAudio library not found')
     _lib = _ffi.dlopen(_libname)
 except OSError:
@@ -71,8 +77,9 @@ except OSError:
     else:
         raise
     import _sounddevice_data
-    _lib = _ffi.dlopen(_os.path.join(next(iter(_sounddevice_data.__path__)),
-                                     'portaudio-binaries', _libname))
+    _libname = _os.path.join(
+        next(iter(_sounddevice_data.__path__)), 'portaudio-binaries', _libname)
+    _lib = _ffi.dlopen(_libname)
 
 _sampleformats = {
     'float32': _lib.paFloat32,
