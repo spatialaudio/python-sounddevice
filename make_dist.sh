@@ -11,7 +11,7 @@ make_wheel()
     $PYTHON setup.py bdist_wheel
 }
 
-rm -rf src/sounddevice.egg-info/
+rm -rf sounddevice.egg-info/
 $PYTHON setup.py clean --all
 $PYTHON setup.py sdist
 
