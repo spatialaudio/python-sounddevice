@@ -31,6 +31,8 @@ args = parser.parse_args()
 
 try:
     import sounddevice as sd
+    import numpy  # Make sure NumPy is loaded before it is used in the callback
+    assert numpy  # avoid "imported but unused" message (W0611)
 
     def callback(indata, outdata, frames, time, status):
         if status:
