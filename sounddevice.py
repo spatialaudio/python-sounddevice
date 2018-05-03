@@ -2446,6 +2446,7 @@ def _check_mapping(mapping, channels):
     if mapping is None:
         mapping = np.arange(channels)
     else:
+        mapping = np.array(mapping, copy=True)
         mapping = np.atleast_1d(mapping)
         if mapping.min() < 1:
             raise ValueError('channel numbers must not be < 1')
