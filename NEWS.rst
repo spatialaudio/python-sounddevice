@@ -1,3 +1,6 @@
+0.3.11 (2018-05-07):
+ * Support for the DLL from ``conda-forge``
+
 0.3.10 (2017-12-22):
  * Change the way how the PortAudio library is located
 
