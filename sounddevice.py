@@ -62,6 +62,7 @@ try:
     for _libname in (
             'portaudio',  # Default name on POSIX systems
             'bin\\libportaudio-2.dll',  # DLL from conda-forge
+            'lib/libportaudio.dylib',  # dylib from anaconda
             ):
         _libname = _find_library(_libname)
         if _libname is not None:
