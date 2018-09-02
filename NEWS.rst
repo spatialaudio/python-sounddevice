@@ -1,3 +1,6 @@
+0.3.12 (2018-09-02):
+ * Support for the dylib from Anaconda
+
 0.3.11 (2018-05-07):
  * Support for the DLL from ``conda-forge``
 
