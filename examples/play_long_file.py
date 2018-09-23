@@ -70,7 +70,7 @@ try:
 
     with sf.SoundFile(args.filename) as f:
         for _ in range(args.buffersize):
-            data = f.buffer_read(args.blocksize, ctype='float')
+            data = f.buffer_read(args.blocksize, dtype='float32')
             if not data:
                 break
             q.put_nowait(data)  # Pre-fill queue
@@ -82,7 +82,7 @@ try:
         with stream:
             timeout = args.blocksize * args.buffersize / f.samplerate
             while data:
-                data = f.buffer_read(args.blocksize, ctype='float')
+                data = f.buffer_read(args.blocksize, dtype='float32')
                 q.put(data, timeout=timeout)
             event.wait()  # Wait until playback is finished
 except KeyboardInterrupt:
