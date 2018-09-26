@@ -100,8 +100,8 @@ try:
     ax.axis((0, len(plotdata), -1, 1))
     ax.set_yticks([0])
     ax.yaxis.grid(True)
-    ax.tick_params(bottom='off', top='off', labelbottom='off',
-                   right='off', left='off', labelleft='off')
+    ax.tick_params(bottom=False, top=False, labelbottom=False,
+                   right=False, left=False, labelleft=False)
     fig.tight_layout(pad=0)
 
     stream = sd.InputStream(
