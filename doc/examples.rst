@@ -42,3 +42,17 @@ Recording with Arbitrary Duration
 :download:`rec_unlimited.py <../examples/rec_unlimited.py>`
 
 .. literalinclude:: ../examples/rec_unlimited.py
+
+Using a stream in an `asyncio` coroutine
+----------------------------------------
+
+:download:`asyncio_coroutines.py <../examples/asyncio_coroutines.py>`
+
+.. literalinclude:: ../examples/asyncio_coroutines.py
+
+Creating an `asyncio` generator for audio blocks
+------------------------------------------------
+
+:download:`asyncio_generators.py <../examples/asyncio_generators.py>`
+
+.. literalinclude:: ../examples/asyncio_generators.py
