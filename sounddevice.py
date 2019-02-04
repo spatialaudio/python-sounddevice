@@ -56,6 +56,8 @@ import platform as _platform
 import sys as _sys
 from ctypes.util import find_library as _find_library
 from _sounddevice import ffi as _ffi
+import tempfile as _tf
+from contextlib import contextmanager
 
 
 try:
@@ -2666,26 +2668,58 @@ def _exit_handler():
     while _initialized:
         _terminate()
 
+def _fileno(file_or_fd):
+    """ Get the file descriptor number of a file or file desriptor"""
+    fd = getattr(file_or_fd, 'fileno', lambda: file_or_fd)()
+    if not isinstance(fd, int):
+        raise ValueError("Expected a file (`.fileno()`) or a file descriptor")
+    return fd
 
-def _ignore_stderr():
-    """Try to forward PortAudio messages from stderr to /dev/null."""
-    try:
-        stdio = _ffi.dlopen(None)
-        devnull = stdio.fopen(_os.devnull.encode(), b'w')
-    except (OSError, AttributeError):
-        return
-    try:
-        stdio.stderr = devnull
-    except _ffi.error:
+@contextmanager
+def stderr_capture(to=_os.devnull,stderr=None):
+    """Redirects stderr to a different stream
+
+    This is an adaptation of https://stackoverflow.com/questions/4675728
+    We save sys.stderr in a temporary holder and restore it once we are out
+    of the context. 
+    It is necessary to use os.dup2 to redirect at the file descriptor level
+    otherwise messages may still appear on the standard error stream
+    
+    """
+    # Get stderr and its file descriptor 
+    if stderr is None:
+        stderr = _sys.stderr
+    stderr_fd = _fileno(stderr)
+
+    # Copy stderr_fd before it is overwritten
+    # NOTE: `copied` is inheritable on Windows when duplicating a standard 
+    # stream
+    with _os.fdopen(_os.dup(stderr_fd), 'w') as copied: 
+        stderr.flush()  # Flush library buffers that dup2 knows nothing about
+        # Redirect stderr_fd to another file: $ exec 2> to 
+        # Is "to" a file descriptor or a file?
         try:
-            stdio.__stderrp = devnull
-        except _ffi.error:
-            stdio.fclose(devnull)
+            _os.dup2(_fileno(to), stderr_fd)  
+        # If not, then it must be a filename; open it, then write to it
+        except ValueError:  
+            with open(to, 'a') as to_file:
+                _os.dup2(to_file.fileno(), stderr_fd)  
 
+        try:
+            yield stderr # Allow code to be run with the redirected stderr
+        finally:
+            # Restore stderr to its previous value
+            # NOTE: dup2 makes stderr_fd inheritable unconditionally
+            stderr.flush()
+            _os.dup2(copied.fileno(), stderr_fd)  # $ exec 2>& copied
 
-_ignore_stderr()
-_atexit.register(_exit_handler)
-_initialize()
+# Create a temporary file and signal where we are logging error messages 
+tf = _tf.NamedTemporaryFile(mode="w+",suffix=".sounddevice",delete=False)
+print("Sounddevice: Logging error messages in ", tf.name)
+
+with stderr_capture(tf.name) as cap:
+    _atexit.register(_exit_handler)
+    _initialize()
 
 if __name__ == '__main__':
     print(query_devices())
