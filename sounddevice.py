@@ -2715,7 +2715,6 @@ def stderr_capture(to=_os.devnull,stderr=None):
 
 # Create a temporary file and signal where we are logging error messages 
 tf = _tf.NamedTemporaryFile(mode="w+",suffix=".sounddevice",delete=False)
-print("Sounddevice: Logging error messages in ", tf.name)
 
 with stderr_capture(tf.name) as cap:
     _atexit.register(_exit_handler)
