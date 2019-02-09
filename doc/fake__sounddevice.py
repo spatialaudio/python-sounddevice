@@ -1,7 +1,7 @@
 """Mock module for Sphinx autodoc."""
 
 
-import ctypes
+import ctypes.util
 
 
 old_find_library = ctypes.util.find_library
