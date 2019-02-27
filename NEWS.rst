@@ -1,3 +1,6 @@
+0.3.13 (2019-02-27):
+ * Examples ``asyncio_coroutines.py`` and ``asyncio_generators.py``
+
 0.3.12 (2018-09-02):
  * Support for the dylib from Anaconda
 

@@ -48,7 +48,7 @@ Online documentation:
     http://python-sounddevice.readthedocs.io/
 
 """
-__version__ = '0.3.12'
+__version__ = '0.3.13'
 
 import atexit as _atexit
 import os as _os
