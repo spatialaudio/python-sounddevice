@@ -56,9 +56,11 @@ import platform as _platform
 import sys as _sys
 from ctypes.util import find_library as _find_library
 from _sounddevice import ffi as _ffi
-import tempfile as _tf
+import tempfile
 from contextlib import contextmanager
 
+# Create a temporary file and signal where we are logging error messages 
+_tf = tempfile.NamedTemporaryFile(mode="w+",suffix=".sounddevice",delete=False)
 
 try:
     for _libname in (
@@ -2642,9 +2644,10 @@ def _get_device_id(id_or_query_string, kind, raise_on_error=False):
 
 def _initialize():
     """Initialize PortAudio."""
-    global _initialized
-    _check(_lib.Pa_Initialize(), 'Error initializing PortAudio')
-    _initialized += 1
+    with stderr_capture(_tf.name) as cap:
+        global _initialized
+        _check(_lib.Pa_Initialize(), 'Error initializing PortAudio')
+        _initialized += 1
 
 
 def _terminate():
@@ -2713,12 +2716,9 @@ def stderr_capture(to=_os.devnull,stderr=None):
             stderr.flush()
             _os.dup2(copied.fileno(), stderr_fd)  # $ exec 2>& copied
 
-# Create a temporary file and signal where we are logging error messages 
-tf = _tf.NamedTemporaryFile(mode="w+",suffix=".sounddevice",delete=False)
 
-with stderr_capture(tf.name) as cap:
-    _atexit.register(_exit_handler)
-    _initialize()
+_atexit.register(_exit_handler)
+_initialize()
 
 if __name__ == '__main__':
     print(query_devices())
