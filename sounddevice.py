@@ -2639,10 +2639,35 @@ def _get_device_id(id_or_query_string, kind, raise_on_error=False):
 
 
 def _initialize():
-    """Initialize PortAudio."""
-    global _initialized
-    _check(_lib.Pa_Initialize(), 'Error initializing PortAudio')
-    _initialized += 1
+    """Initialize PortAudio.
+
+    This temporarily forwards messages from stderr to /dev/null
+    (where supported).
+    
+    """
+    old_stderr = None
+    try:
+        stdio = _ffi.dlopen(None)
+    except OSError:
+        pass
+    else:
+        for stderr_name in 'stderr', '__stderrp':
+            try:
+                old_stderr = getattr(stdio, stderr_name)
+            except _ffi.error:
+                continue
+            else:
+                devnull = stdio.fopen(_os.devnull.encode(), b'w')
+                setattr(stdio, stderr_name, devnull)
+                break
+    try:
+        _check(_lib.Pa_Initialize(), 'Error initializing PortAudio')
+        global _initialized
+        _initialized += 1
+    finally:
+        if old_stderr is not None:
+            setattr(stdio, stderr_name, old_stderr)
+            stdio.fclose(devnull)
 
 
 def _terminate():
@@ -2667,23 +2692,6 @@ def _exit_handler():
         _terminate()
 
 
-def _ignore_stderr():
-    """Try to forward PortAudio messages from stderr to /dev/null."""
-    try:
-        stdio = _ffi.dlopen(None)
-        devnull = stdio.fopen(_os.devnull.encode(), b'w')
-    except (OSError, AttributeError):
-        return
-    try:
-        stdio.stderr = devnull
-    except _ffi.error:
-        try:
-            stdio.__stderrp = devnull
-        except _ffi.error:
-            stdio.fclose(devnull)
-
-
-_ignore_stderr()
 _atexit.register(_exit_handler)
 _initialize()
 
