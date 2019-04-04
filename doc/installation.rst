@@ -18,6 +18,11 @@ Linux/macOS/Windows), you can install the ``sounddevice`` module from the
 
    conda install -c conda-forge python-sounddevice
 
+.. note::
+
+   The PortAudio package on ``conda-forge`` doesn't have ASIO support,
+   see https://github.com/conda-forge/portaudio-feedstock/issues/9.
+
 There are also packages for several other package managers:
 
 .. only:: html
@@ -31,8 +36,8 @@ There are also packages for several other package managers:
 
 If you are using Windows, you can alternatively install one of the packages
 provided at https://www.lfd.uci.edu/~gohlke/pythonlibs/#sounddevice.
-The PortAudio_ library is included in the package and you can get the rest
-of the dependencies on the same page.
+The PortAudio_ library (with ASIO support) is included in the package and
+you can get the rest of the dependencies on the same page.
 
 Note that some of the aforementioned packages may be out-of-date.
 You can always get the newest ``sounddevice`` release from PyPI_
@@ -58,8 +63,9 @@ To un-install, use::
 
    python3 -m pip uninstall sounddevice
 
-If you install the ``sounddevice`` module with ``pip`` on macOS or Windows, the
-PortAudio_ library will be installed automagically.
+If you install the ``sounddevice`` module with ``pip`` on macOS or Windows,
+the PortAudio_ library (with ASIO support on Windows) will be installed
+automagically.
 On other platforms, you might have to install PortAudio with your package
 manager (the package might be called ``libportaudio2`` or similar).
 
