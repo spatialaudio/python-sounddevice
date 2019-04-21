@@ -49,3 +49,5 @@ class FakeLibrary(object):
 
     def fclose(*args):
         pass
+
+    stderr = NotImplemented
