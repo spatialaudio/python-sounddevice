@@ -15,6 +15,13 @@ Play a Very Long Sound File
 
 .. literalinclude:: ../examples/play_long_file.py
 
+Play a Sine Signal
+------------------
+
+:download:`play_sine.py <../examples/play_sine.py>`
+
+.. literalinclude:: ../examples/play_sine.py
+
 Input to Output Pass-Through
 ----------------------------
 
