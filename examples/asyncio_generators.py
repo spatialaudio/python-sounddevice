@@ -10,6 +10,7 @@ You need Python 3.7 or newer to run this.
 """
 import asyncio
 import queue
+import sys
 
 import numpy as np
 import sounddevice as sd
@@ -36,7 +37,7 @@ async def stream_generator(blocksize, *, channels=1, dtype='float32',
 
     The output blocks are uninitialized and have to be filled with
     appropriate audio signals.
-    
+
     """
     assert blocksize != 0
     q_in = asyncio.Queue()
@@ -97,8 +98,11 @@ async def main(**kwargs):
     try:
         await audio_task
     except asyncio.CancelledError:
-        print('wire was cancelled')
+        print('\nwire was cancelled')
 
 
 if __name__ == "__main__":
-    asyncio.run(main(blocksize=1024))
+    try:
+        asyncio.run(main(blocksize=1024))
+    except KeyboardInterrupt:
+        sys.exit('\nInterrupted by user')

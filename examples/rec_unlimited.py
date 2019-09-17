@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
 """Create a recording with arbitrary duration.
 
-PySoundFile (https://github.com/bastibe/PySoundFile/) has to be installed!
+The soundfile module (https://PySoundFile.readthedocs.io/) has to be installed!
 
 """
 import argparse
 import tempfile
 import queue
 import sys
+
+import sounddevice as sd
+import soundfile as sf
+import numpy  # Make sure NumPy is loaded before it is used in the callback
+assert numpy  # avoid "imported but unused" message (W0611)
 
 
 def int_or_str(text):
@@ -17,10 +22,22 @@ def int_or_str(text):
     except ValueError:
         return text
 
-parser = argparse.ArgumentParser(description=__doc__)
+
+parser = argparse.ArgumentParser(add_help=False)
 parser.add_argument(
     '-l', '--list-devices', action='store_true',
     help='show list of audio devices and exit')
+args, remaining = parser.parse_known_args()
+if args.list_devices:
+    print(sd.query_devices())
+    parser.exit(0)
+parser = argparse.ArgumentParser(
+    description=__doc__,
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    parents=[parser])
+parser.add_argument(
+    'filename', nargs='?', metavar='FILENAME',
+    help='audio file to store recording to')
 parser.add_argument(
     '-d', '--device', type=int_or_str,
     help='input device (numeric ID or substring)')
@@ -29,21 +46,20 @@ parser.add_argument(
 parser.add_argument(
     '-c', '--channels', type=int, default=1, help='number of input channels')
 parser.add_argument(
-    'filename', nargs='?', metavar='FILENAME',
-    help='audio file to store recording to')
-parser.add_argument(
     '-t', '--subtype', type=str, help='sound file subtype (e.g. "PCM_24")')
-args = parser.parse_args()
+args = parser.parse_args(remaining)
+
+q = queue.Queue()
+
+
+def callback(indata, frames, time, status):
+    """This is called (from a separate thread) for each audio block."""
+    if status:
+        print(status, file=sys.stderr)
+    q.put(indata.copy())
+
 
 try:
-    import sounddevice as sd
-    import soundfile as sf
-    import numpy  # Make sure NumPy is loaded before it is used in the callback
-    assert numpy  # avoid "imported but unused" message (W0611)
-
-    if args.list_devices:
-        print(sd.query_devices())
-        parser.exit(0)
     if args.samplerate is None:
         device_info = sd.query_devices(args.device, 'input')
         # soundfile expects an int, sounddevice provides a float:
@@ -51,13 +67,6 @@ try:
     if args.filename is None:
         args.filename = tempfile.mktemp(prefix='delme_rec_unlimited_',
                                         suffix='.wav', dir='')
-    q = queue.Queue()
-
-    def callback(indata, frames, time, status):
-        """This is called (from a separate thread) for each audio block."""
-        if status:
-            print(status, file=sys.stderr)
-        q.put(indata.copy())
 
     # Make sure the file is opened before recording anything:
     with sf.SoundFile(args.filename, mode='x', samplerate=args.samplerate,
@@ -69,7 +78,6 @@ try:
             print('#' * 80)
             while True:
                 file.write(q.get())
-
 except KeyboardInterrupt:
     print('\nRecording finished: ' + repr(args.filename))
     parser.exit(0)

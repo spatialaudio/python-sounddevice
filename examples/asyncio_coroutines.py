@@ -8,6 +8,7 @@ You need Python 3.7 or newer to run this.
 
 """
 import asyncio
+import sys
 
 import numpy as np
 import sounddevice as sd
@@ -70,4 +71,7 @@ async def main(frames=150_000, channels=1, dtype='float32', **kwargs):
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        sys.exit('\nInterrupted by user')

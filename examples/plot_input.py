@@ -8,6 +8,11 @@ import argparse
 import queue
 import sys
 
+from matplotlib.animation import FuncAnimation
+import matplotlib.pyplot as plt
+import numpy as np
+import sounddevice as sd
+
 
 def int_or_str(text):
     """Helper function for argument parsing."""
@@ -17,10 +22,21 @@ def int_or_str(text):
         return text
 
 
-parser = argparse.ArgumentParser(description=__doc__)
+parser = argparse.ArgumentParser(add_help=False)
 parser.add_argument(
     '-l', '--list-devices', action='store_true',
     help='show list of audio devices and exit')
+args, remaining = parser.parse_known_args()
+if args.list_devices:
+    print(sd.query_devices())
+    parser.exit(0)
+parser = argparse.ArgumentParser(
+    description=__doc__,
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    parents=[parser])
+parser.add_argument(
+    'channels', type=int, default=[1], nargs='*', metavar='CHANNEL',
+    help='input channels to plot (default: the first)')
 parser.add_argument(
     '-d', '--device', type=int_or_str,
     help='input device (numeric ID or substring)')
@@ -37,10 +53,7 @@ parser.add_argument(
 parser.add_argument(
     '-n', '--downsample', type=int, default=10, metavar='N',
     help='display every Nth sample (default: %(default)s)')
-parser.add_argument(
-    'channels', type=int, default=[1], nargs='*', metavar='CHANNEL',
-    help='input channels to plot (default: the first)')
-args = parser.parse_args()
+args = parser.parse_args(remaining)
 if any(c < 1 for c in args.channels):
     parser.error('argument CHANNEL: must be >= 1')
 mapping = [c - 1 for c in args.channels]  # Channel numbers start with 1
@@ -77,14 +90,6 @@ def update_plot(frame):
 
 
 try:
-    from matplotlib.animation import FuncAnimation
-    import matplotlib.pyplot as plt
-    import numpy as np
-    import sounddevice as sd
-
-    if args.list_devices:
-        print(sd.query_devices())
-        parser.exit(0)
     if args.samplerate is None:
         device_info = sd.query_devices(args.device, 'input')
         args.samplerate = device_info['default_samplerate']

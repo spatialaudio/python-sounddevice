@@ -1,5 +1,4 @@
-Example Programs
-================
+.. include:: ../examples/README.rst
 
 Play a Sound File
 -----------------

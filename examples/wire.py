@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """Pass input directly to output.
 
-See https://www.assembla.com/spaces/portaudio/subversion/source/HEAD/portaudio/trunk/test/patest_wire.c
+https://app.assembla.com/spaces/portaudio/git/source/master/test/patest_wire.c
 
 """
 import argparse
 import logging
+
+import sounddevice as sd
+import numpy  # Make sure NumPy is loaded before it is used in the callback
+assert numpy  # avoid "imported but unused" message (W0611)
 
 
 def int_or_str(text):
@@ -16,29 +20,41 @@ def int_or_str(text):
         return text
 
 
-parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('-i', '--input-device', type=int_or_str,
-                    help='input device ID or substring')
-parser.add_argument('-o', '--output-device', type=int_or_str,
-                    help='output device ID or substring')
-parser.add_argument('-c', '--channels', type=int, default=2,
-                    help='number of channels')
-parser.add_argument('-t', '--dtype', help='audio data type')
-parser.add_argument('-s', '--samplerate', type=float, help='sampling rate')
-parser.add_argument('-b', '--blocksize', type=int, help='block size')
-parser.add_argument('-l', '--latency', type=float, help='latency in seconds')
-args = parser.parse_args()
+parser = argparse.ArgumentParser(add_help=False)
+parser.add_argument(
+    '-l', '--list-devices', action='store_true',
+    help='show list of audio devices and exit')
+args, remaining = parser.parse_known_args()
+if args.list_devices:
+    print(sd.query_devices())
+    parser.exit(0)
+parser = argparse.ArgumentParser(
+    description=__doc__,
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    parents=[parser])
+parser.add_argument(
+    '-i', '--input-device', type=int_or_str,
+    help='input device (numeric ID or substring)')
+parser.add_argument(
+    '-o', '--output-device', type=int_or_str,
+    help='output device (numeric ID or substring)')
+parser.add_argument(
+    '-c', '--channels', type=int, default=2,
+    help='number of channels')
+parser.add_argument('--dtype', help='audio data type')
+parser.add_argument('--samplerate', type=float, help='sampling rate')
+parser.add_argument('--blocksize', type=int, help='block size')
+parser.add_argument('--latency', type=float, help='latency in seconds')
+args = parser.parse_args(remaining)
+
+
+def callback(indata, outdata, frames, time, status):
+    if status:
+        print(status)
+    outdata[:] = indata
+
 
 try:
-    import sounddevice as sd
-    import numpy  # Make sure NumPy is loaded before it is used in the callback
-    assert numpy  # avoid "imported but unused" message (W0611)
-
-    def callback(indata, outdata, frames, time, status):
-        if status:
-            print(status)
-        outdata[:] = indata
-
     with sd.Stream(device=(args.input_device, args.output_device),
                    samplerate=args.samplerate, blocksize=args.blocksize,
                    dtype=args.dtype, latency=args.latency,
@@ -48,6 +64,6 @@ try:
         print('#' * 80)
         input()
 except KeyboardInterrupt:
-    parser.exit('\nInterrupted by user')
+    parser.exit('')
 except Exception as e:
     parser.exit(type(e).__name__ + ': ' + str(e))

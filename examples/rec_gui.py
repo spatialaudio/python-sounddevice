@@ -82,7 +82,7 @@ class RecGui(tk.Tk):
     stream = None
 
     def __init__(self):
-        tk.Tk.__init__(self)
+        super().__init__()
 
         self.title('Recording GUI')
 
