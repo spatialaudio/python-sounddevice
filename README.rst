@@ -5,7 +5,7 @@ This Python_ module provides bindings for the PortAudio_ library and a few
 convenience functions to play and record NumPy_ arrays containing audio signals.
 
 Documentation:
-   http://python-sounddevice.readthedocs.io/
+   https://python-sounddevice.readthedocs.io/
 
 Source code repository and issue tracker:
    https://github.com/spatialaudio/python-sounddevice/
@@ -15,4 +15,4 @@ License:
 
 .. _Python: https://www.python.org/
 .. _PortAudio: http://www.portaudio.com/
-.. _NumPy: http://www.numpy.org/
+.. _NumPy: https://numpy.org/

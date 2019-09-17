@@ -45,7 +45,7 @@ API overview:
     `AsioSettings`, `CoreAudioSettings`, `WasapiSettings`
 
 Online documentation:
-    http://python-sounddevice.readthedocs.io/
+    https://python-sounddevice.readthedocs.io/
 
 """
 __version__ = '0.3.13'

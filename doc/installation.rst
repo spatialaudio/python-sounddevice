@@ -83,9 +83,9 @@ You can also install NumPy with ``pip``, but depending on your platform, this
 might require a compiler and several additional libraries.
 
 .. _PortAudio: http://www.portaudio.com/
-.. _NumPy: http://www.numpy.org/
+.. _NumPy: https://numpy.org/
 .. _Python: https://www.python.org/
-.. _Anaconda: https://www.anaconda.com/download/
-.. _WinPython: http://winpython.github.io/
-.. _CFFI: http://cffi.readthedocs.io/
+.. _Anaconda: https://www.anaconda.com/distribution/#download-section
+.. _WinPython: https://winpython.github.io/
+.. _CFFI: https://cffi.readthedocs.io/
 .. _PyPI: https://pypi.org/project/sounddevice/
