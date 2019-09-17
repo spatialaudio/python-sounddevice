@@ -2060,7 +2060,7 @@ class PortAudioError(Exception):
     def __str__(self):
         errormsg = self.args[0] if self.args else ''
         if len(self.args) > 1:
-            errormsg = "{0} [PaErrorCode {1}]".format(errormsg, self.args[1])
+            errormsg = '{0} [PaErrorCode {1}]'.format(errormsg, self.args[1])
         if len(self.args) > 2:
             host_api, hosterror_code, hosterror_text = self.args[2]
             hostname = query_hostapis(host_api)['name']
@@ -2556,7 +2556,7 @@ def _check(err, msg=''):
 
     errormsg = _ffi.string(_lib.Pa_GetErrorText(err)).decode()
     if msg:
-        errormsg = "{0}: {1}".format(msg, errormsg)
+        errormsg = '{0}: {1}'.format(msg, errormsg)
 
     if err == _lib.paUnanticipatedHostError:
         # (gh82) We grab the host error info here rather than inside

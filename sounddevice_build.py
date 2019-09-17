@@ -1,7 +1,7 @@
 from cffi import FFI
 
 ffibuilder = FFI()
-ffibuilder.set_source("_sounddevice", None)
+ffibuilder.set_source('_sounddevice', None)
 ffibuilder.cdef("""
 int Pa_GetVersion( void );
 const char* Pa_GetVersionText( void );
@@ -317,5 +317,5 @@ ffibuilder.cdef("""
     FILE* __stderrp;  /* macOS */
 """)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     ffibuilder.compile(verbose=True)
