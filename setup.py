@@ -48,6 +48,7 @@ except ImportError:
 else:
     class bdist_wheel_half_pure(bdist_wheel):
         """Create OS-dependent, but Python-independent wheels."""
+
         def get_tag(self):
             pythons = 'py2.py3.' + PYTHON_INTERPRETERS
             if system == 'Darwin':

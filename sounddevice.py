@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-"""Play and Record Sound with Python
+"""Play and Record Sound with Python.
 
 API overview:
   * Convenience functions to play and record NumPy arrays:
@@ -104,6 +104,27 @@ def play(data, samplerate=None, mapping=None, blocking=False, loop=False,
          **kwargs):
     """Play back a NumPy array containing audio data.
 
+    This is a convenience function for interactive use and for small
+    scripts.  It cannot be used for multiple overlapping playbacks.
+
+    This function does the following steps internally:
+    
+    * Call `stop()` to terminate any currently running invocation
+      of `play()`, `rec()` and `playrec()`.
+
+    * Create an `OutputStream` and a callback function for taking care
+      of the actual playback.
+
+    * Start the stream.
+
+    * If ``blocking=True`` was given, wait until playback is done.
+      If not, return immediately.
+
+    If you need more control (e.g. block-wise gapless playback, multiple
+    overlapping playbacks, ...), you should explicitly create an
+    `OutputStream` yourself.
+    If NumPy is not available, you can use a `RawOutputStream`.
+
     Parameters
     ----------
     data : array_like
@@ -134,6 +155,13 @@ def play(data, samplerate=None, mapping=None, blocking=False, loop=False,
         All parameters of `OutputStream` -- except *channels*, *dtype*,
         *callback* and *finished_callback* -- can be used.
 
+    Notes
+    -----
+    If you don't specify the correct sampling rate
+    (either with the *samplerate* argument or by assigning a value to
+    `default.samplerate`), the audio data will be played back,
+    but it might be too slow or too fast!
+
     See Also
     --------
     rec, playrec
@@ -157,6 +185,27 @@ def play(data, samplerate=None, mapping=None, blocking=False, loop=False,
 def rec(frames=None, samplerate=None, channels=None, dtype=None,
         out=None, mapping=None, blocking=False, **kwargs):
     """Record audio data into a NumPy array.
+
+    This is a convenience function for interactive use and for small
+    scripts.
+
+    This function does the following steps internally:
+    
+    * Call `stop()` to terminate any currently running invocation
+      of `play()`, `rec()` and `playrec()`.
+
+    * Create an `InputStream` and a callback function for taking care
+      of the actual recording.
+
+    * Start the stream.
+
+    * If ``blocking=True`` was given, wait until recording is done.
+      If not, return immediately.
+
+    If you need more control (e.g. block-wise gapless recording,
+    overlapping recordings, ...), you should explicitly create an
+    `InputStream` yourself.
+    If NumPy is not available, you can use a `RawInputStream`.
 
     Parameters
     ----------
@@ -206,6 +255,13 @@ def rec(frames=None, samplerate=None, channels=None, dtype=None,
         All parameters of `InputStream` -- except *callback* and
         *finished_callback* -- can be used.
 
+    Notes
+    -----
+    If you don't specify a sampling rate (either with the *samplerate*
+    argument or by assigning a value to `default.samplerate`),
+    the default sampling rate of the sound device will be used
+    (see `query_devices()`).
+    
     See Also
     --------
     play, playrec
@@ -229,6 +285,24 @@ def playrec(data, samplerate=None, channels=None, dtype=None,
             out=None, input_mapping=None, output_mapping=None, blocking=False,
             **kwargs):
     """Simultaneous playback and recording of NumPy arrays.
+
+    This function does the following steps internally:
+    
+    * Call `stop()` to terminate any currently running invocation
+      of `play()`, `rec()` and `playrec()`.
+
+    * Create a `Stream` and a callback function for taking care of the
+      actual playback and recording.
+
+    * Start the stream.
+
+    * If ``blocking=True`` was given, wait until playback/recording is
+      done.  If not, return immediately.
+
+    If you need more control (e.g. block-wise gapless playback and
+    recording, realtime processing, ...),
+    you should explicitly create a `Stream` yourself.
+    If NumPy is not available, you can use a `RawStream`.
 
     Parameters
     ----------
@@ -264,6 +338,13 @@ def playrec(data, samplerate=None, channels=None, dtype=None,
     samplerate, **kwargs
         All parameters of `Stream` -- except *channels*, *dtype*,
         *callback* and *finished_callback* -- can be used.
+
+    Notes
+    -----
+    If you don't specify the correct sampling rate
+    (either with the *samplerate* argument or by assigning a value to
+    `default.samplerate`), the audio data will be played back,
+    but it might be too slow or too fast!
 
     See Also
     --------
@@ -1823,7 +1904,7 @@ class CallbackFlags(object):
         return self._hasflag(_lib.paPrimingOutput)
 
     def _hasflag(self, flag):
-        """Helper function to check a given flag."""
+        """Check a given flag."""
         return bool(self._flags & flag)
 
 
@@ -1864,7 +1945,6 @@ class default(object):
 
     Examples
     --------
-
     >>> import sounddevice as sd
     >>> sd.default.samplerate = 48000
     >>> sd.default.dtype
@@ -1891,6 +1971,7 @@ class default(object):
     >>> sd.default.reset()
 
     """
+
     _pairs = 'device', 'channels', 'dtype', 'latency', 'extra_settings'
     # The class attributes listed in _pairs are only provided here for static
     # analysis tools and for the docs.  They're overwritten in __init__().
@@ -2324,7 +2405,7 @@ class _CallbackContext(object):
         # In this case, we play silence on the second channel, but only if the
         # device actually supports a second channel:
         if (mapping_is_explicit and np.array_equal(mapping, [0]) and
-               query_devices(device, 'output')['max_output_channels'] >= 2):
+                query_devices(device, 'output')['max_output_channels'] >= 2):
             channels = 2
         silent_channels = np.setdiff1d(np.arange(channels), mapping)
         if len(mapping) + len(silent_channels) != channels:
@@ -2643,7 +2724,7 @@ def _initialize():
 
     This temporarily forwards messages from stderr to /dev/null
     (where supported).
-    
+
     """
     old_stderr = None
     try:

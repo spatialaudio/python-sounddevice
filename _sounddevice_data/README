@@ -1,0 +1,5 @@
+This directory contains a Git submodule with the .dylib and .dll files
+of the PortAudio library for macOS and Windows, respectively.
+If needed, you can download the submodule with:
+
+    git submodule update --init
