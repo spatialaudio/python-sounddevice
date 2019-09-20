@@ -5,7 +5,6 @@ https://app.assembla.com/spaces/portaudio/git/source/master/test/patest_wire.c
 
 """
 import argparse
-import logging
 
 import sounddevice as sd
 import numpy  # Make sure NumPy is loaded before it is used in the callback
