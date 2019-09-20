@@ -25,7 +25,7 @@ import soundfile as sf
 
 
 def file_writing_thread(*, q, **soundfile_args):
-    """Write data from queue to file until *None* is recieved."""
+    """Write data from queue to file until *None* is received."""
     # NB: If you want fine-grained control about the buffering of the file, you
     #     can use Python's open() function (with the "buffering" argument) and
     #     pass the resulting file object to sf.SoundFile().
