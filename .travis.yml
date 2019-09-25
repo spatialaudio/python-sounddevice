@@ -1,0 +1,33 @@
+language: python
+matrix:
+  include:
+  - python: "3.7"
+    env: LINKCHECK=yes
+  - python: "3.6"
+  - python: "3.5"
+  - python: "3.4"
+  - python: "2.7"
+  - python: "nightly"
+  - python: "pypy3"
+addons:
+  apt:
+    packages:
+      - pandoc
+      - libportaudio2
+install:
+  - pip install .
+  - |
+    if [ "$LINKCHECK" = yes ]
+    then
+      pip install -r doc/requirements.txt
+    fi
+script:
+  - |
+    if [ "$LINKCHECK" = yes ]
+    then
+      python setup.py build_sphinx -b linkcheck -W
+    fi
+  - cd /tmp
+  - python -m sounddevice
+notifications:
+  email: false
