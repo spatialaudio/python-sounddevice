@@ -9,6 +9,8 @@ matrix:
   - python: "2.7"
   - python: "nightly"
   - python: "pypy3"
+  - os: osx
+    language: generic
 addons:
   apt:
     packages:
