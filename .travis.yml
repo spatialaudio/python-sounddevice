@@ -31,5 +31,7 @@ script:
     fi
   - cd /tmp
   - python -m sounddevice
+  - python -c "import sounddevice as sd; print(sd._libname)"
+  - python -c "import sounddevice as sd; print(sd.get_portaudio_version())"
 notifications:
   email: false
