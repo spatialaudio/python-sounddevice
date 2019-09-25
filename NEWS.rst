@@ -1,3 +1,7 @@
+0.3.14 (2019-09-25):
+ * Examples ``play_sine.py`` and ``rec_gui.py``
+ * Redirect ``stderr`` only during initialization
+
 0.3.13 (2019-02-27):
  * Examples ``asyncio_coroutines.py`` and ``asyncio_generators.py``
 
