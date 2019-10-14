@@ -2,7 +2,6 @@ language: python
 matrix:
   include:
   - python: "3.7"
-    env: LINKCHECK=yes
   - python: "3.6"
   - python: "3.5"
   - python: "3.4"
@@ -11,6 +10,11 @@ matrix:
   - python: "pypy3"
   - os: osx
     language: generic
+  - name: build docs and check for broken links
+    install:
+      - pip install -r doc/requirements.txt
+    script:
+      - python setup.py build_sphinx -b linkcheck -W
 addons:
   apt:
     packages:
@@ -18,17 +22,7 @@ addons:
       - libportaudio2
 install:
   - pip install .
-  - |
-    if [ "$LINKCHECK" = yes ]
-    then
-      pip install -r doc/requirements.txt
-    fi
 script:
-  - |
-    if [ "$LINKCHECK" = yes ]
-    then
-      python setup.py build_sphinx -b linkcheck -W
-    fi
   - cd /tmp
   - python -m sounddevice
   - python -c "import sounddevice as sd; print(sd._libname)"
