@@ -8,7 +8,7 @@
    usage
    examples
    CONTRIBUTING
-   api
+   api/index
    version-history
 
 .. only:: html
