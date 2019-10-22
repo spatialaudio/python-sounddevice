@@ -3,6 +3,7 @@ API Documentation
 
 .. automodule:: sounddevice
 
+----
 
 .. toctree::
 

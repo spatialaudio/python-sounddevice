@@ -3,6 +3,10 @@ Miscellaneous
 
 .. currentmodule:: sounddevice
 
+.. autofunction:: sleep
+
+.. autofunction:: get_portaudio_version
+
 .. autoclass:: CallbackFlags
    :members:
 
@@ -11,7 +15,3 @@ Miscellaneous
 .. autoclass:: CallbackAbort
 
 .. autoclass:: PortAudioError
-
-.. autofunction:: sleep
-
-.. autofunction:: get_portaudio_version

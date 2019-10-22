@@ -25,7 +25,14 @@ API overview:
     `play()`, `rec()`, `playrec()` and the related functions
     `wait()`, `stop()`, `get_status()`, `get_stream()`
 
+  * Functions to get information about the available hardware:
+    `query_devices()`, `query_hostapis()`,
+    `check_input_settings()`, `check_output_settings()`
+
   * Module-wide default settings: `default`
+
+  * Platform-specific settings:
+    `AsioSettings`, `CoreAudioSettings`, `WasapiSettings`
 
   * PortAudio streams, using NumPy arrays:
     `Stream`, `InputStream`, `OutputStream`
@@ -33,16 +40,9 @@ API overview:
   * PortAudio streams, using Python buffer objects (NumPy not needed):
     `RawStream`, `RawInputStream`, `RawOutputStream`
 
-  * Functions to get information about the available hardware:
-    `query_devices()`, `query_hostapis()`,
-    `check_input_settings()`, `check_output_settings()`
-
   * Miscellaneous functions and classes:
     `sleep()`, `get_portaudio_version()`, `CallbackFlags`,
     `CallbackStop`, `CallbackAbort`
-
-  * Platform-specific settings:
-    `AsioSettings`, `CoreAudioSettings`, `WasapiSettings`
 
 Online documentation:
     https://python-sounddevice.readthedocs.io/
