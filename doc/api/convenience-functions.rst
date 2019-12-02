@@ -3,6 +3,17 @@ Convenience Functions using NumPy Arrays
 
 .. currentmodule:: sounddevice
 
+.. autosummary::
+   :nosignatures:
+
+   play
+   rec
+   playrec
+   wait
+   stop
+   get_status
+   get_stream
+
 .. autofunction:: play
 
 .. autofunction:: rec

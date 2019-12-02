@@ -1122,7 +1122,7 @@ class RawInputStream(_StreamBase):
                  extra_settings=None, callback=None, finished_callback=None,
                  clip_off=None, dither_off=None, never_drop_input=None,
                  prime_output_buffers_using_stream_callback=None):
-        """Open a "raw" input stream.
+        """PortAudio input stream (using buffer objects).
 
         This is the same as `InputStream`, except that the *callback*
         function and :meth:`~RawStream.read` work on plain Python buffer
@@ -1206,7 +1206,7 @@ class RawOutputStream(_StreamBase):
                  extra_settings=None, callback=None, finished_callback=None,
                  clip_off=None, dither_off=None, never_drop_input=None,
                  prime_output_buffers_using_stream_callback=None):
-        """Open a "raw" output stream.
+        """PortAudio output stream (using buffer objects).
 
         This is the same as `OutputStream`, except that the *callback*
         function and :meth:`~RawStream.write` work on plain Python
@@ -1301,7 +1301,7 @@ class RawStream(RawInputStream, RawOutputStream):
                  extra_settings=None, callback=None, finished_callback=None,
                  clip_off=None, dither_off=None, never_drop_input=None,
                  prime_output_buffers_using_stream_callback=None):
-        """Open a "raw" input/output stream.
+        """PortAudio input/output stream (using buffer objects).
 
         This is the same as `Stream`, except that the *callback*
         function and `read()`/`write()` work on plain Python buffer
@@ -1353,7 +1353,7 @@ class InputStream(RawInputStream):
                  extra_settings=None, callback=None, finished_callback=None,
                  clip_off=None, dither_off=None, never_drop_input=None,
                  prime_output_buffers_using_stream_callback=None):
-        """Open an input stream.
+        """PortAudio input stream (using NumPy).
 
         This has the same methods and attributes as `Stream`, except
         :meth:`~Stream.write` and `write_available`.
@@ -1426,7 +1426,7 @@ class OutputStream(RawOutputStream):
                  extra_settings=None, callback=None, finished_callback=None,
                  clip_off=None, dither_off=None, never_drop_input=None,
                  prime_output_buffers_using_stream_callback=None):
-        """Open an output stream.
+        """PortAudio output stream (using NumPy).
 
         This has the same methods and attributes as `Stream`, except
         :meth:`~Stream.read` and `read_available`.
@@ -1508,7 +1508,7 @@ class Stream(InputStream, OutputStream):
                  extra_settings=None, callback=None, finished_callback=None,
                  clip_off=None, dither_off=None, never_drop_input=None,
                  prime_output_buffers_using_stream_callback=None):
-        """Open a stream for simultaneous input and output.
+        """PortAudio stream for simultaneous input and output (using NumPy).
 
         To open an input-only or output-only stream use `InputStream` or
         `OutputStream`, respectively.  If you want to handle audio data
