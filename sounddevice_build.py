@@ -313,8 +313,8 @@ ffibuilder.cdef("""
     /* from stdio.h */
     FILE* fopen(const char* path, const char* mode);
     int fclose(FILE* fp);
-    FILE* stderr;  /* GNU C library */
-    FILE* __stderrp;  /* macOS */
+    extern FILE* stderr;  /* GNU C library */
+    extern FILE* __stderrp;  /* macOS */
 """)
 
 if __name__ == '__main__':
