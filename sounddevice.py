@@ -559,14 +559,14 @@ def query_devices(device=None, kind=None):
 
     """
     if kind not in ('input', 'output', None):
-        raise ValueError('Invalid kind: {0!r}'.format(kind))
+        raise ValueError('Invalid kind: {!r}'.format(kind))
     if device is None and kind is None:
         return DeviceList(query_devices(i)
                           for i in range(_check(_lib.Pa_GetDeviceCount())))
     device = _get_device_id(device, kind, raise_on_error=True)
     info = _lib.Pa_GetDeviceInfo(device)
     if not info:
-        raise PortAudioError('Error querying device {0}'.format(device))
+        raise PortAudioError('Error querying device {}'.format(device))
     assert info.structVersion == 2
     name_bytes = _ffi.string(info.name)
     try:
@@ -596,7 +596,7 @@ def query_devices(device=None, kind=None):
     }
     if kind and device_dict['max_' + kind + '_channels'] < 1:
         raise ValueError(
-            'Not an {0} device: {1!r}'.format(kind, device_dict['name']))
+            'Not an {} device: {!r}'.format(kind, device_dict['name']))
     return device_dict
 
 
@@ -642,7 +642,7 @@ def query_hostapis(index=None):
                      for i in range(_check(_lib.Pa_GetHostApiCount())))
     info = _lib.Pa_GetHostApiInfo(index)
     if not info:
-        raise PortAudioError('Error querying host API {0}'.format(index))
+        raise PortAudioError('Error querying host API {}'.format(index))
     assert info.structVersion == 1
     return {
         'name': _ffi.string(info.name).decode(),
@@ -858,7 +858,7 @@ class _StreamBase(object):
         _check(_lib.Pa_OpenStream(self._ptr, iparameters, oparameters,
                                   samplerate, blocksize, stream_flags,
                                   callback_ptr, userdata),
-               'Error opening {0}'.format(self.__class__.__name__))
+               'Error opening {}'.format(self.__class__.__name__))
 
         # dereference PaStream** --> PaStream*
         self._ptr = self._ptr[0]
@@ -1493,7 +1493,7 @@ class OutputStream(RawOutputStream):
         if data.ndim > 1 and data.shape[1] != channels:
             raise ValueError('Number of channels must match')
         if data.dtype != dtype:
-            raise TypeError('dtype mismatch: {0!r} vs {1!r}'.format(
+            raise TypeError('dtype mismatch: {!r} vs {!r}'.format(
                 data.dtype.name, dtype))
         if not data.flags.c_contiguous:
             raise TypeError('data must be C-contiguous')
@@ -1776,8 +1776,6 @@ class DeviceList(tuple):
                 ins=info['max_input_channels'],
                 outs=info['max_output_channels'])
             for idx, info in enumerate(self))
-        if _sys.version_info.major < 3:
-            return text.encode(_sys.stdout.encoding or 'utf-8', 'replace')
         return text
 
 
@@ -1812,7 +1810,7 @@ class CallbackFlags(object):
         flags = str(self)
         if not flags:
             flags = 'no flags set'
-        return '<sounddevice.CallbackFlags: {0}>'.format(flags)
+        return '<sounddevice.CallbackFlags: {}>'.format(flags)
 
     def __str__(self):
         return ', '.join(name.replace('_', ' ') for name in dir(self)
@@ -1820,8 +1818,6 @@ class CallbackFlags(object):
 
     def __bool__(self):
         return bool(self._flags)
-
-    __nonzero__ = __bool__  # For Python 2.x
 
     def __ior__(self, other):
         if not isinstance(other, CallbackFlags):
@@ -2141,11 +2137,11 @@ class PortAudioError(Exception):
     def __str__(self):
         errormsg = self.args[0] if self.args else ''
         if len(self.args) > 1:
-            errormsg = '{0} [PaErrorCode {1}]'.format(errormsg, self.args[1])
+            errormsg = '{} [PaErrorCode {}]'.format(errormsg, self.args[1])
         if len(self.args) > 2:
             host_api, hosterror_code, hosterror_text = self.args[2]
             hostname = query_hostapis(host_api)['name']
-            errormsg = "{0}: '{1}' [{2} error {3}]".format(
+            errormsg = "{}: '{}' [{} error {}]".format(
                 errormsg, hosterror_text, hostname, hosterror_code)
 
         return errormsg
@@ -2637,7 +2633,7 @@ def _check(err, msg=''):
 
     errormsg = _ffi.string(_lib.Pa_GetErrorText(err)).decode()
     if msg:
-        errormsg = '{0}: {1}'.format(msg, errormsg)
+        errormsg = '{}: {}'.format(msg, errormsg)
 
     if err == _lib.paUnanticipatedHostError:
         # (gh82) We grab the host error info here rather than inside
@@ -2669,7 +2665,7 @@ def _get_device_id(id_or_query_string, kind, raise_on_error=False):
         if idev == odev:
             id_or_query_string = idev
         else:
-            raise ValueError('Input and output device are different: {0!r}'
+            raise ValueError('Input and output device are different: {!r}'
                              .format(id_or_query_string))
 
     if isinstance(id_or_query_string, int):
@@ -2712,7 +2708,7 @@ def _get_device_id(id_or_query_string, kind, raise_on_error=False):
         if raise_on_error:
             raise ValueError('Multiple ' + kind + ' devices found for ' +
                              repr(id_or_query_string) + ':\n' +
-                             '\n'.join('[{0}] {1}'.format(id, name)
+                             '\n'.join('[{}] {}'.format(id, name)
                                        for id, name in matches))
         else:
             return -1
