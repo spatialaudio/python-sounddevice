@@ -10,9 +10,7 @@ for line in open('sounddevice.py'):
         break
 
 PYTHON_INTERPRETERS = '.'.join([
-    'cp26', 'cp27',
     'cp32', 'cp33', 'cp34', 'cp35', 'cp36', 'cp37', 'cp38', 'cp39',
-    'pp27',
     'pp32', 'pp33', 'pp34', 'pp35', 'pp36', 'pp37',
 ])
 MACOSX_VERSIONS = '.'.join([
@@ -50,7 +48,7 @@ else:
         """Create OS-dependent, but Python-independent wheels."""
 
         def get_tag(self):
-            pythons = 'py2.py3.' + PYTHON_INTERPRETERS
+            pythons = 'py3.' + PYTHON_INTERPRETERS
             if system == 'Darwin':
                 oses = MACOSX_VERSIONS
             elif system == 'Windows':
@@ -59,7 +57,7 @@ else:
                 else:
                     oses = 'win_amd64'
             else:
-                pythons = 'py2.py3'
+                pythons = 'py3'
                 oses = 'any'
             return pythons, 'none', oses
 
@@ -72,7 +70,7 @@ setup(
     packages=packages,
     package_data=package_data,
     zip_safe=zip_safe,
-    python_requires='>=2.6',
+    python_requires='>=3',
     setup_requires=['CFFI>=1.0'],
     install_requires=['CFFI>=1.0'],
     extras_require={'NumPy': ['NumPy']},
@@ -89,7 +87,6 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3',
         'Topic :: Multimedia :: Sound/Audio',
     ],

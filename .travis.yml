@@ -6,27 +6,26 @@ matrix:
   - python: "3.7"
   - python: "3.6"
   - python: "3.5"
-  - python: "2.7"
   - python: "nightly"
   - python: "pypy3"
   - os: osx
     language: generic
   - name: build docs and check for broken links
     install:
-      - pip install -r doc/requirements.txt
+      - python3 -m pip install -r doc/requirements.txt
     script:
-      - python setup.py build_sphinx -b linkcheck -W
+      - python3 setup.py build_sphinx -b linkcheck -W
 addons:
   apt:
     packages:
       - pandoc
       - libportaudio2
 install:
-  - pip install .
+  - python3 -m pip install .
 script:
   - cd /tmp
-  - python -m sounddevice
-  - python -c "import sounddevice as sd; print(sd._libname)"
-  - python -c "import sounddevice as sd; print(sd.get_portaudio_version())"
+  - python3 -m sounddevice
+  - python3 -c "import sounddevice as sd; print(sd._libname)"
+  - python3 -c "import sounddevice as sd; print(sd.get_portaudio_version())"
 notifications:
   email: false
