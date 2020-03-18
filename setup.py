@@ -9,10 +9,6 @@ for line in open('sounddevice.py'):
         exec(line)
         break
 
-PYTHON_INTERPRETERS = '.'.join([
-    'cp32', 'cp33', 'cp34', 'cp35', 'cp36', 'cp37', 'cp38', 'cp39',
-    'pp32', 'pp33', 'pp34', 'pp35', 'pp36', 'pp37',
-])
 MACOSX_VERSIONS = '.'.join([
     'macosx_10_6_x86_64',
 ])
@@ -48,7 +44,6 @@ else:
         """Create OS-dependent, but Python-independent wheels."""
 
         def get_tag(self):
-            pythons = 'py3.' + PYTHON_INTERPRETERS
             if system == 'Darwin':
                 oses = MACOSX_VERSIONS
             elif system == 'Windows':
@@ -57,9 +52,8 @@ else:
                 else:
                     oses = 'win_amd64'
             else:
-                pythons = 'py3'
                 oses = 'any'
-            return pythons, 'none', oses
+            return 'py3', 'none', oses
 
     cmdclass = {'bdist_wheel': bdist_wheel_half_pure}
 
