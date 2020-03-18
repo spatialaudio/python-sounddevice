@@ -1,3 +1,6 @@
+0.3.15 (2020-03-18):
+ * This will be the last release supporting Python 2.x!
+
 0.3.14 (2019-09-25):
  * Examples ``play_sine.py`` and ``rec_gui.py``
  * Redirect ``stderr`` only during initialization
