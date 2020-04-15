@@ -7,6 +7,83 @@ https://github.com/spatialaudio/python-sounddevice/.
 Contributions are always welcome!
 
 
+Reporting Problems
+------------------
+
+When creating an issue at
+https://github.com/spatialaudio/python-sounddevice/issues,
+please make sure to provide as much useful information as possible.
+
+You can use Markdown formatting to show Python code, e.g. ::
+
+   I have created a script named `my_script.py`:
+   
+   ```python
+   import sounddevice as sd
+   
+   fs = 48000
+   duration = 1.5
+   
+   data = sd.rec(int(duration * fs), channels=99)
+   sd.wait()
+   print(data.shape)
+   ```
+
+Please provide minimal code
+(remove everything that's not necessary to show the problem),
+but make sure that the code example still has everything that's needed to run it,
+including all ``import`` statements.
+
+You should of course also show what happens when you run your code, e.g. ::
+
+   Running my script, I got this error:
+   
+   ```
+   $ python3 my_script.py 
+   Expression 'parameters->channelCount <= maxChans' failed in 'src/hostapi/alsa/pa_linux_alsa.c', line: 1514
+   Expression 'ValidateParameters( inputParameters, hostApi, StreamDirection_In )' failed in 'src/hostapi/alsa/pa_linux_alsa.c', line: 2818
+   Traceback (most recent call last):
+     File "my_script.py", line 6, in <module>
+       data = sd.rec(int(duration * fs), channels=99)
+   ...
+   sounddevice.PortAudioError: Error opening InputStream: Invalid number of channels [PaErrorCode -9998]
+   ```
+
+Please remember to provide the full command invocation and the full output.
+You should only remove lines of output when you know they are irrelevant.
+
+You should also mention the operating system and host API you are using
+(e.g. "Linux/ALSA" or "macOS/Core Audio" or "Windows/WASAPI").
+
+If your problem is related to a certain hardware device,
+you should provide the list of devices as reported by ::
+
+   python3 -m sounddevice
+
+If your problem has to do with the version of the PortAudio library you are using,
+you should provide the output of this script::
+
+   import sounddevice as sd
+   print(sd._libname)
+   print(sd.get_portaudio_version())
+
+If you don't want to clutter the issue description with a huge load of gibberish,
+you can use the ``<details>`` HTML tag to show some content only on demand::
+
+   <details>
+   
+   ```
+   $ python3 -m sounddevice
+     0 Built-in Line Input, Core Audio (2 in, 0 out)
+   > 1 Built-in Digital Input, Core Audio (2 in, 0 out)
+   < 2 Built-in Output, Core Audio (0 in, 2 out)
+     3 Built-in Line Output, Core Audio (0 in, 2 out)
+     4 Built-in Digital Output, Core Audio (0 in, 2 out)
+   ```
+   
+   </details>
+
+
 Development Installation
 ------------------------
 
