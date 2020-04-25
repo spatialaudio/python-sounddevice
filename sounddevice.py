@@ -727,6 +727,45 @@ class _StreamBase(object):
                  dither_off=None, never_drop_input=None,
                  prime_output_buffers_using_stream_callback=None,
                  userdata=None, wrap_callback=None):
+        """Base class for PortAudio streams.
+
+        This class should only be used by library authors who want to
+        create their own custom stream classes.
+        Most users should use the derived classes
+        `Stream`, `InputStream`, `OutputStream`,
+        `RawStream`, `RawInputStream` and `RawOutputStream` instead.
+
+        This class has the same properties and methods as `Stream`,
+        except for `read_available`/:meth:`~Stream.read` and
+        `write_available`/:meth:`~Stream.write`.
+
+        It can be created with the same parameters as `Stream`,
+        except that there are three additional parameters
+        and the *callback* parameter also accepts a C function pointer.
+
+        Parameters
+        ----------
+        kind : {'input', 'output', 'duplex'}
+            The desired type of stream: for recording, playback or both.
+        callback : Python callable or CData function pointer, optional
+            If *wrap_callback* is ``None`` this can be a function pointer
+            provided by CFFI.
+            Otherwise, it has to be a Python callable.
+        wrap_callback : {'array', 'buffer'}, optional
+            If *callback* is a Python callable, this selects whether
+            the audio data is provided as NumPy array (like in `Stream`)
+            or as Python buffer object (like in `RawStream`).
+        userdata : CData void pointer
+            This is passed to the underlying C callback function
+            on each call and can only be accessed from a *callback*
+            provided as ``CData`` function pointer.
+
+        Examples
+        --------
+        A usage example of this class can be seen at
+        https://github.com/spatialaudio/python-rtmixer.
+
+        """
         assert kind in ('input', 'output', 'duplex')
         assert wrap_callback in ('array', 'buffer', None)
         if blocksize is None:
@@ -2613,7 +2652,12 @@ def _array(buffer, channels, dtype):
 
 
 def _split(value):
-    """Split input/output value into two values."""
+    """Split input/output value into two values.
+
+    This can be useful for generic code that allows using the same value
+    for input and output but also a pair of two separate values.
+
+    """
     if isinstance(value, _basestring):
         # iterable, but not meant for splitting
         return value, value
@@ -2718,8 +2762,11 @@ def _get_device_id(id_or_query_string, kind, raise_on_error=False):
 def _initialize():
     """Initialize PortAudio.
 
-    This temporarily forwards messages from stderr to /dev/null
+    This temporarily forwards messages from stderr to ``/dev/null``
     (where supported).
+
+    In most cases, this doesn't have to be called explicitly, because it
+    is automatically called with the ``import sounddevice`` statement.
 
     """
     old_stderr = None
@@ -2748,7 +2795,11 @@ def _initialize():
 
 
 def _terminate():
-    """Terminate PortAudio."""
+    """Terminate PortAudio.
+
+    In most cases, this doesn't have to be called explicitly.
+
+    """
     global _initialized
     _check(_lib.Pa_Terminate(), 'Error terminating PortAudio')
     _initialized -= 1

@@ -14,3 +14,4 @@ API Documentation
    streams
    raw-streams
    misc
+   expert-mode
