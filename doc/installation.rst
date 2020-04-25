@@ -85,7 +85,7 @@ might require a compiler and several additional libraries.
 .. _PortAudio: http://www.portaudio.com/
 .. _NumPy: https://numpy.org/
 .. _Python: https://www.python.org/
-.. _Anaconda: https://www.anaconda.com/distribution/#download-section
+.. _Anaconda: https://www.anaconda.com/products/individual#Downloads
 .. _WinPython: https://winpython.github.io/
 .. _CFFI: https://cffi.readthedocs.io/
 .. _PyPI: https://pypi.org/project/sounddevice/
