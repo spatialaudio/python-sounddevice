@@ -59,9 +59,8 @@ default_role = 'any'
 
 nitpicky = True
 
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'insipid'
 html_theme_options = {
-    'collapse_navigation': False,
 }
 html_title = project + ', version ' + release
 html_domain_indices = False

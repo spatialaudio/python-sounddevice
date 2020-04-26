@@ -20,8 +20,8 @@ Miscellaneous
 .. autoclass:: CallbackFlags
    :members:
 
-.. autoclass:: CallbackStop
+.. autoexception:: CallbackStop
 
-.. autoclass:: CallbackAbort
+.. autoexception:: CallbackAbort
 
-.. autoclass:: PortAudioError
+.. autoexception:: PortAudioError
