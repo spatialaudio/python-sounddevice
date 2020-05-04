@@ -811,6 +811,13 @@ class _StreamBase(object):
                     'Input and output device must have the same samplerate')
             else:
                 samplerate = isamplerate
+            # Check input and output separately to get more specific errors:
+            _check(
+                _lib.Pa_IsFormatSupported(iparameters, _ffi.NULL, samplerate),
+                'Input device error')
+            _check(
+                _lib.Pa_IsFormatSupported(_ffi.NULL, oparameters, samplerate),
+                'Output device error')
         else:
             parameters, self._dtype, self._samplesize, samplerate = \
                 _get_stream_parameters(kind, device, channels, dtype, latency,
