@@ -14,6 +14,13 @@ Play a Very Long Sound File
 
 .. literalinclude:: ../examples/play_long_file.py
 
+Play a Web Stream
+-----------------
+
+:download:`play_stream.py <../examples/play_stream.py>`
+
+.. literalinclude:: ../examples/play_stream.py
+
 Play a Sine Signal
 ------------------
 
