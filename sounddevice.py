@@ -268,7 +268,7 @@ def rec(frames=None, samplerate=None, channels=None, dtype=None,
 
     """
     ctx = _CallbackContext()
-    ctx.frames = ctx.check_out(out, frames, channels, dtype, mapping)
+    out, ctx.frames = ctx.check_out(out, frames, channels, dtype, mapping)
 
     def callback(indata, frames, time, status):
         assert len(indata) == frames
@@ -278,7 +278,7 @@ def rec(frames=None, samplerate=None, channels=None, dtype=None,
 
     ctx.start_stream(InputStream, samplerate, ctx.input_channels,
                      ctx.input_dtype, callback, blocking, **kwargs)
-    return ctx.out
+    return out
 
 
 def playrec(data, samplerate=None, channels=None, dtype=None,
@@ -355,8 +355,8 @@ def playrec(data, samplerate=None, channels=None, dtype=None,
     output_frames = ctx.check_data(data, output_mapping, kwargs.get('device'))
     if dtype is None:
         dtype = ctx.data.dtype  # ignore module defaults
-    input_frames = ctx.check_out(out, output_frames, channels, dtype,
-                                 input_mapping)
+    out, input_frames = ctx.check_out(out, output_frames, channels, dtype,
+                                      input_mapping)
     if input_frames != output_frames:
         raise ValueError('len(data) != len(out)')
     ctx.frames = input_frames
@@ -374,7 +374,7 @@ def playrec(data, samplerate=None, channels=None, dtype=None,
                      callback, blocking,
                      prime_output_buffers_using_stream_callback=False,
                      **kwargs)
-    return ctx.out
+    return out
 
 
 def wait(ignore_errors=True):
@@ -2402,6 +2402,7 @@ class _CallbackContext(object):
 
     blocksize = None
     data = None
+    out = None
     frame = 0
     input_channels = output_channels = None
     input_dtype = output_dtype = None
@@ -2483,7 +2484,7 @@ class _CallbackContext(object):
         self.input_channels = channels
         self.input_dtype = dtype
         self.input_mapping = mapping
-        return frames
+        return out, frames
 
     def callback_enter(self, status, data):
         """Check status and blocksize."""
@@ -2521,6 +2522,12 @@ class _CallbackContext(object):
 
     def finished_callback(self):
         self.event.set()
+        # Drop temporary audio buffers to free memory
+        self.data = None
+        self.out = None
+        # Drop CFFI objects to avoid reference cycles
+        self.stream._callback = None
+        self.stream._finished_callback = None
 
     def start_stream(self, StreamClass, samplerate, channels, dtype, callback,
                      blocking, **kwargs):
