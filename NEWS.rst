@@ -53,7 +53,7 @@
  * Send PortAudio output to ``/dev/null`` (on Linux and OSX)
 
 0.3.0 (2015-10-28):
- * Remove `print_devices()`, `query_devices()` can be used instead,
+ * Remove ``print_devices()``, `query_devices()` can be used instead,
    since it now returns a `DeviceList` object.
 
 0.2.2 (2015-10-21):
