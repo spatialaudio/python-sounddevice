@@ -75,3 +75,19 @@ latex_elements = {
 latex_documents = [('index', 'python-sounddevice.tex', project, authors, 'howto')]
 latex_show_urls = 'footnote'
 latex_domain_indices = False
+
+
+def gh_example_role(rolename, rawtext, text, lineno, inliner,
+                    options={}, content=()):
+    from docutils import nodes, utils
+    github_url = 'https://github.com/spatialaudio/python-sounddevice'
+    base_url = github_url + '/blob/' + release + '/examples/%s'
+    text = utils.unescape(text)
+    full_url = base_url % text
+    pnode = nodes.reference(internal=False, refuri=full_url)
+    pnode += nodes.literal(text, text, classes=['file'])
+    return [pnode], []
+
+
+def setup(app):
+    app.add_role('gh-example', gh_example_role)
