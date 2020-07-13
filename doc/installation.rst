@@ -54,6 +54,10 @@ To install the latest release from PyPI, use::
 
    python3 -m pip install sounddevice --user
 
+Or, if you're inside a Python `virtual environment`_::
+
+   pip install sounddevice
+   
 If you want to install it system-wide for all users (assuming you have the
 necessary rights), you can just drop the ``--user`` option.
 If you have installed the module already, you can use the ``--upgrade`` flag to
@@ -89,3 +93,4 @@ might require a compiler and several additional libraries.
 .. _WinPython: https://winpython.github.io/
 .. _CFFI: https://cffi.readthedocs.io/
 .. _PyPI: https://pypi.org/project/sounddevice/
+.. _`virtual environment`: https://docs.python.org/3/tutorial/venv.html

@@ -100,6 +100,12 @@ newest development version (a.k.a. "master") from Github_::
 This way, your installation always stays up-to-date, even if you pull new
 changes from the Github repository.
 
+If you're inside a Python `virtual environment`_, replace the last line with::
+
+   pip install -e .
+
+.. _`virtual environment`: https://docs.python.org/3/tutorial/venv.html
+
 Whenever the file ``sounddevice_build.py`` changes (either because you edited it
 or it was updated by pulling from Github or switching branches), you have to run
 the last command again.
