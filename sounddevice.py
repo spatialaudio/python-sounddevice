@@ -1838,6 +1838,19 @@ class CallbackFlags(object):
     >>> errors.input_overflow
     True
 
+    The values may also be set and cleared by the user:
+
+    >>> import sounddevice as sd
+    >>> cf = sd.CallbackFlags()
+    >>> cf
+    <sounddevice.CallbackFlags: no flags set>
+    >>> cf.input_underflow = True
+    >>> cf
+    <sounddevice.CallbackFlags: input underflow>
+    >>> cf.input_underflow = False
+    >>> cf
+    <sounddevice.CallbackFlags: no flags set>
+
     """
 
     __slots__ = '_flags'
@@ -1877,18 +1890,12 @@ class CallbackFlags(object):
         This can only happen in full-duplex streams (including
         `playrec()`).
 
-        The bit may be set with ``input_underflow = True``, and
-        cleared with ``input_underflow = False``.
-
         """
         return self._hasflag(_lib.paInputUnderflow)
 
     @input_underflow.setter
-    def input_underflow(self, new_value):
-        if new_value:
-            self._setflag(_lib.paInputUnderflow)
-        else:
-            self._clearflag(_lib.paInputUnderflow)
+    def input_underflow(self, value):
+        self._updateflag(_lib.paInputUnderflow, value)
 
     @property
     def input_overflow(self):
@@ -1903,18 +1910,12 @@ class CallbackFlags(object):
         This can happen in full-duplex and input-only streams (including
         `playrec()` and `rec()`).
 
-        The bit may be set with ``input_overflow = True``, and
-        cleared with ``input_overflow = False``.
-
         """
         return self._hasflag(_lib.paInputOverflow)
 
     @input_overflow.setter
-    def input_overflow(self, new_value):
-        if new_value:
-            self._setflag(_lib.paInputOverflow)
-        else:
-            self._clearflag(_lib.paInputOverflow)
+    def input_overflow(self, value):
+        self._updateflag(_lib.paInputOverflow, value)
 
     @property
     def output_underflow(self):
@@ -1926,18 +1927,12 @@ class CallbackFlags(object):
         This can happen in full-duplex and output-only streams
         (including `playrec()` and `play()`).
 
-        The bit may be set with ``output_underflow = True``, and
-        cleared with ``output_underflow = False``.
-
         """
         return self._hasflag(_lib.paOutputUnderflow)
 
     @output_underflow.setter
-    def output_underflow(self, new_value):
-        if new_value:
-            self._setflag(_lib.paOutputUnderflow)
-        else:
-            self._clearflag(_lib.paOutputUnderflow)
+    def output_underflow(self, value):
+        self._updateflag(_lib.paOutputUnderflow, value)
 
     @property
     def output_overflow(self):
@@ -1950,18 +1945,12 @@ class CallbackFlags(object):
         `playrec()`), but only when ``never_drop_input=True`` was
         specified.  See `default.never_drop_input`.
 
-        The bit may be set with ``output_overflow = True``, and
-        cleared with ``output_overflow = False``.
-
         """
         return self._hasflag(_lib.paOutputOverflow)
 
     @output_overflow.setter
-    def output_overflow(self, new_value):
-        if new_value:
-            self._setflag(_lib.paOutputOverflow)
-        else:
-            self._clearflag(_lib.paOutputOverflow)
+    def output_overflow(self, value):
+        self._updateflag(_lib.paOutputOverflow, value)
 
     @property
     def priming_output(self):
@@ -1982,11 +1971,13 @@ class CallbackFlags(object):
         """Check a given flag."""
         return bool(self._flags & flag)
 
-    def _setflag(self, flag):
-        self._flags |= flag
-
-    def _clearflag(self, flag):
-        self._flags &= ~flag
+    def _updateflag(self, flag, value):
+        """Set the given flag if value is True, otherwise clear the given
+        flag."""
+        if value:
+            self._flags |= flag
+        else:
+            self._flags &= ~flag
 
 
 class _InputOutputPair(object):
