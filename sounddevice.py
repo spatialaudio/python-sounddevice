@@ -108,7 +108,7 @@ def play(data, samplerate=None, mapping=None, blocking=False, loop=False,
     scripts.  It cannot be used for multiple overlapping playbacks.
 
     This function does the following steps internally:
-    
+
     * Call `stop()` to terminate any currently running invocation
       of `play()`, `rec()` and `playrec()`.
 
@@ -190,7 +190,7 @@ def rec(frames=None, samplerate=None, channels=None, dtype=None,
     scripts.
 
     This function does the following steps internally:
-    
+
     * Call `stop()` to terminate any currently running invocation
       of `play()`, `rec()` and `playrec()`.
 
@@ -261,7 +261,7 @@ def rec(frames=None, samplerate=None, channels=None, dtype=None,
     argument or by assigning a value to `default.samplerate`),
     the default sampling rate of the sound device will be used
     (see `query_devices()`).
-    
+
     See Also
     --------
     play, playrec
@@ -287,7 +287,7 @@ def playrec(data, samplerate=None, channels=None, dtype=None,
     """Simultaneous playback and recording of NumPy arrays.
 
     This function does the following steps internally:
-    
+
     * Call `stop()` to terminate any currently running invocation
       of `play()`, `rec()` and `playrec()`.
 
