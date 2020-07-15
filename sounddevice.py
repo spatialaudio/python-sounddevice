@@ -1821,6 +1821,12 @@ class DeviceList(tuple):
 class CallbackFlags(object):
     """Flag bits for the *status* argument to a stream *callback*.
 
+    If you experience under-/overflows, you can try to increase the
+    ``latency`` and/or ``blocksize`` settings.
+    You should also avoid anything that could block the callback
+    function for a long time, e.g. extensive computations, waiting for
+    another thread, reading/writing files, network connections, etc.
+
     See Also
     --------
     Stream
@@ -1887,8 +1893,9 @@ class CallbackFlags(object):
         In a stream opened with ``blocksize=0``, indicates that data
         prior to the first sample of the input buffer was discarded due
         to an overflow, possibly because the stream callback is using
-        too much CPU time.  Otherwise indicates that data prior to one
-        or more samples in the input buffer was discarded.
+        too much CPU time.  In a stream opened with a non-zero
+        *blocksize*, it indicates that data prior to one or more samples
+        in the input buffer was discarded.
 
         This can happen in full-duplex and input-only streams (including
         `playrec()` and `rec()`).
