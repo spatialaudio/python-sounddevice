@@ -1,3 +1,8 @@
+0.4.0 (2020-07-18):
+ * Drop support for Python 2.x
+ * Fix memory issues in `play()`, `rec()` and `playrec()`
+ * Example application ``play_stream.py``
+
 0.3.15 (2020-03-18):
  * This will be the last release supporting Python 2.x!
 
