@@ -84,9 +84,9 @@ def callback(outdata, frames, time, status):
     assert not status
     try:
         data = q.get_nowait()
-    except queue.Empty:
+    except queue.Empty as e:
         print('Buffer is empty: increase buffersize?', file=sys.stderr)
-        raise sd.CallbackAbort
+        raise sd.CallbackAbort from e
     assert len(data) == len(outdata)
     outdata[:] = data
 

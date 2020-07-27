@@ -2341,9 +2341,9 @@ class CoreAudioSettings(object):
 
         try:
             self._flags = conversion_dict[conversion_quality.lower()]
-        except (KeyError, AttributeError):
+        except (KeyError, AttributeError) as e:
             raise ValueError('conversion_quality must be one of ' +
-                             repr(list(conversion_dict)))
+                             repr(list(conversion_dict))) from e
         if change_device_parameters:
             self._flags |= _lib.paMacCoreChangeDeviceParameters
         if fail_if_conversion_required:
@@ -2421,9 +2421,9 @@ class _CallbackContext(object):
         try:
             import numpy
             assert numpy  # avoid "imported but unused" message (W0611)
-        except ImportError:
+        except ImportError as e:
             raise ImportError(
-                'NumPy must be installed for play()/rec()/playrec()')
+                'NumPy must be installed for play()/rec()/playrec()') from e
         self.loop = loop
         self.event = threading.Event()
         self.status = CallbackFlags()
@@ -2627,8 +2627,8 @@ def _get_stream_parameters(kind, device, channels, dtype, latency,
         pass  # NumPy not available or invalid dtype (e.g. 'int24') or ...
     try:
         sampleformat = _sampleformats[dtype]
-    except KeyError:
-        raise ValueError('Invalid ' + kind + ' sample format')
+    except KeyError as e:
+        raise ValueError('Invalid ' + kind + ' sample format') from e
     samplesize = _check(_lib.Pa_GetSampleSize(sampleformat))
     if latency in ('low', 'high'):
         latency = info['default_' + latency + '_' + kind + '_latency']
@@ -2679,8 +2679,8 @@ def _split(value):
         invalue, outvalue = value
     except TypeError:
         invalue = outvalue = value
-    except ValueError:
-        raise ValueError('Only single values and pairs are allowed')
+    except ValueError as e:
+        raise ValueError('Only single values and pairs are allowed') from e
     return invalue, outvalue
 
 
