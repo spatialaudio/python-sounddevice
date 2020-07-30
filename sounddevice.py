@@ -1972,8 +1972,10 @@ class CallbackFlags(object):
         return bool(self._flags & flag)
 
     def _updateflag(self, flag, value):
-        """Set the given flag if value is True, otherwise clear the given
-        flag."""
+        """Set/reset a given flag.
+        
+        Set the given flag if value is True, otherwise clear the
+        given flag."""
         if value:
             self._flags |= flag
         else:
