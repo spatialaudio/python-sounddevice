@@ -1975,7 +1975,9 @@ class CallbackFlags(object):
         """Set/reset a given flag.
         
         Set the given flag if value is True, otherwise clear the
-        given flag."""
+        given flag.
+        
+        """
         if value:
             self._flags |= flag
         else:
