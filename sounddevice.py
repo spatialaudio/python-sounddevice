@@ -1844,6 +1844,19 @@ class CallbackFlags(object):
     >>> errors.input_overflow
     True
 
+    The values may also be set and cleared by the user:
+
+    >>> import sounddevice as sd
+    >>> cf = sd.CallbackFlags()
+    >>> cf
+    <sounddevice.CallbackFlags: no flags set>
+    >>> cf.input_underflow = True
+    >>> cf
+    <sounddevice.CallbackFlags: input underflow>
+    >>> cf.input_underflow = False
+    >>> cf
+    <sounddevice.CallbackFlags: no flags set>
+
     """
 
     __slots__ = '_flags'
@@ -1886,6 +1899,10 @@ class CallbackFlags(object):
         """
         return self._hasflag(_lib.paInputUnderflow)
 
+    @input_underflow.setter
+    def input_underflow(self, value):
+        self._updateflag(_lib.paInputUnderflow, value)
+
     @property
     def input_overflow(self):
         """Input overflow.
@@ -1903,6 +1920,10 @@ class CallbackFlags(object):
         """
         return self._hasflag(_lib.paInputOverflow)
 
+    @input_overflow.setter
+    def input_overflow(self, value):
+        self._updateflag(_lib.paInputOverflow, value)
+
     @property
     def output_underflow(self):
         """Output underflow.
@@ -1915,6 +1936,10 @@ class CallbackFlags(object):
 
         """
         return self._hasflag(_lib.paOutputUnderflow)
+
+    @output_underflow.setter
+    def output_underflow(self, value):
+        self._updateflag(_lib.paOutputUnderflow, value)
 
     @property
     def output_overflow(self):
@@ -1929,6 +1954,10 @@ class CallbackFlags(object):
 
         """
         return self._hasflag(_lib.paOutputOverflow)
+
+    @output_overflow.setter
+    def output_overflow(self, value):
+        self._updateflag(_lib.paOutputOverflow, value)
 
     @property
     def priming_output(self):
@@ -1948,6 +1977,13 @@ class CallbackFlags(object):
     def _hasflag(self, flag):
         """Check a given flag."""
         return bool(self._flags & flag)
+
+    def _updateflag(self, flag, value):
+        """Set/clear a given flag."""
+        if value:
+            self._flags |= flag
+        else:
+            self._flags &= ~flag
 
 
 class _InputOutputPair(object):
