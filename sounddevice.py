@@ -94,11 +94,6 @@ _sampleformats = {
 _initialized = 0
 _last_callback = None
 
-try:
-    _basestring = basestring
-except NameError:
-    _basestring = str, bytes
-
 
 def play(data, samplerate=None, mapping=None, blocking=False, loop=False,
          **kwargs):
@@ -2708,7 +2703,7 @@ def _split(value):
     for input and output but also a pair of two separate values.
 
     """
-    if isinstance(value, _basestring):
+    if isinstance(value, (str, bytes)):
         # iterable, but not meant for splitting
         return value, value
     try:
