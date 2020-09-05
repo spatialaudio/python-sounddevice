@@ -52,10 +52,10 @@ about :doc:`CONTRIBUTING`.
 
 To install the latest release from PyPI, use::
 
-   python3 -m pip install sounddevice --user
+   python3 -m pip install sounddevice
 
-If you want to install it system-wide for all users (assuming you have the
-necessary rights), you can just drop the ``--user`` option.
+Depending on your Python installation,
+you may have to use ``python`` instead of ``python3``.
 If you have installed the module already, you can use the ``--upgrade`` flag to
 get the newest release.
 
