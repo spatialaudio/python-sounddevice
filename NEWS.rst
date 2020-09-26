@@ -1,3 +1,6 @@
+0.4.1 (2020-09-26):
+ * `CallbackFlags` attributes are now writable
+
 0.4.0 (2020-07-18):
  * Drop support for Python 2.x
  * Fix memory issues in `play()`, `rec()` and `playrec()`
