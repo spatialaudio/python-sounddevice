@@ -16,6 +16,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',  # support for NumPy-style docstrings
+    'sphinx_last_updated_by_git',
 ]
 
 autoclass_content = 'init'
@@ -65,8 +66,9 @@ html_theme_options = {
 html_title = project + ', version ' + release
 html_favicon = 'favicon.svg'
 html_domain_indices = False
-html_show_sourcelink = True
 html_show_copyright = False
+html_copy_source = False
+html_add_permalinks = '\N{SECTION SIGN}'
 htmlhelp_basename = 'python-sounddevice'
 
 latex_elements = {
