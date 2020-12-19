@@ -1638,6 +1638,12 @@ class Stream(InputStream, OutputStream):
             next practical value -- i.e. to provide an equal or higher
             latency  wherever possible.  Actual latency values for an
             open stream may be retrieved using the `latency` attribute.
+
+            .. note:: Specifying the desired latency as 'high' does
+                not guarantee a stable audio stream. For reference, by
+                default Audacity specifies a desired latency of 100ms and
+                achieves robust performance.
+
         extra_settings : settings object or pair thereof, optional
             This can be used for host-API-specific input/output
             settings.  See `default.extra_settings`.
