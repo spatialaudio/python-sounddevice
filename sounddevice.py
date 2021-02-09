@@ -1605,6 +1605,10 @@ class Stream(InputStream, OutputStream):
             Device index(es) or query string(s) specifying the device(s)
             to be used.  The default value(s) can be changed with
             `default.device`.
+            If a string is given, the device is selected which contains
+            all space-separated parts in the right order.  Each device
+            string contains the name of the corresponding host API in
+            the end.  The string comparison is case-insensitive.
         channels : int or pair of int, optional
             The number of channels of sound to be delivered to the
             stream callback or accessed by `read()` or `write()`.  It
@@ -1624,26 +1628,30 @@ class Stream(InputStream, OutputStream):
             The packed 24 bit format ``'int24'`` is only supported in
             the "raw" stream classes, see `RawStream`.  The default
             value(s) can be changed with `default.dtype`.
+            If NumPy is available, the corresponding `numpy.dtype`
+            objects can be used as well.  The floating point
+            representations ``'float32'`` and ``'float64'`` use ``+1.0``
+            and ``-1.0`` as the maximum and minimum values,
+            respectively.  ``'uint8'`` is an unsigned 8 bit format where
+            ``128`` is considered "ground".
         latency : float or {'low', 'high'} or pair thereof, optional
             The desired latency in seconds.  The special values
             ``'low'`` and ``'high'`` (latter being the default) select
-            the default low and high latency, respectively (see
-            `query_devices()`).  The default value(s) can be changed
-            with `default.latency`.
-            Where practical, implementations should configure their
-            latency based on this parameter, otherwise they may choose
-            the closest viable latency instead.  Unless the suggested
-            latency is greater than the absolute upper limit for the
-            device, implementations should round the *latency* up to the
-            next practical value -- i.e. to provide an equal or higher
-            latency  wherever possible.  Actual latency values for an
-            open stream may be retrieved using the `latency` attribute.
+            the device's default low and high latency, respectively (see
+            `query_devices()`).  ``'high'`` is typically more robust
+            (i.e. buffer under-/overflows are less likely),
+            but the latency may be too large for interactive applications.
 
-            .. note:: Specifying the desired latency as 'high' does
-                not guarantee a stable audio stream. For reference, by
-                default Audacity specifies a desired latency of 100ms and
-                achieves robust performance.
+            .. note:: Specifying the desired latency as ``'high'`` does
+                not *guarantee* a stable audio stream. For reference, by
+                default Audacity_ specifies a desired latency of ``0.1``
+                seconds and typically achieves robust performance.
 
+            .. _Audacity: https://www.audacityteam.org/
+
+            The default value(s) can be changed with `default.latency`.
+            Actual latency values for an open stream can be retrieved
+            using the `latency` attribute.
         extra_settings : settings object or pair thereof, optional
             This can be used for host-API-specific input/output
             settings.  See `default.extra_settings`.
@@ -2057,12 +2065,9 @@ class default(object):
     device = None, None
     """Index or query string of default input/output device.
 
-    If not overwritten, this is queried from PortAudio.
+    See the *device* argument of `Stream`.
 
-    If a string is given, the device is selected which contains all
-    space-separated parts in the right order.  Each device string
-    contains the name of the corresponding host API in the end.
-    The string comparison is case-insensitive.
+    If not overwritten, this is queried from PortAudio.
 
     See Also
     --------
@@ -2070,14 +2075,19 @@ class default(object):
 
     """
     channels = _default_channels = None, None
-    """Number of input/output channels.
+    """Default number of input/output channels.
 
-    The maximum number of channels for a given device can be found out
-    with `query_devices()`.
+    See the *channels* argument of `Stream`.
+
+    See Also
+    --------
+    :func:`query_devices`
 
     """
     dtype = _default_dtype = 'float32', 'float32'
-    """Data type used for input/output samples.
+    """Default data type used for input/output samples.
+
+    See the *dtype* argument of `Stream`.
 
     The types ``'float32'``, ``'int32'``, ``'int16'``, ``'int8'`` and
     ``'uint8'`` can be used for all streams and functions.
@@ -2087,29 +2097,9 @@ class default(object):
     `RawStream` support ``'int24'`` (packed 24 bit format, which is
     *not* supported in NumPy!).
 
-    If NumPy is available, the corresponding `numpy.dtype` objects can
-    be used as well.
-
-    The floating point representations ``'float32'`` and ``'float64'``
-    use +1.0 and -1.0 as the maximum and minimum values, respectively.
-    ``'uint8'`` is an unsigned 8 bit format where 128 is considered
-    "ground".
-
     """
     latency = _default_latency = 'high', 'high'
-    """Suggested input/output latency in seconds.
-
-    The special values ``'low'`` and ``'high'`` can be used to select
-    the default low/high latency of the chosen device.
-    ``'high'`` is typically more robust (i.e. buffer under-/overflows
-    are less likely), but the latency may be too large for interactive
-    applications.
-
-    See Also
-    --------
-    :func:`query_devices`
-
-    """
+    """See the *latency* argument of `Stream`."""
     extra_settings = _default_extra_settings = None, None
     """Host-API-specific input/output settings.
 
