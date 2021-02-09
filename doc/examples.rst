@@ -14,6 +14,13 @@ Play a Very Long Sound File
 
 .. literalinclude:: ../examples/play_long_file.py
 
+Play a Very Long Sound File without Using NumPy
+-----------------------------------------------
+
+:gh-example:`play_long_file_raw.py`
+
+.. literalinclude:: ../examples/play_long_file_raw.py
+
 Play a Web Stream
 -----------------
 

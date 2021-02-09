@@ -1,16 +1,7 @@
 #!/usr/bin/env python3
 """Play an audio file using a limited amount of memory.
 
-The soundfile module (https://python-soundfile.readthedocs.io/) must be
-installed for this to work.
-
-In contrast to play_file.py, which loads the whole file into memory
-before starting playback, this example program only holds a given number
-of audio blocks in memory and is therefore able to play files that are
-larger than the available RAM.
-
-This example is implemented using NumPy, see play_long_file_raw.py
-for a version that doesn't need NumPy.
+This is the same as play_long_file.py, but implemented without using NumPy.
 
 """
 import argparse
@@ -77,7 +68,7 @@ def callback(outdata, frames, time, status):
         raise sd.CallbackAbort from e
     if len(data) < len(outdata):
         outdata[:len(data)] = data
-        outdata[len(data):].fill(0)
+        outdata[len(data):] = b'\x00' * (len(outdata) - len(data))
         raise sd.CallbackStop
     else:
         outdata[:] = data
@@ -86,18 +77,18 @@ def callback(outdata, frames, time, status):
 try:
     with sf.SoundFile(args.filename) as f:
         for _ in range(args.buffersize):
-            data = f.read(args.blocksize)
-            if not len(data):
+            data = f.buffer_read(args.blocksize, dtype='float32')
+            if not data:
                 break
             q.put_nowait(data)  # Pre-fill queue
-        stream = sd.OutputStream(
+        stream = sd.RawOutputStream(
             samplerate=f.samplerate, blocksize=args.blocksize,
-            device=args.device, channels=f.channels,
+            device=args.device, channels=f.channels, dtype='float32',
             callback=callback, finished_callback=event.set)
         with stream:
             timeout = args.blocksize * args.buffersize / f.samplerate
-            while len(data):
-                data = f.read(args.blocksize)
+            while data:
+                data = f.buffer_read(args.blocksize, dtype='float32')
                 q.put(data, timeout=timeout)
             event.wait()  # Wait until playback is finished
 except KeyboardInterrupt:
