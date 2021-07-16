@@ -2471,6 +2471,9 @@ class _CallbackContext(object):
         data = np.asarray(data)
         if data.ndim < 2:
             data = data.reshape(-1, 1)
+        elif data.ndim > 2:
+            raise ValueError(
+                'audio data to be played back must be one- or two-dimensional')
         frames, channels = data.shape
         dtype = _check_dtype(data.dtype)
         mapping_is_explicit = mapping is not None
