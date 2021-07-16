@@ -12,7 +12,7 @@ things), e.g. Anaconda_ or WinPython_.
    .. image:: https://anaconda.org/conda-forge/python-sounddevice/badges/version.svg
       :target: https://anaconda.org/conda-forge/python-sounddevice
 
-If you are using the ``conda`` package manager (e.g. with Anaconda_ for
+If you are using the ``conda`` package manager (e.g. with Anaconda_ or Miniconda_ for
 Linux/macOS/Windows), you can install the ``sounddevice`` module from the
 ``conda-forge`` channel::
 
@@ -86,6 +86,7 @@ might require a compiler and several additional libraries.
 .. _NumPy: https://numpy.org/
 .. _Python: https://www.python.org/
 .. _Anaconda: https://www.anaconda.com/products/individual#Downloads
+.. _Miniconda: https://docs.conda.io/miniconda.html
 .. _WinPython: https://winpython.github.io/
 .. _CFFI: https://cffi.readthedocs.io/
 .. _PyPI: https://pypi.org/project/sounddevice/
