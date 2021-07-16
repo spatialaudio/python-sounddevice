@@ -45,11 +45,6 @@ You can always get the newest ``sounddevice`` release from PyPI_
 If you want to try the latest development version, have a look at the section
 about :doc:`CONTRIBUTING`.
 
-.. only:: html
-
-   .. image:: https://badge.fury.io/py/sounddevice.svg
-      :target: https://pypi.org/project/sounddevice/
-
 To install the latest release from PyPI, use::
 
    python3 -m pip install sounddevice
