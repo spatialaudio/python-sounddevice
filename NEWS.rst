@@ -1,3 +1,7 @@
+0.4.2 (2021-07-18):
+ * Update PortAudio binaries to version 19.7.0
+ * Wheel names are now shorter
+
 0.4.1 (2020-09-26):
  * `CallbackFlags` attributes are now writable
 
