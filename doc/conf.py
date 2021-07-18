@@ -42,7 +42,6 @@ master_doc = 'index'
 
 authors = 'Matthias Geier'
 project = 'python-sounddevice'
-copyright = '2020, ' + authors
 
 try:
     release = check_output(['git', 'describe', '--tags', '--always'])
