@@ -53,6 +53,7 @@ __version__ = '0.4.2'
 import atexit as _atexit
 import os as _os
 import platform as _platform
+import re as _re
 import sys as _sys
 from ctypes.util import find_library as _find_library
 from _sounddevice import ffi as _ffi
@@ -2737,6 +2738,10 @@ def _check(err, msg=''):
     raise PortAudioError(errormsg, err)
 
 
+def _remove_alsa_id(device_string):
+    return _re.sub(" \(hw:[0-9]+,[0-9]+\)$", "", device_string)
+
+
 def _get_device_id(id_or_query_string, kind, raise_on_error=False):
     """Return device ID given space-separated substrings."""
     assert kind in ('input', 'output', None)
@@ -2770,6 +2775,7 @@ def _get_device_id(id_or_query_string, kind, raise_on_error=False):
     exact_device_matches = []
     for id, device_string, hostapi_string in device_list:
         full_string = device_string + ', ' + hostapi_string
+        device_string = _remove_alsa_id(device_string)
         pos = 0
         for substring in substrings:
             pos = full_string.lower().find(substring, pos)
