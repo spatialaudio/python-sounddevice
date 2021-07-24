@@ -2778,7 +2778,7 @@ def _get_device_id(id_or_query_string, kind, raise_on_error=False):
             pos += len(substring)
         else:
             matches.append((id, full_string))
-            if query_string in [device_string.lower(), full_string.lower()]:
+            if query_string[:len(device_string)].lower() == device_string.lower():
                 exact_device_matches.append(id)
 
     if kind is None:
