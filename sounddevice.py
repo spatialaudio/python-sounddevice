@@ -2739,7 +2739,7 @@ def _check(err, msg=''):
 
 
 def _remove_alsa_id(device_string):
-    return _re.sub(" \(hw:[0-9]+,[0-9]+\)$", "", device_string)
+    return _re.sub(r" \(hw:[0-9]+,[0-9]+\)$", "", device_string)
 
 
 def _get_device_id(id_or_query_string, kind, raise_on_error=False):
@@ -2784,7 +2784,10 @@ def _get_device_id(id_or_query_string, kind, raise_on_error=False):
             pos += len(substring)
         else:
             matches.append((id, full_string))
-            if query_string[:len(device_string)].lower() == device_string.lower():
+            if (
+                query_string[: len(device_string)].lower()
+                == device_string.lower()
+            ):
                 exact_device_matches.append(id)
 
     if kind is None:
