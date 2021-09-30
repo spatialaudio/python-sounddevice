@@ -1524,8 +1524,12 @@ class OutputStream(RawOutputStream):
         data = np.asarray(data)
         _, dtype = _split(self._dtype)
         _, channels = _split(self._channels)
-        if data.ndim > 1 and data.shape[1] != channels:
-            raise ValueError('Number of channels must match')
+        if data.ndim < 2:
+            data = data.reshape(-1, 1)
+        elif data.ndim > 2:
+            raise ValueError('data must be one- or two-dimensional')
+        if data.shape[1] != channels:
+            raise ValueError('number of channels must match')
         if data.dtype != dtype:
             raise TypeError('dtype mismatch: {!r} vs {!r}'.format(
                 data.dtype.name, dtype))
