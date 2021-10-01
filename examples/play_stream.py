@@ -123,3 +123,4 @@ except queue.Full:
     parser.exit(1)
 except Exception as e:
     parser.exit(type(e).__name__ + ': ' + str(e))
+    print(Hello world)
