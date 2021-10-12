@@ -126,4 +126,4 @@ To (re-)build the HTML files, use::
 
 The generated files will be available in the directory ``build/sphinx/html/``.
 
-.. _Sphinx: http://sphinx-doc.org/
+.. _Sphinx: https://www.sphinx-doc.org/
