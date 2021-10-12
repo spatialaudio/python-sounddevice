@@ -10,7 +10,8 @@ for line in open('sounddevice.py'):
         break
 
 MACOSX_VERSIONS = '.'.join([
-    'macosx_10_6_x86_64',
+    'macosx_10_6_x86_64',  # for compatibility with pip < v21
+    'macosx_10_6_universal2',
 ])
 
 # environment variables for cross-platform package creation
