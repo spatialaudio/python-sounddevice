@@ -1,3 +1,7 @@
+0.4.3 (2021-10-20):
+ * Fix dimension check in `Stream.write()`
+ * Provide "universal" (x86_64 and arm64) ``.dylib`` for macOS
+
 0.4.2 (2021-07-18):
  * Update PortAudio binaries to version 19.7.0
  * Wheel names are now shorter
