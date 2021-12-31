@@ -1,3 +1,6 @@
+0.4.4 (2021-12-31):
+ * Exact device string matches can now include the host API name
+
 0.4.3 (2021-10-20):
  * Fix dimension check in `Stream.write()`
  * Provide "universal" (x86_64 and arm64) ``.dylib`` for macOS
