@@ -307,6 +307,8 @@ typedef struct PaWasapiStreamInfo
     PaWasapiStreamCategory streamCategory;
     PaWasapiStreamOption streamOption;
 } PaWasapiStreamInfo;
+
+int PaWasapi_IsLoopback( PaDeviceIndex device );
 """)
 
 ffibuilder.cdef("""
