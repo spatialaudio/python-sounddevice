@@ -77,6 +77,9 @@ setup(
     license='MIT',
     keywords='sound audio PortAudio play record playrec'.split(),
     url='http://python-sounddevice.readthedocs.io/',
+    project_urls={
+        'Source': 'https://github.com/spatialaudio/python-sounddevice',
+    },
     platforms='any',
     classifiers=[
         'License :: OSI Approved :: MIT License',
