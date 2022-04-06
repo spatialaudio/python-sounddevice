@@ -66,7 +66,7 @@ for bg, fg in zip(colors, colors[1:]):
         if char == '\t':
             bg, fg = fg, bg
         else:
-            gradient.append('\x1b[{};{}m{}'.format(fg, bg + 10, char))
+            gradient.append(f'\x1b[{fg};{bg + 10}m{char}')
 
 try:
     samplerate = sd.query_devices(args.device, 'input')['default_samplerate']

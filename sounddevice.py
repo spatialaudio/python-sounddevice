@@ -554,14 +554,14 @@ def query_devices(device=None, kind=None):
 
     """
     if kind not in ('input', 'output', None):
-        raise ValueError('Invalid kind: {!r}'.format(kind))
+        raise ValueError(f'Invalid kind: {kind!r}')
     if device is None and kind is None:
         return DeviceList(query_devices(i)
                           for i in range(_check(_lib.Pa_GetDeviceCount())))
     device = _get_device_id(device, kind, raise_on_error=True)
     info = _lib.Pa_GetDeviceInfo(device)
     if not info:
-        raise PortAudioError('Error querying device {}'.format(device))
+        raise PortAudioError(f'Error querying device {device}')
     assert info.structVersion == 2
     name_bytes = _ffi.string(info.name)
     try:
@@ -637,7 +637,7 @@ def query_hostapis(index=None):
                      for i in range(_check(_lib.Pa_GetHostApiCount())))
     info = _lib.Pa_GetHostApiInfo(index)
     if not info:
-        raise PortAudioError('Error querying host API {}'.format(index))
+        raise PortAudioError(f'Error querying host API {index}')
     assert info.structVersion == 1
     return {
         'name': _ffi.string(info.name).decode(),
@@ -713,7 +713,7 @@ def get_portaudio_version():
     return _lib.Pa_GetVersion(), _ffi.string(_lib.Pa_GetVersionText()).decode()
 
 
-class _StreamBase(object):
+class _StreamBase:
     """Direct or indirect base class for all stream classes."""
 
     def __init__(self, kind, samplerate=None, blocksize=None, device=None,
@@ -892,7 +892,7 @@ class _StreamBase(object):
         _check(_lib.Pa_OpenStream(self._ptr, iparameters, oparameters,
                                   samplerate, blocksize, stream_flags,
                                   callback_ptr, userdata),
-               'Error opening {}'.format(self.__class__.__name__))
+               f'Error opening {self.__class__.__name__}')
 
         # dereference PaStream** --> PaStream*
         self._ptr = self._ptr[0]
@@ -1819,7 +1819,7 @@ class DeviceList(tuple):
         digits = len(str(_lib.Pa_GetDeviceCount() - 1))
         hostapi_names = [hostapi['name'] for hostapi in query_hostapis()]
         text = '\n'.join(
-            u'{mark} {idx:{dig}} {name}, {ha} ({ins} in, {outs} out)'.format(
+            '{mark} {idx:{dig}} {name}, {ha} ({ins} in, {outs} out)'.format(
                 mark=(' ', '>', '<', '*')[(idx == idev) + 2 * (idx == odev)],
                 idx=idx,
                 dig=digits,
@@ -1831,7 +1831,7 @@ class DeviceList(tuple):
         return text
 
 
-class CallbackFlags(object):
+class CallbackFlags:
     """Flag bits for the *status* argument to a stream *callback*.
 
     If you experience under-/overflows, you can try to increase the
@@ -1881,7 +1881,7 @@ class CallbackFlags(object):
         flags = str(self)
         if not flags:
             flags = 'no flags set'
-        return '<sounddevice.CallbackFlags: {}>'.format(flags)
+        return f'<sounddevice.CallbackFlags: {flags}>'
 
     def __str__(self):
         return ', '.join(name.replace('_', ' ') for name in dir(self)
@@ -1999,7 +1999,7 @@ class CallbackFlags(object):
             self._flags &= ~flag
 
 
-class _InputOutputPair(object):
+class _InputOutputPair:
     """Parameter pairs for device, channels, dtype and latency."""
 
     _indexmapping = {'input': 0, 'output': 1}
@@ -2024,7 +2024,7 @@ class _InputOutputPair(object):
         return '[{0[0]!r}, {0[1]!r}]'.format(self)
 
 
-class default(object):
+class default:
     """Get/set defaults for the *sounddevice* module.
 
     The attributes `device`, `channels`, `dtype`, `latency` and
@@ -2214,7 +2214,7 @@ class PortAudioError(Exception):
     def __str__(self):
         errormsg = self.args[0] if self.args else ''
         if len(self.args) > 1:
-            errormsg = '{} [PaErrorCode {}]'.format(errormsg, self.args[1])
+            errormsg = f'{errormsg} [PaErrorCode {self.args[1]}]'
         if len(self.args) > 2:
             host_api, hosterror_code, hosterror_text = self.args[2]
             hostname = query_hostapis(host_api)['name']
@@ -2250,7 +2250,7 @@ class CallbackAbort(Exception):
     """
 
 
-class AsioSettings(object):
+class AsioSettings:
 
     def __init__(self, channel_selectors):
         """ASIO-specific input/output settings.
@@ -2302,7 +2302,7 @@ class AsioSettings(object):
             channelSelectors=self._selectors))
 
 
-class CoreAudioSettings(object):
+class CoreAudioSettings:
 
     def __init__(self, channel_map=None, change_device_parameters=False,
                  fail_if_conversion_required=False, conversion_quality='max'):
@@ -2394,7 +2394,7 @@ class CoreAudioSettings(object):
                                            len(self._channel_map))
 
 
-class WasapiSettings(object):
+class WasapiSettings:
 
     def __init__(self, exclusive=False):
         """WASAPI-specific input/output settings.
@@ -2435,7 +2435,7 @@ class WasapiSettings(object):
         ))
 
 
-class _CallbackContext(object):
+class _CallbackContext:
     """Helper class for re-use in play()/rec()/playrec() callbacks."""
 
     blocksize = None
@@ -2725,7 +2725,7 @@ def _check(err, msg=''):
 
     errormsg = _ffi.string(_lib.Pa_GetErrorText(err)).decode()
     if msg:
-        errormsg = '{}: {}'.format(msg, errormsg)
+        errormsg = f'{msg}: {errormsg}'
 
     if err == _lib.paUnanticipatedHostError:
         # (gh82) We grab the host error info here rather than inside
@@ -2800,7 +2800,7 @@ def _get_device_id(id_or_query_string, kind, raise_on_error=False):
         if raise_on_error:
             raise ValueError('Multiple ' + kind + ' devices found for ' +
                              repr(id_or_query_string) + ':\n' +
-                             '\n'.join('[{}] {}'.format(id, name)
+                             '\n'.join(f'[{id}] {name}'
                                        for id, name in matches))
         else:
             return -1

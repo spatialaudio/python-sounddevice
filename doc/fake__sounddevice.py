@@ -17,7 +17,7 @@ def new_find_library(name):
 ctypes.util.find_library = new_find_library
 
 
-class ffi(object):
+class ffi:
 
     NULL = NotImplemented
     I_AM_FAKE = True  # This is used for the documentation of "default"
@@ -29,7 +29,7 @@ class ffi(object):
 ffi = ffi()
 
 
-class FakeLibrary(object):
+class FakeLibrary:
 
     # from portaudio.h:
 

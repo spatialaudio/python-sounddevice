@@ -100,7 +100,7 @@ try:
     fig, ax = plt.subplots()
     lines = ax.plot(plotdata)
     if len(args.channels) > 1:
-        ax.legend(['channel {}'.format(c) for c in args.channels],
+        ax.legend([f'channel {c}' for c in args.channels],
                   loc='lower left', ncol=len(args.channels))
     ax.axis((0, len(plotdata), -1, 1))
     ax.set_yticks([0])
