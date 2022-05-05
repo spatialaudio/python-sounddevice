@@ -476,6 +476,8 @@ def query_devices(device=None, kind=None):
 
         ``'name'``
             The name of the device.
+        ``'index'``
+            The device index.
         ``'hostapi'``
             The ID of the corresponding host API.  Use
             `query_hostapis()` to get information about a host API.
@@ -580,6 +582,7 @@ def query_devices(device=None, kind=None):
             raise
     device_dict = {
         'name': name,
+        'index': device,
         'hostapi': info.hostApi,
         'max_input_channels': info.maxInputChannels,
         'max_output_channels': info.maxOutputChannels,
