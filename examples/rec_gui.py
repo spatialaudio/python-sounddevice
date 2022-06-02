@@ -58,10 +58,10 @@ class SettingsWindow(Dialog):
             device_ids = [
                 idx
                 for idx in hostapi['devices']
-                if sd.query_devices(idx)['max_output_channels'] > 0]
+                if sd.query_devices(idx)['max_input_channels'] > 0]
             device_list['values'] = [
                 sd.query_devices(idx)['name'] for idx in device_ids]
-            default = hostapi['default_output_device']
+            default = hostapi['default_input_device']
             if default >= 0:
                 device_list.current(device_ids.index(default))
                 device_list.event_generate('<<ComboboxSelected>>')
