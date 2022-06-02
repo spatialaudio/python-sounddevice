@@ -42,39 +42,36 @@ class SettingsWindow(Dialog):
 
     def body(self, master):
         ttk.Label(master, text='Select host API:').pack(anchor='w')
-        hostapi_list = ttk.Combobox(master, state='readonly', width=50)
-        hostapi_list.pack()
-        hostapi_list['values'] = [hostapi['name']
-                                  for hostapi in sd.query_hostapis()]
+        self.hostapi_list = ttk.Combobox(master, state='readonly', width=50)
+        self.hostapi_list.pack()
+        self.hostapi_list['values'] = [
+            hostapi['name'] for hostapi in sd.query_hostapis()]
 
         ttk.Label(master, text='Select sound device:').pack(anchor='w')
-        device_ids = []
-        device_list = ttk.Combobox(master, state='readonly', width=50)
-        device_list.pack()
+        self.device_ids = []
+        self.device_list = ttk.Combobox(master, state='readonly', width=50)
+        self.device_list.pack()
 
-        def update_device_list(*args):
-            hostapi = sd.query_hostapis(hostapi_list.current())
-            nonlocal device_ids
-            device_ids = [
-                idx
-                for idx in hostapi['devices']
-                if sd.query_devices(idx)['max_input_channels'] > 0]
-            device_list['values'] = [
-                sd.query_devices(idx)['name'] for idx in device_ids]
-            default = hostapi['default_input_device']
-            if default >= 0:
-                device_list.current(device_ids.index(default))
-                device_list.event_generate('<<ComboboxSelected>>')
-
-        def select_device(*args):
-            self.result = device_ids[device_list.current()]
-
-        hostapi_list.bind('<<ComboboxSelected>>', update_device_list)
-        device_list.bind('<<ComboboxSelected>>', select_device)
-
+        self.hostapi_list.bind('<<ComboboxSelected>>', self.update_device_list)
         with contextlib.suppress(sd.PortAudioError):
-            hostapi_list.current(sd.default.hostapi)
-            hostapi_list.event_generate('<<ComboboxSelected>>')
+            self.hostapi_list.current(sd.default.hostapi)
+            self.hostapi_list.event_generate('<<ComboboxSelected>>')
+
+    def update_device_list(self, *args):
+        hostapi = sd.query_hostapis(self.hostapi_list.current())
+        self.device_ids = [
+            idx
+            for idx in hostapi['devices']
+            if sd.query_devices(idx)['max_input_channels'] > 0]
+        self.device_list['values'] = [
+            sd.query_devices(idx)['name'] for idx in self.device_ids]
+        default = hostapi['default_input_device']
+        if default >= 0:
+            self.device_list.current(self.device_ids.index(default))
+
+    def validate(self):
+        self.result = self.device_ids[self.device_list.current()]
+        return True
 
 
 class RecGui(tk.Tk):
@@ -203,7 +200,8 @@ class RecGui(tk.Tk):
 
     def on_settings(self, *args):
         w = SettingsWindow(self, 'Settings')
-        self.create_stream(device=w.result)
+        if w.result is not None:
+            self.create_stream(device=w.result)
 
     def init_buttons(self):
         self.rec_button['text'] = 'record'
