@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Create a recording with arbitrary duration.
 
-The soundfile module (https://PySoundFile.readthedocs.io/) has to be installed!
+The soundfile module (https://python-soundfile.readthedocs.io/)
+has to be installed!
 
 """
 import argparse

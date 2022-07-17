@@ -84,13 +84,13 @@
 
 0.2.0 (2015-07-03):
  * Support for wheels including a dylib for Mac OS X and DLLs for Windows.
-   The code for creating the wheels is largely taken from PySoundFile_.
+   The code for creating the wheels is largely taken from the soundfile_ module.
  * Remove logging (this seemed too intrusive)
  * Return callback status from `wait()` and add the new function `get_status()`
  * `playrec()`: Rename the arguments *input_channels* and *input_dtype*
    to *channels* and *dtype*, respectively
 
-   .. _PySoundFile: https://github.com/bastibe/SoundFile/
+   .. _soundfile: https://github.com/bastibe/python-soundfile/
 
 0.1.0 (2015-06-20):
    Initial release.  Some ideas are taken from PySoundCard_.  Thanks to Bastian
