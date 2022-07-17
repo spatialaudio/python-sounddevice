@@ -3,12 +3,14 @@ Platform-specific Settings
 
 .. currentmodule:: sounddevice
 
-.. autosummary::
-   :nosignatures:
+.. topic:: Overview
 
-   AsioSettings
-   CoreAudioSettings
-   WasapiSettings
+   .. autosummary::
+      :nosignatures:
+   
+      AsioSettings
+      CoreAudioSettings
+      WasapiSettings
 
 .. autoclass:: AsioSettings
 

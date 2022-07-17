@@ -3,14 +3,16 @@ Checking Available Hardware
 
 .. currentmodule:: sounddevice
 
-.. autosummary::
-   :nosignatures:
+.. topic:: Overview
 
-   query_devices
-   DeviceList
-   query_hostapis
-   check_input_settings
-   check_output_settings
+   .. autosummary::
+      :nosignatures:
+   
+      query_devices
+      DeviceList
+      query_hostapis
+      check_input_settings
+      check_output_settings
 
 .. autofunction:: query_devices
 

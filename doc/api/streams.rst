@@ -3,12 +3,14 @@ Streams using NumPy Arrays
 
 .. currentmodule:: sounddevice
 
-.. autosummary::
-   :nosignatures:
+.. topic:: Overview
 
-   Stream
-   InputStream
-   OutputStream
+   .. autosummary::
+      :nosignatures:
+   
+      Stream
+      InputStream
+      OutputStream
 
 .. autoclass:: Stream
    :members:

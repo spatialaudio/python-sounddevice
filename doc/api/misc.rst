@@ -3,15 +3,17 @@ Miscellaneous
 
 .. currentmodule:: sounddevice
 
-.. autosummary::
-   :nosignatures:
+.. topic:: Overview
 
-   sleep
-   get_portaudio_version
-   CallbackFlags
-   CallbackStop
-   CallbackAbort
-   PortAudioError
+   .. autosummary::
+      :nosignatures:
+   
+      sleep
+      get_portaudio_version
+      CallbackFlags
+      CallbackStop
+      CallbackAbort
+      PortAudioError
 
 .. autofunction:: sleep
 
