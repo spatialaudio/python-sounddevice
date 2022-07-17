@@ -113,7 +113,8 @@ def play(data, samplerate=None, mapping=None, blocking=False, loop=False,
     * Start the stream.
 
     * If ``blocking=True`` was given, wait until playback is done.
-      If not, return immediately.
+      If not, return immediately
+      (to start waiting at a later point, `wait()` can be used).
 
     If you need more control (e.g. block-wise gapless playback, multiple
     overlapping playbacks, ...), you should explicitly create an
@@ -195,7 +196,8 @@ def rec(frames=None, samplerate=None, channels=None, dtype=None,
     * Start the stream.
 
     * If ``blocking=True`` was given, wait until recording is done.
-      If not, return immediately.
+      If not, return immediately
+      (to start waiting at a later point, `wait()` can be used).
 
     If you need more control (e.g. block-wise gapless recording,
     overlapping recordings, ...), you should explicitly create an
@@ -292,7 +294,8 @@ def playrec(data, samplerate=None, channels=None, dtype=None,
     * Start the stream.
 
     * If ``blocking=True`` was given, wait until playback/recording is
-      done.  If not, return immediately.
+      done.  If not, return immediately
+      (to start waiting at a later point, `wait()` can be used).
 
     If you need more control (e.g. block-wise gapless playback and
     recording, realtime processing, ...),
