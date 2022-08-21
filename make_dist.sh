@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -euo pipefail
 
@@ -8,7 +8,7 @@ PYTHON=python3
 
 make_wheel()
 {
-  PYTHON_SOUNDDEVICE_PLATFORM=$1 PYTHON_SOUNDDEVICE_ARCHITECTURE=$2 \
+  PYTHON_SOUNDDEVICE_PLATFORM=$1 PYTHON_SOUNDDEVICE_ARCHITECTURE=${2:-} \
     $PYTHON -m build
 }
 
