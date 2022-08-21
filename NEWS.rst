@@ -1,3 +1,8 @@
+0.4.5 (2022-08-21):
+ * Add ``index`` field to device dict
+ * Require Python >= 3.7
+ * Add PaWasapi_IsLoopback() to cdef (high-level interface not yet available)
+
 0.4.4 (2021-12-31):
  * Exact device string matches can now include the host API name
 
