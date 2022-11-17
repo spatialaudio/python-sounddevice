@@ -2827,8 +2827,8 @@ def _initialize():
     old_stderr = 2  # To appease Pyright
     try:
         old_stderr = _os.dup(2)
-        devnull = open(_os.devnull, 'w')
-        _os.dup2(devnull.fileno(), 2)
+        devnull = _os.open(_os.devnull, _os.O_WRONLY)
+        _os.dup2(devnull, 2)
     except OSError:
         pass
     try:
@@ -2838,7 +2838,7 @@ def _initialize():
     finally:
         if devnull is not None:
             _os.dup2(old_stderr, 2)
-            devnull.close()
+            _os.close(devnull)
 
 
 def _terminate():
