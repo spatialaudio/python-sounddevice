@@ -2823,12 +2823,12 @@ def _initialize():
     is automatically called with the ``import sounddevice`` statement.
 
     """
-    devnull = None
-    old_stderr = 2  # To appease Pyright
+    old_stderr = None
     try:
         old_stderr = _os.dup(2)
         devnull = _os.open(_os.devnull, _os.O_WRONLY)
         _os.dup2(devnull, 2)
+        _os.close(devnull)
     except OSError:
         pass
     try:
@@ -2836,9 +2836,9 @@ def _initialize():
         global _initialized
         _initialized += 1
     finally:
-        if devnull is not None:
+        if old_stderr is not None:
             _os.dup2(old_stderr, 2)
-            _os.close(devnull)
+            _os.close(old_stderr)
 
 
 def _terminate():
