@@ -2823,29 +2823,22 @@ def _initialize():
     is automatically called with the ``import sounddevice`` statement.
 
     """
-    old_stderr = None
+    devnull = None
+    old_stderr = 2  # To appease Pyright
     try:
-        stdio = _ffi.dlopen(None)
+        old_stderr = _os.dup(2)
+        devnull = open(_os.devnull, 'w')
+        _os.dup2(devnull.fileno(), 2)
     except OSError:
         pass
-    else:
-        for stderr_name in 'stderr', '__stderrp':
-            try:
-                old_stderr = getattr(stdio, stderr_name)
-            except _ffi.error:
-                continue
-            else:
-                devnull = stdio.fopen(_os.devnull.encode(), b'w')
-                setattr(stdio, stderr_name, devnull)
-                break
     try:
         _check(_lib.Pa_Initialize(), 'Error initializing PortAudio')
         global _initialized
         _initialized += 1
     finally:
-        if old_stderr is not None:
-            setattr(stdio, stderr_name, old_stderr)
-            stdio.fclose(devnull)
+        if devnull is not None:
+            _os.dup2(old_stderr, 2)
+            devnull.close()
 
 
 def _terminate():
