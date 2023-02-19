@@ -1,4 +1,4 @@
-# Copyright (c) 2015-2021 Matthias Geier
+# Copyright (c) 2015-2023 Matthias Geier
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -48,7 +48,7 @@ Online documentation:
     https://python-sounddevice.readthedocs.io/
 
 """
-__version__ = '0.4.5'
+__version__ = '0.4.6'
 
 import atexit as _atexit
 import os as _os

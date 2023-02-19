@@ -1,3 +1,6 @@
+0.4.6 (2023-02-19):
+ * Redirect stderr with os.dup2() instead of CFFI calls
+
 0.4.5 (2022-08-21):
  * Add ``index`` field to device dict
  * Require Python >= 3.7
