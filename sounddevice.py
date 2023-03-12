@@ -2223,7 +2223,12 @@ class PortAudioError(Exception):
             errormsg = f'{errormsg} [PaErrorCode {self.args[1]}]'
         if len(self.args) > 2:
             host_api, hosterror_code, hosterror_text = self.args[2]
-            hostname = query_hostapis(host_api)['name']
+            if host_api == _lib.paHostApiNotFound:
+                hostname = '<host API not found>'
+            elif host_api < 0:
+                hostname = f'<error getting host API: {host_api}>'
+            else:
+                hostname = query_hostapis(host_api)['name']
             errormsg = "{}: '{}' [{} error {}]".format(
                 errormsg, hosterror_text, hostname, hosterror_code)
 
