@@ -80,7 +80,7 @@ might require a compiler and several additional libraries.
 .. _PortAudio: http://www.portaudio.com/
 .. _NumPy: https://numpy.org/
 .. _Python: https://www.python.org/
-.. _Anaconda: https://www.anaconda.com/products/individual#Downloads
+.. _Anaconda: https://www.anaconda.com/download#downloads
 .. _Miniconda: https://docs.conda.io/miniconda.html
 .. _WinPython: https://winpython.github.io/
 .. _CFFI: https://cffi.readthedocs.io/
