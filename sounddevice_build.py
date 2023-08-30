@@ -308,6 +308,8 @@ typedef struct PaWasapiStreamInfo
     PaWasapiStreamOption streamOption;
 } PaWasapiStreamInfo;
 
+PaError PaWasapi_UpdateDeviceList();
+
 int PaWasapi_IsLoopback( PaDeviceIndex device );
 """)
 
