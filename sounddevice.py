@@ -769,6 +769,12 @@ class _StreamBase:
         """
         assert kind in ('input', 'output', 'duplex')
         assert wrap_callback in ('array', 'buffer', None)
+        if wrap_callback == 'array':
+            # Import NumPy as early as possible, see:
+            # https://github.com/spatialaudio/python-sounddevice/issues/487
+            import numpy
+            assert numpy  # avoid "imported but unused" message (W0611)
+
         if blocksize is None:
             blocksize = default.blocksize
         if clip_off is None:
