@@ -51,12 +51,13 @@ Online documentation:
 __version__ = '0.4.6'
 
 import atexit as _atexit
+import locale as _locale
 import os as _os
 import platform as _platform
 import sys as _sys
 from ctypes.util import find_library as _find_library
-from _sounddevice import ffi as _ffi
 
+from _sounddevice import ffi as _ffi
 
 try:
     for _libname in (
@@ -570,19 +571,19 @@ def query_devices(device=None, kind=None):
     assert info.structVersion == 2
     name_bytes = _ffi.string(info.name)
     try:
-        # We don't know beforehand if DirectSound and MME device names use
-        # 'utf-8' or 'mbcs' encoding.  Let's try 'utf-8' first, because it more
-        # likely raises an exception on 'mbcs' data than vice versa, see also
-        # https://github.com/spatialaudio/python-sounddevice/issues/72.
-        # All other host APIs use 'utf-8' anyway.
+        # I tried to introduce the locale package to get the
+        # default encoding of the user's system.
+        # And I think there shouldn't be any encoding types other than those two.
+        # But I can't be sure, so I just output bytes.
+        # that way there won't be any more errors caused by decoding failures.
+        # see also 👇
+        # https://github.com/spatialaudio/python-sounddevice/issues/490
         name = name_bytes.decode('utf-8')
     except UnicodeDecodeError:
-        if info.hostApi in (
-                _lib.Pa_HostApiTypeIdToHostApiIndex(_lib.paDirectSound),
-                _lib.Pa_HostApiTypeIdToHostApiIndex(_lib.paMME)):
-            name = name_bytes.decode('mbcs')
-        else:
-            raise
+        try:
+            name = name_bytes.decode(_locale.getpreferredencoding())
+        except UnicodeDecodeError:
+            name = repr(name_bytes)[2:-1]
     device_dict = {
         'name': name,
         'index': device,
