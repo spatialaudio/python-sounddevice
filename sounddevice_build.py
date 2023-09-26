@@ -254,7 +254,8 @@ typedef enum PaWasapiFlags
     paWinWasapiRedirectHostProcessor    = 2,
     paWinWasapiUseChannelMask           = 4,
     paWinWasapiPolling                  = 8,
-    paWinWasapiThreadPriority           = 16
+    paWinWasapiThreadPriority           = 16,
+    paWinWasapiAutoConvert              = 64
 } PaWasapiFlags;
 
 typedef void (*PaWasapiHostProcessorCallback) (
