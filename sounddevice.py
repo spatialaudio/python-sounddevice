@@ -583,7 +583,7 @@ def query_devices(device=None, kind=None):
         try:
             name = name_bytes.decode(_locale.getpreferredencoding())
         except UnicodeDecodeError:
-            name = repr(name_bytes)[2:-1]
+            name = name_bytes.decode('ascii', errors='backslashreplace')
     device_dict = {
         'name': name,
         'index': device,
