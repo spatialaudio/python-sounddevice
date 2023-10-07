@@ -2428,8 +2428,12 @@ class WasapiSettings:
             hardware bypassing software mixing.
 
         auto_convert : bool
-            auto_convert allows to resample audio data to hardware
-            supported samplerate when in shared mode(None exclusive mode)
+            Allow WASAPI backend to insert system-level channel matrix
+            mixer and sample rate converter to support playback formats
+            that do not match the current configured system settings.
+            This is in particular required for streams not matching the
+            system mixer sample rate.  This only applies in *shared
+            mode* and has no effect when *exclusive* is set to ``True``.
 
         Examples
         --------
