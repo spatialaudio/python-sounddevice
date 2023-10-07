@@ -2413,7 +2413,7 @@ class CoreAudioSettings:
 
 class WasapiSettings:
 
-    def __init__(self, exclusive=False, auto_convert=True):
+    def __init__(self, exclusive=False, auto_convert=False):
         """WASAPI-specific input/output settings.
 
         Objects of this class can be used as *extra_settings* argument
