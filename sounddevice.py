@@ -2413,7 +2413,7 @@ class CoreAudioSettings:
 
 class WasapiSettings:
 
-    def __init__(self, exclusive=False):
+    def __init__(self, exclusive=False, auto_convert=False):
         """WASAPI-specific input/output settings.
 
         Objects of this class can be used as *extra_settings* argument
@@ -2426,6 +2426,10 @@ class WasapiSettings:
         exclusive : bool
             Exclusive mode allows to deliver audio data directly to
             hardware bypassing software mixing.
+
+        auto_convert : bool
+            auto_convert allows to resample audio data to hardware
+            supported samplerate when in shared mode(None exclusive mode)
 
         Examples
         --------
@@ -2444,6 +2448,8 @@ class WasapiSettings:
         flags = 0x0
         if exclusive:
             flags |= _lib.paWinWasapiExclusive
+        elif auto_convert:
+            flags |= _lib.paWinWasapiAutoConvert
         self._streaminfo = _ffi.new('PaWasapiStreamInfo*', dict(
             size=_ffi.sizeof('PaWasapiStreamInfo'),
             hostApiType=_lib.paWASAPI,
