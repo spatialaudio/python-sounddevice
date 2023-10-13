@@ -56,6 +56,7 @@ except Exception:
     today = '<unknown date>'
 
 default_role = 'any'
+highlight_language = 'none'
 
 nitpicky = True
 

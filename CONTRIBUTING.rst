@@ -39,7 +39,7 @@ You should of course also show what happens when you run your code, e.g. ::
    Running my script, I got this error:
    
    ```
-   $ python3 my_script.py 
+   $ python my_script.py 
    Expression 'parameters->channelCount <= maxChans' failed in 'src/hostapi/alsa/pa_linux_alsa.c', line: 1514
    Expression 'ValidateParameters( inputParameters, hostApi, StreamDirection_In )' failed in 'src/hostapi/alsa/pa_linux_alsa.c', line: 2818
    Traceback (most recent call last):
@@ -58,7 +58,7 @@ You should also mention the operating system and host API you are using
 If your problem is related to a certain hardware device,
 you should provide the list of devices as reported by ::
 
-   python3 -m sounddevice
+   python -m sounddevice
 
 If your problem has to do with the version of the PortAudio library you are using,
 you should provide the output of this script::
@@ -73,7 +73,7 @@ you can use the ``<details>`` HTML tag to show some content only on demand::
    <details>
    
    ```
-   $ python3 -m sounddevice
+   $ python -m sounddevice
      0 Built-in Line Input, Core Audio (2 in, 0 out)
    > 1 Built-in Digital Input, Core Audio (2 in, 0 out)
    < 2 Built-in Output, Core Audio (0 in, 2 out)
@@ -92,7 +92,7 @@ newest development version (a.k.a. "master") from Github_::
 
    git clone --recursive https://github.com/spatialaudio/python-sounddevice.git
    cd python-sounddevice
-   python3 -m pip install -e .
+   python -m pip install -e .
 
 .. _PyPI: https://pypi.org/project/sounddevice/
 .. _Github: https://github.com/spatialaudio/python-sounddevice/
@@ -118,12 +118,19 @@ If you make changes to the documentation, you can locally re-create the HTML
 pages using Sphinx_.
 You can install it and a few other necessary packages with::
 
-   python3 -m pip install -r doc/requirements.txt
+   python -m pip install -r doc/requirements.txt
 
 To (re-)build the HTML files, use::
 
-   python3 setup.py build_sphinx
+   python -m sphinx doc _build
 
-The generated files will be available in the directory ``build/sphinx/html/``.
+The generated files will be available in the directory ``_build/``.
+
+If you additionally install sphinx-autobuild_,
+you can run Sphinx automatically on any changes
+and conveniently auto-reload the changed pages in your browser::
+
+   python -m sphinx_autobuild doc _build --open-browser
 
 .. _Sphinx: https://www.sphinx-doc.org/
+.. _sphinx-autobuild: https://github.com/executablebooks/sphinx-autobuild

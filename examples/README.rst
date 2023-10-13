@@ -8,4 +8,4 @@ use the ``--help`` argument.
 
 For example::
 
-   python3 play_file.py --help
+   python play_file.py --help
