@@ -60,16 +60,28 @@ from _sounddevice import ffi as _ffi
 
 try:
     for _libname in (
-            'portaudio',  # Default name on POSIX systems
-            'bin\\libportaudio-2.dll',  # DLL from conda-forge
-            'lib/libportaudio.dylib',  # dylib from anaconda
-            ):
+        _os.environ.get('SD_PORTAUDIO', ''),  # User-provided PortAudio name/path
+        'portaudio',  # Default name on POSIX systems
+        'bin\\libportaudio-2.dll',  # DLL from conda-forge
+        'lib/libportaudio.dylib',  # dylib from anaconda
+    ):
         _libname = _find_library(_libname)
         if _libname is not None:
-            break
+            try:
+                _lib = _ffi.dlopen(_libname)
+                # Basic check for the loaded PortAudio binary
+                assert('PortAudio' in _ffi.string(_lib.Pa_GetVersionText()).decode())
+            except (AttributeError, AssertionError, OSError):
+                # Continue checking other libraries on
+                # AttributeError: Pa_GetVersionText() not available in binary
+                # AssertionError: 'PortAudio' not found in lib's version text
+                # OSError: library could not be opened by ffi
+                pass
+            else:
+                # Exit loop and use _lib if assertion is successful
+                break
     else:
         raise OSError('PortAudio library not found')
-    _lib = _ffi.dlopen(_libname)
 except OSError:
     if _platform.system() == 'Darwin':
         _libname = 'libportaudio.dylib'
