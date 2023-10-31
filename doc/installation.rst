@@ -33,7 +33,7 @@ manager (the package might be called ``libportaudio2`` or similar).
 .. note::
 
    If you install PortAudio with a package manager (including ``conda``),
-   it will override the version installed with ``pip``.
+   it will likely override the version installed with ``pip``.
 
 The NumPy_ library is only needed if you want to play back and record NumPy arrays.
 The classes `sounddevice.RawStream`, `sounddevice.RawInputStream` and
@@ -42,6 +42,19 @@ NumPy at all.
 If needed -- and not installed already -- NumPy can be installed like this::
 
    python -m pip install numpy
+
+
+Custom PortAudio Library
+------------------------
+
+If you have a custom PortAudio library
+(maybe a development version or a version with different features selected),
+you can rename the library to ``libportaudio.so`` (Linux)
+or ``libportaudio.dylib`` (macOS) and move it to ``/usr/local/lib``.
+On Linux, you might have to run ``sudo ldconfig`` after that,
+for the library to be found.
+On Windows, you can rename the library to ``portaudio.dll``
+and move it to ``%SystemRoot%\system32``.
 
 
 Alternative Packages
