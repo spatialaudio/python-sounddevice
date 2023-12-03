@@ -376,15 +376,18 @@ def playrec(data, samplerate=None, channels=None, dtype=None,
 
 
 def wait(ignore_errors=True, timeout=None):
-    """Wait for `play()`/`rec()`/`playrec()` to be finished with an optional timeout.
+    """Wait for `play()`/`rec()`/`playrec()` to be finished
+    with an optional timeout.
 
-    Playback/recording can be stopped with a `KeyboardInterrupt`. If a timeout is specified,
-    the wait will return after the timeout period if playback/recording hasn't finished.
+    Playback/recording can be stopped with a `KeyboardInterrupt`. If a timeout
+    is specified, the wait will return after the timeout period if
+    playback/recording hasn't finished.
 
     Parameters
     ----------
     timeout : float, optional
-        Maximum number of seconds to wait for `play()`/`rec()`/`playrec()` to be finished.
+        Maximum number of seconds to wait for `play()`/`rec()`/`playrec()`
+        to be finished.
         If None (default), waits until finished or exceptions are raised.
     ignore_errors : bool, optional
         Whether to ignore errors when closing the stream.
@@ -392,11 +395,14 @@ def wait(ignore_errors=True, timeout=None):
     Returns
     -------
     bool or CallbackFlags or None
-        - CallbackFlags if at least one buffer over-/underrun happened during the last
-          playback/recording and no timeout was specified.
-        - None if the operation completes without buffer over-/underrun issues and no timeout is specified.
-        - True if timeout is specified and playback/recording finished and no exception raised.
-        - False if timeout is specified and timeout elapses before playback/recording finished and no exception raised.
+        - CallbackFlags if at least one buffer over-/underrun happened during
+        the last playback/recording and no timeout was specified.
+        - None if the operation completes without buffer over-/underrun issues
+        and no timeout is specified.
+        - True if timeout is specified and playback/recording finished and no
+        exception raised.
+        - False if timeout is specified and timeout elapses before
+        playback/recording finished and no exception raised.
 
     See Also
     --------
@@ -2627,17 +2633,18 @@ class _CallbackContext:
         """
         Wait for a finished_callback with an optional timeout.
 
-        This method waits for the event to be set or for the optional timeout to elapse.
-        If a timeout is specified and it is reached without the event being set, the method
-        returns False. Otherwise, it returns the stream status or None. The stream is closed
-        if it finishes normally or an exception occurs.
+        This method waits for the event to be set or for the optional timeout
+        to elapse. If a timeout is specified, and it is reached without the
+        event being set, the method returns False. Otherwise, it returns the
+        stream status or None. The stream is closed if it finishes normally or
+        an exception occurs.
 
         Args:
-            ignore_errors (bool): Whether to ignore errors when closing the stream.
-            timeout (float, optional): Time in seconds to wait before timing out. None for no timeout.
+            ignore_errors (bool): Whether to ignore errors when closing stream.
+            timeout (float, optional): Time in seconds to wait before time out.
 
         Returns:
-            True if the wait completes before the timeout, False if it times out,
+            True if the wait completes before timeout, False if it times out,
             or the stream's status (or None) if no timeout is specified.
         """
         exception_raised = True
