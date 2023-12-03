@@ -375,24 +375,35 @@ def playrec(data, samplerate=None, channels=None, dtype=None,
     return out
 
 
-def wait(ignore_errors=True):
-    """Wait for `play()`/`rec()`/`playrec()` to be finished.
+def wait(ignore_errors=True, timeout=None):
+    """Wait for `play()`/`rec()`/`playrec()` to be finished with an optional timeout.
 
-    Playback/recording can be stopped with a `KeyboardInterrupt`.
+    Playback/recording can be stopped with a `KeyboardInterrupt`. If a timeout is specified,
+    the wait will return after the timeout period if playback/recording hasn't finished.
+
+    Parameters
+    ----------
+    timeout : float, optional
+        Maximum number of seconds to wait for `play()`/`rec()`/`playrec()` to be finished.
+        If None (default), waits until finished or exceptions are raised.
+    ignore_errors : bool, optional
+        Whether to ignore errors when closing the stream.
 
     Returns
     -------
-    CallbackFlags or None
-        If at least one buffer over-/underrun happened during the last
-        playback/recording, a `CallbackFlags` object is returned.
+    bool or CallbackFlags or None
+        - CallbackFlags if at least one buffer over-/underrun happened during the last
+          playback/recording and no timeout was specified.
+        - None if the operation completes without buffer over-/underrun issues and no timeout is specified.
+        - True if timeout is specified and playback/recording finished and no exception raised.
+        - False if timeout is specified and timeout elapses before playback/recording finished and no exception raised.
 
     See Also
     --------
     get_status
-
     """
     if _last_callback:
-        return _last_callback.wait(ignore_errors)
+        return _last_callback.wait(ignore_errors, timeout=timeout)
 
 
 def stop(ignore_errors=True):
@@ -2612,16 +2623,33 @@ class _CallbackContext:
         if blocking:
             self.wait()
 
-    def wait(self, ignore_errors=True):
-        """Wait for finished_callback.
-
-        Can be interrupted with a KeyboardInterrupt.
-
+    def wait(self, ignore_errors=True, timeout=None):
         """
+        Wait for a finished_callback with an optional timeout.
+
+        This method waits for the event to be set or for the optional timeout to elapse.
+        If a timeout is specified and it is reached without the event being set, the method
+        returns False. Otherwise, it returns the stream status or None. The stream is closed
+        if it finishes normally or an exception occurs.
+
+        Args:
+            ignore_errors (bool): Whether to ignore errors when closing the stream.
+            timeout (float, optional): Time in seconds to wait before timing out. None for no timeout.
+
+        Returns:
+            True if the wait completes before the timeout, False if it times out,
+            or the stream's status (or None) if no timeout is specified.
+        """
+        exception_raised = True
+        finished = False
         try:
-            self.event.wait()
+            finished = self.event.wait(timeout=timeout)
+            exception_raised = False
         finally:
-            self.stream.close(ignore_errors)
+            if finished or exception_raised:
+                self.stream.close(ignore_errors)
+        if timeout and not exception_raised:
+            return finished
         return self.status if self.status else None
 
 
