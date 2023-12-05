@@ -396,14 +396,14 @@ def wait(ignore_errors=True, timeout=None):
     -------
     bool or CallbackFlags or None
         - CallbackFlags if at least one buffer over-/underrun happened during
-        the last playback/recording and no timeout was specified.
+          the last playback/recording and no timeout was specified.
         - None if the operation completes without buffer over-/underrun issues
-        and no timeout is specified.
+          and no timeout is specified.
         - True if timeout is specified and playback/recording finished and no
-        exception raised.
+          exception raised.
         - False if timeout is specified and timeout elapses before
-        playback/recording finished and no exception raised.
-
+          playback/recording finished and no exception raised.
+        
     See Also
     --------
     get_status
