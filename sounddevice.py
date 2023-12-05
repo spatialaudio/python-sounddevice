@@ -403,7 +403,7 @@ def wait(ignore_errors=True, timeout=None):
           exception raised.
         - False if timeout is specified and timeout elapses before
           playback/recording finished and no exception raised.
-        
+
     See Also
     --------
     get_status
