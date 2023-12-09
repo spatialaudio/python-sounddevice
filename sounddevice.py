@@ -574,13 +574,15 @@ def query_devices(device=None, kind=None):
         # 'utf-8' or 'mbcs' encoding.  Let's try 'utf-8' first, because it more
         # likely raises an exception on 'mbcs' data than vice versa, see also
         # https://github.com/spatialaudio/python-sounddevice/issues/72.
-        # All other host APIs use 'utf-8' anyway.
         name = name_bytes.decode('utf-8')
     except UnicodeDecodeError:
-        if info.hostApi in (
-                _lib.Pa_HostApiTypeIdToHostApiIndex(_lib.paDirectSound),
-                _lib.Pa_HostApiTypeIdToHostApiIndex(_lib.paMME)):
+        api_idx = _lib.Pa_HostApiTypeIdToHostApiIndex
+        if info.hostApi in (api_idx(_lib.paDirectSound), api_idx(_lib.paMME)):
             name = name_bytes.decode('mbcs')
+        elif info.hostApi == api_idx(_lib.paASIO):
+            # See https://github.com/spatialaudio/python-sounddevice/issues/490
+            import locale
+            name = name_bytes.decode(locale.getpreferredencoding())
         else:
             raise
     device_dict = {
