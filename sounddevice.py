@@ -1106,6 +1106,9 @@ class _StreamBase:
         self.stop()
         self.close()
 
+    def __del__(self):
+        assert not self.active, 'sounddevice: destroying active stream'
+
     def start(self):
         """Commence audio processing.
 
