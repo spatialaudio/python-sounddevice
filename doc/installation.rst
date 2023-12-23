@@ -13,7 +13,7 @@ After activating the environment, the ``sounddevice`` module can be installed wi
    python -m pip install sounddevice
 
 __ https://docs.python.org/3/library/venv.html
-__ https://docs.conda.io/projects/conda/en/latest/user-guide/getting-started.html#managing-environments
+__ https://docs.conda.io/projects/conda/en/latest/user-guide/getting-started.html#creating-environments
 
 If you have already installed an old version of the module in the environment,
 you can use the ``--upgrade`` flag to get the newest release.
