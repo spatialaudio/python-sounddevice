@@ -71,15 +71,14 @@ try:
                 _lib = _ffi.dlopen(_libname)
                 # Basic check for the loaded PortAudio binary
                 assert('PortAudio' in _ffi.string(_lib.Pa_GetVersionText()).decode())
+                # Exit loop and use _lib if assertion is successful
+                break
             except (AttributeError, AssertionError, OSError):
                 # Continue checking other libraries on
                 # AttributeError: Pa_GetVersionText() not available in binary
                 # AssertionError: 'PortAudio' not found in lib's version text
                 # OSError: library could not be opened by ffi
-                pass
-            else:
-                # Exit loop and use _lib if assertion is successful
-                break
+                continue
     else:
         raise OSError('PortAudio library not found')
 except OSError:
