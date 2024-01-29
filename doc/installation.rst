@@ -54,7 +54,10 @@ or ``libportaudio.dylib`` (macOS) and move it to ``/usr/local/lib``.
 On Linux, you might have to run ``sudo ldconfig`` after that,
 for the library to be found.
 On Windows, you can rename the library to ``portaudio.dll``
-and move it to ``%SystemRoot%\system32``.
+and move it to any directory in your ``%PATH%``,
+e.g. ``%LOCALAPPDATA%\Microsoft\WindowsApps`` might be an option.
+You can also move it to any other directory of your choosing
+and add that to your ``PATH`` variable.
 
 
 Alternative Packages
