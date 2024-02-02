@@ -47,16 +47,15 @@ If needed -- and not installed already -- NumPy can be installed like this::
 Custom PortAudio Library
 ------------------------
 
-If you have a custom PortAudio library
+If you want to use a different version of the PortAudio library
 (maybe a development version or a version with different features selected),
 you can rename the library to ``libportaudio.so`` (Linux)
 or ``libportaudio.dylib`` (macOS) and move it to ``/usr/local/lib``.
 On Linux, you might have to run ``sudo ldconfig`` after that,
 for the library to be found.
 On Windows, you can rename the library to ``portaudio.dll``
-and move it to any directory in your ``%PATH%``,
-e.g. ``%LOCALAPPDATA%\Microsoft\WindowsApps`` might be an option.
-You can also move it to any other directory of your choosing
+and move it to any directory in your ``%PATH%``.
+In case of doubt you should create a fresh directory for your library
 and add that to your ``PATH`` variable.
 
 
