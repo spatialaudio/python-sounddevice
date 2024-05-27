@@ -1,5 +1,9 @@
+0.4.7 (2024-05-27):
+ * support ``paWinWasapiAutoConvert`` with ``auto_convert`` flag in `WasapiSettings`
+ * Avoid exception in `PortAudioError`\ ``.__str__()``
+
 0.4.6 (2023-02-19):
- * Redirect stderr with os.dup2() instead of CFFI calls
+ * Redirect stderr with ``os.dup2()`` instead of CFFI calls
 
 0.4.5 (2022-08-21):
  * Add ``index`` field to device dict
