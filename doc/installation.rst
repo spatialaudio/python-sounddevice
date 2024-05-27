@@ -85,11 +85,6 @@ There are also packages for several other package managers:
 
    https://repology.org/metapackage/python:sounddevice
 
-If you are using Windows, you can alternatively install one of the packages
-provided at https://www.lfd.uci.edu/~gohlke/pythonlibs/#sounddevice.
-The PortAudio library (with ASIO support) is included in the package and
-you can get the rest of the dependencies on the same page.
-
 .. _PortAudio: http://www.portaudio.com/
 .. _NumPy: https://numpy.org/
 .. _Python: https://www.python.org/
