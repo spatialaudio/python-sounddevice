@@ -25,8 +25,7 @@ If you want to try the very latest development version of the ``sounddevice`` mo
 have a look at the section about :doc:`CONTRIBUTING`.
 
 If you install the ``sounddevice`` module with ``pip`` on macOS or Windows,
-the PortAudio_ library (with ASIO support on Windows) will be installed
-automagically.
+the PortAudio_ library will be installed automagically.
 On other platforms, you might have to install PortAudio with your package
 manager (the package might be called ``libportaudio2`` or similar).
 
@@ -42,6 +41,21 @@ NumPy at all.
 If needed -- and not installed already -- NumPy can be installed like this::
 
    python -m pip install numpy
+
+
+ASIO Support
+------------
+
+Installing the ``sounddevice`` module with ``pip`` (on Windows)
+will provide PortAudio_ DLLs *without* ASIO support
+(because of the problems mentioned in `issue #496`__).
+To enable ASIO support, download the file
+`libportaudio64bit-asio.dll`__ or libportaudio32bit-asio.dll__
+and rename/move it as described in the next section.
+
+__ https://github.com/spatialaudio/python-sounddevice/issues/496
+__ https://github.com/spatialaudio/portaudio-binaries/raw/master/libportaudio64bit-asio.dll
+__ https://github.com/spatialaudio/portaudio-binaries/raw/master/libportaudio32bit-asio.dll
 
 
 Custom PortAudio Library
