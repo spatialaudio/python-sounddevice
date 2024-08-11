@@ -1832,8 +1832,10 @@ class DeviceList(tuple):
         odev = _get_device_id(default.device['output'], 'output')
         digits = len(str(_lib.Pa_GetDeviceCount() - 1))
         hostapi_names = [hostapi['name'] for hostapi in query_hostapis()]
+
         def get_mark(idx):
             return (' ', '>', '<', '*')[(idx == idev) + 2 * (idx == odev)]
+
         text = '\n'.join(
             '{mark} {idx:{dig}} {name}, {ha} ({ins} in, {outs} out)'.format(
                 mark=get_mark(info['index']),
