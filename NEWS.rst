@@ -1,3 +1,6 @@
+0.5.0 (2024-08-11):
+ * Remove ASIO support from bundled DLLs (DLLs with ASIO can be manually selected)
+
 0.4.7 (2024-05-27):
  * support ``paWinWasapiAutoConvert`` with ``auto_convert`` flag in `WasapiSettings`
  * Avoid exception in `PortAudioError`\ ``.__str__()``
