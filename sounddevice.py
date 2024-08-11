@@ -1832,16 +1832,18 @@ class DeviceList(tuple):
         odev = _get_device_id(default.device['output'], 'output')
         digits = len(str(_lib.Pa_GetDeviceCount() - 1))
         hostapi_names = [hostapi['name'] for hostapi in query_hostapis()]
+        def get_mark(idx):
+            return (' ', '>', '<', '*')[(idx == idev) + 2 * (idx == odev)]
         text = '\n'.join(
             '{mark} {idx:{dig}} {name}, {ha} ({ins} in, {outs} out)'.format(
-                mark=(' ', '>', '<', '*')[(idx == idev) + 2 * (idx == odev)],
-                idx=idx,
+                mark=get_mark(info['index']),
+                idx=info['index'],
                 dig=digits,
                 name=info['name'],
                 ha=hostapi_names[info['hostapi']],
                 ins=info['max_input_channels'],
                 outs=info['max_output_channels'])
-            for idx, info in enumerate(self))
+            for info in self)
         return text
 
 
