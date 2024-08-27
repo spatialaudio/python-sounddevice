@@ -2747,7 +2747,8 @@ def _split(value):
     except TypeError:
         invalue = outvalue = value
     except ValueError as e:
-        raise ValueError('Only single values and pairs are allowed') from e
+        raise ValueError(
+            f'Only single values and pairs are allowed, not {value!r}') from e
     return invalue, outvalue
 
 
