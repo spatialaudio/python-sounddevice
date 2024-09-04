@@ -23,6 +23,7 @@ if system == 'Darwin':
     libname = 'libportaudio.dylib'
 elif system == 'Windows':
     libname = 'libportaudio' + architecture0 + '.dll'
+    libname_asio = 'libportaudio' + architecture0 + '-asio.dll'
 else:
     libname = None
 
@@ -30,6 +31,9 @@ if libname and os.path.isdir('_sounddevice_data/portaudio-binaries'):
     packages = ['_sounddevice_data']
     package_data = {'_sounddevice_data': ['portaudio-binaries/' + libname,
                                           'portaudio-binaries/README.md']}
+    if system == 'Windows':
+        package_data['_sounddevice_data'].append(
+            'portaudio-binaries/' + libname_asio)
     zip_safe = False
 else:
     packages = None
