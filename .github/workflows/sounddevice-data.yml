@@ -33,8 +33,22 @@ jobs:
         working-directory: git-repo
         run: |
           python -m pip install .
-      - name: Run tests
+      - name: Import module
         run: |
           python -m sounddevice
           python -c "import sounddevice as sd; print(sd._libname)"
           python -c "import sounddevice as sd; print(sd.get_portaudio_version())"
+          python -c "import sounddevice as sd; print(sd.query_hostapis())"
+          python -c "import sounddevice as sd; assert 'asio' not in sd._libname"
+          python -c "import sounddevice as sd; assert not any(a['name'] == 'ASIO' for a in sd.query_hostapis())"
+      - name: Import module (using the ASIO DLL)
+        if: startsWith(matrix.os, 'windows')
+        env:
+          SD_ENABLE_ASIO: 1
+        run: |
+          python -m sounddevice
+          python -c "import sounddevice as sd; print(sd._libname)"
+          python -c "import sounddevice as sd; print(sd.get_portaudio_version())"
+          python -c "import sounddevice as sd; print(sd.query_hostapis())"
+          python -c "import sounddevice as sd; assert 'asio' in sd._libname"
+          python -c "import sounddevice as sd; assert any(a['name'] == 'ASIO' for a in sd.query_hostapis())"
