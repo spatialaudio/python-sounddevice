@@ -47,15 +47,35 @@ ASIO Support
 ------------
 
 Installing the ``sounddevice`` module with ``pip`` (on Windows)
-will provide PortAudio_ DLLs *without* ASIO support
+will provide two PortAudio_ DLLs, with and without ASIO support.
+By default, the DLL *without* ASIO support is loaded
 (because of the problems mentioned in `issue #496`__).
-To enable ASIO support, download the file
-`libportaudio64bit-asio.dll`__ or libportaudio32bit-asio.dll__
-and rename/move it as described in the next section.
+To load the DLL *with* ASIO support, the environment variable ``SD_ENABLE_ASIO``
+has to be set *before* importing the ``sounddevice`` module,
+for example like this:
+
+.. code:: python
+
+    import os
+
+    # Set environment variable before importing sounddevice. Value is not important.
+    os.environ["SD_ENABLE_ASIO"] = "1"
+
+    import sounddevice as sd
+
+    print(sd.query_hostapis())
 
 __ https://github.com/spatialaudio/python-sounddevice/issues/496
-__ https://github.com/spatialaudio/portaudio-binaries/raw/master/libportaudio64bit-asio.dll
-__ https://github.com/spatialaudio/portaudio-binaries/raw/master/libportaudio32bit-asio.dll
+
+.. note::
+
+    This will only work if the ``sounddevice`` module has been installed via ``pip``.
+    This will not work with the ``conda`` package (see below).
+
+.. note::
+
+    This will not work if a custom ``portaudio.dll`` is present in the ``%PATH%``
+    (as described in the following section).
 
 
 Custom PortAudio Library
