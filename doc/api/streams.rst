@@ -7,7 +7,7 @@ Streams using NumPy Arrays
 
    .. autosummary::
       :nosignatures:
-   
+
       Stream
       InputStream
       OutputStream
@@ -20,4 +20,3 @@ Streams using NumPy Arrays
 .. autoclass:: InputStream
 
 .. autoclass:: OutputStream
-

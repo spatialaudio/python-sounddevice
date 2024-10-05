@@ -17,13 +17,13 @@ please make sure to provide as much useful information as possible.
 You can use Markdown formatting to show Python code, e.g. ::
 
    I have created a script named `my_script.py`:
-   
+
    ```python
    import sounddevice as sd
-   
+
    fs = 48000
    duration = 1.5
-   
+
    data = sd.rec(int(duration * fs), channels=99)
    sd.wait()
    print(data.shape)
@@ -37,7 +37,7 @@ including all ``import`` statements.
 You should of course also show what happens when you run your code, e.g. ::
 
    Running my script, I got this error:
-   
+
    ```
    $ python my_script.py 
    Expression 'parameters->channelCount <= maxChans' failed in 'src/hostapi/alsa/pa_linux_alsa.c', line: 1514
@@ -71,7 +71,7 @@ If you don't want to clutter the issue description with a huge load of gibberish
 you can use the ``<details>`` HTML tag to show some content only on demand::
 
    <details>
-   
+
    ```
    $ python -m sounddevice
      0 Built-in Line Input, Core Audio (2 in, 0 out)
@@ -80,7 +80,7 @@ you can use the ``<details>`` HTML tag to show some content only on demand::
      3 Built-in Line Output, Core Audio (0 in, 2 out)
      4 Built-in Digital Output, Core Audio (0 in, 2 out)
    ```
-   
+
    </details>
 
 

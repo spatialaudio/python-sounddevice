@@ -12,7 +12,7 @@
    installation
    usage
    examples
-   CONTRIBUTING
+   contributing
    api/index
    version-history
 

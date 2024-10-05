@@ -1187,7 +1187,9 @@ class RawInputStream(_StreamBase):
         callback : callable
             User-supplied function to consume audio data in response to
             requests from an active stream.
-            The callback must have this signature::
+            The callback must have this signature:
+
+            .. code-block:: text
 
                 callback(indata: buffer, frames: int,
                          time: CData, status: CallbackFlags) -> None
@@ -1271,7 +1273,9 @@ class RawOutputStream(_StreamBase):
         callback : callable
             User-supplied function to generate audio data in response to
             requests from an active stream.
-            The callback must have this signature::
+            The callback must have this signature:
+
+            .. code-block:: text
 
                 callback(outdata: buffer, frames: int,
                          time: CData, status: CallbackFlags) -> None
@@ -1378,7 +1382,9 @@ class RawStream(RawInputStream, RawOutputStream):
         callback : callable
             User-supplied function to consume, process or generate audio
             data in response to requests from an active stream.
-            The callback must have this signature::
+            The callback must have this signature:
+
+            .. code-block:: text
 
                 callback(indata: buffer, outdata: buffer, frames: int,
                          time: CData, status: CallbackFlags) -> None
@@ -1416,7 +1422,9 @@ class InputStream(RawInputStream):
         callback : callable
             User-supplied function to consume audio in response to
             requests from an active stream.
-            The callback must have this signature::
+            The callback must have this signature:
+
+            .. code-block:: text
 
                 callback(indata: numpy.ndarray, frames: int,
                          time: CData, status: CallbackFlags) -> None
@@ -1489,7 +1497,9 @@ class OutputStream(RawOutputStream):
         callback : callable
             User-supplied function to generate audio data in response to
             requests from an active stream.
-            The callback must have this signature::
+            The callback must have this signature:
+
+            .. code-block:: text
 
                 callback(outdata: numpy.ndarray, frames: int,
                          time: CData, status: CallbackFlags) -> None
@@ -1691,7 +1701,9 @@ class Stream(InputStream, OutputStream):
             read or written without blocking is returned by
             `read_available` and `write_available`, respectively.
 
-            The callback must have this signature::
+            The callback must have this signature:
+
+            .. code-block:: text
 
                 callback(indata: ndarray, outdata: ndarray, frames: int,
                          time: CData, status: CallbackFlags) -> None
@@ -1794,7 +1806,9 @@ class Stream(InputStream, OutputStream):
             raises `CallbackStop`, or `stop()` is called, the stream
             finished callback will not be called until all generated
             sample data has been played.  The callback must have this
-            signature::
+            signature:
+
+            .. code-block:: text
 
                 finished_callback() -> None
 

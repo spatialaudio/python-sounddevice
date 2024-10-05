@@ -7,7 +7,7 @@ Checking Available Hardware
 
    .. autosummary::
       :nosignatures:
-   
+
       query_devices
       DeviceList
       query_hostapis

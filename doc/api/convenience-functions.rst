@@ -7,7 +7,7 @@ Convenience Functions using NumPy Arrays
 
    .. autosummary::
       :nosignatures:
-   
+
       play
       rec
       playrec

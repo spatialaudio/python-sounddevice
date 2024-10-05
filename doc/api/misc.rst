@@ -7,7 +7,7 @@ Miscellaneous
 
    .. autosummary::
       :nosignatures:
-   
+
       sleep
       get_portaudio_version
       CallbackFlags

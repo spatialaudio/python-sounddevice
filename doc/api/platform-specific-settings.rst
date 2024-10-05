@@ -7,7 +7,7 @@ Platform-specific Settings
 
    .. autosummary::
       :nosignatures:
-   
+
       AsioSettings
       CoreAudioSettings
       WasapiSettings

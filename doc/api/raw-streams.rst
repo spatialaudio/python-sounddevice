@@ -7,7 +7,7 @@ Raw Streams
 
    .. autosummary::
       :nosignatures:
-   
+
       RawStream
       RawInputStream
       RawOutputStream

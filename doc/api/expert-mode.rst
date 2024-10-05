@@ -7,7 +7,7 @@ Expert Mode
 
    .. autosummary::
       :nosignatures:
-   
+
       _initialize
       _terminate
       _split

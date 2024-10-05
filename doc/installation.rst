@@ -22,7 +22,7 @@ To un-install, use::
    python -m pip uninstall sounddevice
 
 If you want to try the very latest development version of the ``sounddevice`` module,
-have a look at the section about :doc:`CONTRIBUTING`.
+have a look at the section about :doc:`contributing`.
 
 If you install the ``sounddevice`` module with ``pip`` on macOS or Windows,
 the PortAudio_ library will be installed automagically.
