@@ -1,7 +1,7 @@
 from cffi import FFI
 
 ffibuilder = FFI()
-ffibuilder.set_source('_sounddevice', None)
+ffibuilder.set_source("_sounddevice", None)
 ffibuilder.cdef("""
 int Pa_GetVersion( void );
 const char* Pa_GetVersionText( void );
@@ -314,5 +314,10 @@ PaError PaWasapi_UpdateDeviceList();
 int PaWasapi_IsLoopback( PaDeviceIndex device );
 """)
 
-if __name__ == '__main__':
+
+def main():
     ffibuilder.compile(verbose=True)
+
+
+if __name__ == "__main__":
+    main()
