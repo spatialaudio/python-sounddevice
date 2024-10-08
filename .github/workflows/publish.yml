@@ -1,5 +1,5 @@
 name: Build and publish to PyPI
-on: push
+on: [push, pull_request]
 jobs:
   build:
     name: Build distribution
