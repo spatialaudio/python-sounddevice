@@ -2688,19 +2688,23 @@ def _get_stream_parameters(kind, device, channels, dtype, latency,
     """Get parameters for one direction (input or output) of a stream."""
     assert kind in ('input', 'output')
     if device is None:
-        device = default.device[kind]
+        device = default.device
+    device = _get_device_id(device, kind, raise_on_error=True)
     if channels is None:
-        channels = default.channels[kind]
+        channels = default.channels
+    channels = _select_input_or_output(channels, kind)
     if dtype is None:
-        dtype = default.dtype[kind]
+        dtype = default.dtype
+    dtype = _select_input_or_output(dtype, kind)
     if latency is None:
-        latency = default.latency[kind]
+        latency = default.latency
+    latency = _select_input_or_output(latency, kind)
     if extra_settings is None:
-        extra_settings = default.extra_settings[kind]
+        extra_settings = default.extra_settings
+    extra_settings = _select_input_or_output(extra_settings, kind)
     if samplerate is None:
         samplerate = default.samplerate
 
-    device = _get_device_id(device, kind, raise_on_error=True)
     info = query_devices(device)
     if channels is None:
         channels = info['max_' + kind + '_channels']
@@ -2790,6 +2794,16 @@ def _check(err, msg=''):
         raise PortAudioError(errormsg, err, hosterror_info)
 
     raise PortAudioError(errormsg, err)
+
+
+def _select_input_or_output(value_or_pair, kind):
+    """Given a pair (or a single value for both), select input or output."""
+    ivalue, ovalue = _split(value_or_pair)
+    if kind == 'input':
+        return ivalue
+    elif kind == 'output':
+        return ovalue
+    assert False
 
 
 def _get_device_id(id_or_query_string, kind, raise_on_error=False):
