@@ -2561,7 +2561,15 @@ class _CallbackContext:
                     channels = len(np.atleast_1d(mapping))
             if dtype is None:
                 dtype = default.dtype['input']
-            out = np.empty((frames, channels), dtype, order='C')
+            try:
+                out = np.empty((frames, channels), dtype, order='C')
+            except TypeError as e:
+                from numbers import Integral
+                if not isinstance(frames, Integral):
+                    raise TypeError("'frames' must be an integer") from e
+                if not isinstance(channels, Integral):
+                    raise TypeError("'channels' must be an integer") from e
+                raise e
         else:
             frames, channels = out.shape
             dtype = out.dtype
