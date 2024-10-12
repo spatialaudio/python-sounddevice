@@ -1,3 +1,7 @@
+0.5.1 (2024-10-12):
+ * Windows wheel: bundle both non-ASIO and ASIO DLLs, the latter can be chosen
+   by defining the ``SD_ENABLE_ASIO`` environment variable
+
 0.5.0 (2024-08-11):
  * Remove ASIO support from bundled DLLs (DLLs with ASIO can be manually selected)
 
