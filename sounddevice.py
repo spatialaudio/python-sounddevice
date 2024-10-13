@@ -742,8 +742,8 @@ class _StreamBase:
         `RawStream`, `RawInputStream` and `RawOutputStream` instead.
 
         This class has the same properties and methods as `Stream`,
-        except for `read_available`/:meth:`~Stream.read` and
-        `write_available`/:meth:`~Stream.write`.
+        except for `~Stream.read_available`/`~Stream.read()` and
+        `~Stream.write_available`/`~Stream.write()`.
 
         It can be created with the same parameters as `Stream`,
         except that there are three additional parameters
@@ -1176,7 +1176,7 @@ class RawInputStream(_StreamBase):
         """PortAudio input stream (using buffer objects).
 
         This is the same as `InputStream`, except that the *callback*
-        function and :meth:`~RawStream.read` work on plain Python buffer
+        function and `~RawStream.read()` work on plain Python buffer
         objects instead of on NumPy arrays.
         NumPy is not necessary for using this.
 
@@ -1234,7 +1234,7 @@ class RawInputStream(_StreamBase):
             samples in the format specified by the *dtype* parameter
             used to open the stream, and the number of channels
             specified by *channels*.
-            See also `samplesize`.
+            See also `~Stream.samplesize`.
         overflowed : bool
             See `Stream.read()`.
 
@@ -1262,7 +1262,7 @@ class RawOutputStream(_StreamBase):
         """PortAudio output stream (using buffer objects).
 
         This is the same as `OutputStream`, except that the *callback*
-        function and :meth:`~RawStream.write` work on plain Python
+        function and `~RawStream.write()` work on plain Python
         buffer objects instead of on NumPy arrays.
         NumPy is not necessary for using this.
 
@@ -1317,7 +1317,7 @@ class RawOutputStream(_StreamBase):
             *channels*.  The length of the buffer is not constrained to
             a specific range, however high performance applications will
             want to match this parameter to the *blocksize* parameter
-            used when opening the stream.  See also `samplesize`.
+            used when opening the stream.  See also `~Stream.samplesize`.
 
         Returns
         -------
@@ -1378,7 +1378,7 @@ class RawStream(RawInputStream, RawOutputStream):
             ``'uint8'``), this also supports ``'int24'``, i.e.
             packed 24 bit format.
             The default value can be changed with `default.dtype`.
-            See also `samplesize`.
+            See also `~Stream.samplesize`.
         callback : callable
             User-supplied function to consume, process or generate audio
             data in response to requests from an active stream.
@@ -1413,7 +1413,7 @@ class InputStream(RawInputStream):
         """PortAudio input stream (using NumPy).
 
         This has the same methods and attributes as `Stream`, except
-        :meth:`~Stream.write` and `write_available`.
+        `~Stream.write()` and `~Stream.write_available`.
         Furthermore, the stream callback is expected to have a different
         signature (see below).
 
@@ -1488,7 +1488,7 @@ class OutputStream(RawOutputStream):
         """PortAudio output stream (using NumPy).
 
         This has the same methods and attributes as `Stream`, except
-        :meth:`~Stream.read` and `read_available`.
+        `~Stream.read()` and `~Stream.read_available`.
         Furthermore, the stream callback is expected to have a different
         signature (see below).
 
@@ -2110,7 +2110,7 @@ class default:
 
     See Also
     --------
-    :func:`query_devices`
+    `query_devices()`
 
     """
     channels = _default_channels = None, None
@@ -2120,7 +2120,7 @@ class default:
 
     See Also
     --------
-    :func:`query_devices`
+    `query_devices()`
 
     """
     dtype = _default_dtype = 'float32', 'float32'
@@ -2152,7 +2152,7 @@ class default:
 
     See Also
     --------
-    :func:`query_devices`
+    `query_devices()`
 
     """
     blocksize = _lib.paFramesPerBufferUnspecified
@@ -2272,7 +2272,7 @@ class CallbackStop(Exception):
 
     See Also
     --------
-    CallbackAbort, :meth:`Stream.stop`, Stream
+    CallbackAbort, `Stream.stop()`, Stream
 
     """
 
@@ -2285,7 +2285,7 @@ class CallbackAbort(Exception):
 
     See Also
     --------
-    CallbackStop, :meth:`Stream.abort`, Stream
+    CallbackStop, `Stream.abort()`, Stream
 
     """
 
