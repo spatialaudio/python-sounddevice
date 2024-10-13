@@ -55,7 +55,7 @@ try:
 except Exception:
     today = '<unknown date>'
 
-default_role = 'any'
+default_role = 'py:obj'
 
 nitpicky = True
 
