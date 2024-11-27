@@ -1,3 +1,10 @@
 [build-system]
 requires = ["setuptools >= 61.0"]
 build-backend = "setuptools.build_meta"
+
+[tool.codespell]
+# Ref: https://github.com/codespell-project/codespell#using-a-config-file
+skip = '.git*,*.svg'
+check-hidden = true
+ignore-regex = '\bHDA\b'
+# ignore-words-list = ''
