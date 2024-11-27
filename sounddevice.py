@@ -2486,7 +2486,7 @@ class WasapiSettings:
 
 
 class _CallbackContext:
-    """Helper class for re-use in play()/rec()/playrec() callbacks."""
+    """Helper class for reuse in play()/rec()/playrec() callbacks."""
 
     blocksize = None
     data = None
