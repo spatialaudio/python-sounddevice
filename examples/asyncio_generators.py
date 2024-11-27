@@ -84,7 +84,7 @@ async def wire_coro(**kwargs):
 
 
 async def main(**kwargs):
-    print('Some informations about the input signal:')
+    print('Some information about the input signal:')
     try:
         await asyncio.wait_for(print_input_infos(), timeout=2)
     except asyncio.TimeoutError:
