@@ -5,12 +5,10 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.7"
           - "3.8"
-          - "3.9"
-          - "3.10"
-          - "pypy-3.7"
+          - "3.13"
           - "pypy-3.8"
+          - "pypy-3.11"
     runs-on: ubuntu-latest
     steps:
       - name: Install PortAudio

@@ -69,7 +69,7 @@ setup(
     packages=packages,
     package_data=package_data,
     zip_safe=zip_safe,
-    python_requires='>=3.7',
+    python_requires='>=3.8',
     setup_requires=['CFFI>=1.0'],
     install_requires=['CFFI>=1.0'],
     extras_require={'NumPy': ['NumPy']},
