@@ -69,7 +69,7 @@ try:
             break
     else:
         raise OSError('PortAudio library not found')
-    _lib = _ffi.dlopen(_libname)
+    _lib: ... = _ffi.dlopen(_libname)
 except OSError:
     if _platform.system() == 'Darwin':
         _libname = 'libportaudio.dylib'
@@ -83,7 +83,7 @@ except OSError:
     import _sounddevice_data
     _libname = _os.path.join(
         next(iter(_sounddevice_data.__path__)), 'portaudio-binaries', _libname)
-    _lib = _ffi.dlopen(_libname)
+    _lib: ... = _ffi.dlopen(_libname)
 
 _sampleformats = {
     'float32': _lib.paFloat32,
@@ -571,7 +571,7 @@ def query_devices(device=None, kind=None):
     if not info:
         raise PortAudioError(f'Error querying device {device}')
     assert info.structVersion == 2
-    name_bytes = _ffi.string(info.name)
+    name_bytes = _ffi_string(info.name)
     try:
         # We don't know beforehand if DirectSound and MME device names use
         # 'utf-8' or 'mbcs' encoding.  Let's try 'utf-8' first, because it more
@@ -651,7 +651,7 @@ def query_hostapis(index=None):
         raise PortAudioError(f'Error querying host API {index}')
     assert info.structVersion == 1
     return {
-        'name': _ffi.string(info.name).decode(),
+        'name': _ffi_string(info.name).decode(),
         'devices': [_lib.Pa_HostApiDeviceIndexToDeviceIndex(index, i)
                     for i in range(info.deviceCount)],
         'default_input_device': info.defaultInputDevice,
@@ -721,7 +721,7 @@ def get_portaudio_version():
         (1899, 'PortAudio V19-devel (built Feb 15 2014 23:28:00)')
 
     """
-    return _lib.Pa_GetVersion(), _ffi.string(_lib.Pa_GetVersionText()).decode()
+    return _lib.Pa_GetVersion(), _ffi_string(_lib.Pa_GetVersionText()).decode()
 
 
 class _StreamBase:
@@ -1204,7 +1204,7 @@ class _InputStreamBase(_StreamBase):
         """
         channels, _ = _split(self._channels)
         samplesize, _ = _split(self._samplesize)
-        data = _ffi.new('signed char[]', channels * samplesize * frames)
+        data = _ffi.new('signed char[]', channels * samplesize * frames)  # type: ignore
         err = _lib.Pa_ReadStream(self._ptr, data, frames)
         if err == _lib.paInputOverflowed:
             overflowed = True
@@ -1302,7 +1302,7 @@ class _OutputStreamBase(_StreamBase):
             pass  # input is not a buffer
         _, samplesize = _split(self._samplesize)
         _, channels = _split(self._channels)
-        samples, remainder = divmod(len(data), samplesize)
+        samples, remainder = divmod(len(data), samplesize)  # type: ignore
         if remainder:
             raise ValueError('len(data) not divisible by samplesize')
         frames, remainder = divmod(samples, channels)
@@ -2237,7 +2237,8 @@ class default:
 
 if not hasattr(_ffi, 'I_AM_FAKE'):
     # This object shadows the 'default' class, except when building the docs.
-    default = default()
+    _default_class = default
+    default: _default_class = default()
 
 
 class PortAudioError(Exception):
@@ -2508,9 +2509,8 @@ class _CallbackContext:
     """Helper class for reuse in play()/rec()/playrec() callbacks."""
 
     blocksize = None
-    data = None
-    out = None
     frame = 0
+    frames: int
     input_channels = output_channels = None
     input_dtype = output_dtype = None
     input_mapping = output_mapping = None
@@ -2557,7 +2557,7 @@ class _CallbackContext:
         if len(mapping) + len(silent_channels) != channels:
             raise ValueError('each channel may only appear once in mapping')
 
-        self.data = data
+        self.data: np.typing.NDArray = data
         self.output_channels = channels
         self.output_dtype = dtype
         self.output_mapping = mapping
@@ -2641,8 +2641,8 @@ class _CallbackContext:
     def finished_callback(self):
         self.event.set()
         # Drop temporary audio buffers to free memory
-        self.data = None
-        self.out = None
+        del self.data
+        del self.out
         # Drop CFFI objects to avoid reference cycles
         self.stream._callback = None
         self.stream._finished_callback = None
@@ -2673,6 +2673,10 @@ class _CallbackContext:
         finally:
             self.stream.close(ignore_errors)
         return self.status if self.status else None
+
+
+def _ffi_string(cdata) -> bytes:
+    return _ffi.string(cdata)  # type: ignore
 
 
 def _remove_self(d):
@@ -2749,7 +2753,7 @@ def _get_stream_parameters(kind, device, channels, dtype, latency,
         latency = info['default_' + latency + '_' + kind + '_latency']
     if samplerate is None:
         samplerate = info['default_samplerate']
-    parameters = _ffi.new('PaStreamParameters*', (
+    parameters: ... = _ffi.new('PaStreamParameters*', (
         device, channels, sampleformat, latency,
         extra_settings._streaminfo if extra_settings else _ffi.NULL))
     return parameters, dtype, samplesize, samplerate
@@ -2805,7 +2809,7 @@ def _check(err, msg=''):
     if err >= 0:
         return err
 
-    errormsg = _ffi.string(_lib.Pa_GetErrorText(err)).decode()
+    errormsg = _ffi_string(_lib.Pa_GetErrorText(err)).decode()
     if msg:
         errormsg = f'{msg}: {errormsg}'
 
@@ -2816,7 +2820,7 @@ def _check(err, msg=''):
         # in scenarios where multiple APIs are being used simultaneously.
         info = _lib.Pa_GetLastHostErrorInfo()
         host_api = _lib.Pa_HostApiTypeIdToHostApiIndex(info.hostApiType)
-        hosterror_text = _ffi.string(info.errorText).decode()
+        hosterror_text = _ffi_string(info.errorText).decode()
         hosterror_info = host_api, info.errorCode, hosterror_text
         raise PortAudioError(errormsg, err, hosterror_info)
 
