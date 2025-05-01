@@ -6,12 +6,10 @@ jobs:
       matrix:
         python-version:
           - "3.7"
-          - "3.8"
-          - "3.9"
-          - "3.10"
+          - "3.13"
           - "pypy-3.7"
-          - "pypy-3.8"
-    runs-on: ubuntu-latest
+          - "pypy-3.11"
+    runs-on: ubuntu-22.04
     steps:
       - name: Install PortAudio
         run: |
