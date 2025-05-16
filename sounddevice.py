@@ -1165,7 +1165,56 @@ class _StreamBase:
             _check(err, 'Error closing stream')
 
 
-class RawInputStream(_StreamBase):
+class _InputStreamBase(_StreamBase):
+    """Base class for input stream classes."""
+
+    @property
+    def read_available(self):
+        """The number of frames that can be read without waiting.
+
+        Returns a value representing the maximum number of frames that
+        can be read from the stream without blocking or busy waiting.
+
+        """
+        return _check(_lib.Pa_GetStreamReadAvailable(self._ptr))
+
+    def _raw_read(self, frames):
+        """Read samples from the stream into a buffer.
+
+        This is the same as `Stream.read()`, except that it returns
+        a plain Python buffer object instead of a NumPy array.
+        NumPy is not necessary for using this.
+
+        Parameters
+        ----------
+        frames : int
+            The number of frames to be read.  See `Stream.read()`.
+
+        Returns
+        -------
+        data : buffer
+            A buffer of interleaved samples. The buffer contains
+            samples in the format specified by the *dtype* parameter
+            used to open the stream, and the number of channels
+            specified by *channels*.
+            See also `~Stream.samplesize`.
+        overflowed : bool
+            See `Stream.read()`.
+
+        """
+        channels, _ = _split(self._channels)
+        samplesize, _ = _split(self._samplesize)
+        data = _ffi.new('signed char[]', channels * samplesize * frames)
+        err = _lib.Pa_ReadStream(self._ptr, data, frames)
+        if err == _lib.paInputOverflowed:
+            overflowed = True
+        else:
+            _check(err)
+            overflowed = False
+        return _ffi.buffer(data), overflowed
+
+
+class RawInputStream(_InputStreamBase):
     """Raw stream for recording only.  See __init__() and RawStream."""
 
     def __init__(self, samplerate=None, blocksize=None,
@@ -1205,91 +1254,11 @@ class RawInputStream(_StreamBase):
         _StreamBase.__init__(self, kind='input', wrap_callback='buffer',
                              **_remove_self(locals()))
 
-    @property
-    def read_available(self):
-        """The number of frames that can be read without waiting.
-
-        Returns a value representing the maximum number of frames that
-        can be read from the stream without blocking or busy waiting.
-
-        """
-        return _check(_lib.Pa_GetStreamReadAvailable(self._ptr))
-
-    def read(self, frames):
-        """Read samples from the stream into a buffer.
-
-        This is the same as `Stream.read()`, except that it returns
-        a plain Python buffer object instead of a NumPy array.
-        NumPy is not necessary for using this.
-
-        Parameters
-        ----------
-        frames : int
-            The number of frames to be read.  See `Stream.read()`.
-
-        Returns
-        -------
-        data : buffer
-            A buffer of interleaved samples. The buffer contains
-            samples in the format specified by the *dtype* parameter
-            used to open the stream, and the number of channels
-            specified by *channels*.
-            See also `~Stream.samplesize`.
-        overflowed : bool
-            See `Stream.read()`.
-
-        """
-        channels, _ = _split(self._channels)
-        samplesize, _ = _split(self._samplesize)
-        data = _ffi.new('signed char[]', channels * samplesize * frames)
-        err = _lib.Pa_ReadStream(self._ptr, data, frames)
-        if err == _lib.paInputOverflowed:
-            overflowed = True
-        else:
-            _check(err)
-            overflowed = False
-        return _ffi.buffer(data), overflowed
+    read = _InputStreamBase._raw_read
 
 
-class RawOutputStream(_StreamBase):
-    """Raw stream for playback only.  See __init__() and RawStream."""
-
-    def __init__(self, samplerate=None, blocksize=None,
-                 device=None, channels=None, dtype=None, latency=None,
-                 extra_settings=None, callback=None, finished_callback=None,
-                 clip_off=None, dither_off=None, never_drop_input=None,
-                 prime_output_buffers_using_stream_callback=None):
-        """PortAudio output stream (using buffer objects).
-
-        This is the same as `OutputStream`, except that the *callback*
-        function and `~RawStream.write()` work on plain Python
-        buffer objects instead of on NumPy arrays.
-        NumPy is not necessary for using this.
-
-        Parameters
-        ----------
-        dtype : str
-            See `RawStream`.
-        callback : callable
-            User-supplied function to generate audio data in response to
-            requests from an active stream.
-            The callback must have this signature:
-
-            .. code-block:: text
-
-                callback(outdata: buffer, frames: int,
-                         time: CData, status: CallbackFlags) -> None
-
-            The arguments are the same as in the *callback* parameter of
-            `RawStream`, except that *indata* is missing.
-
-        See Also
-        --------
-        RawStream, Stream
-
-        """
-        _StreamBase.__init__(self, kind='output', wrap_callback='buffer',
-                             **_remove_self(locals()))
+class _OutputStreamBase(_StreamBase):
+    """Base class for output stream classes."""
 
     @property
     def write_available(self):
@@ -1301,7 +1270,7 @@ class RawOutputStream(_StreamBase):
         """
         return _check(_lib.Pa_GetStreamWriteAvailable(self._ptr))
 
-    def write(self, data):
+    def _raw_write(self, data):
         """Write samples to the stream.
 
         This is the same as `Stream.write()`, except that it expects
@@ -1346,6 +1315,49 @@ class RawOutputStream(_StreamBase):
             _check(err)
             underflowed = False
         return underflowed
+
+
+class RawOutputStream(_OutputStreamBase):
+    """Raw stream for playback only.  See __init__() and RawStream."""
+
+    def __init__(self, samplerate=None, blocksize=None,
+                 device=None, channels=None, dtype=None, latency=None,
+                 extra_settings=None, callback=None, finished_callback=None,
+                 clip_off=None, dither_off=None, never_drop_input=None,
+                 prime_output_buffers_using_stream_callback=None):
+        """PortAudio output stream (using buffer objects).
+
+        This is the same as `OutputStream`, except that the *callback*
+        function and `~RawStream.write()` work on plain Python
+        buffer objects instead of on NumPy arrays.
+        NumPy is not necessary for using this.
+
+        Parameters
+        ----------
+        dtype : str
+            See `RawStream`.
+        callback : callable
+            User-supplied function to generate audio data in response to
+            requests from an active stream.
+            The callback must have this signature:
+
+            .. code-block:: text
+
+                callback(outdata: buffer, frames: int,
+                         time: CData, status: CallbackFlags) -> None
+
+            The arguments are the same as in the *callback* parameter of
+            `RawStream`, except that *indata* is missing.
+
+        See Also
+        --------
+        RawStream, Stream
+
+        """
+        _StreamBase.__init__(self, kind='output', wrap_callback='buffer',
+                             **_remove_self(locals()))
+
+    write = _OutputStreamBase._raw_write
 
 
 class RawStream(RawInputStream, RawOutputStream):
@@ -1402,7 +1414,7 @@ class RawStream(RawInputStream, RawOutputStream):
                              **_remove_self(locals()))
 
 
-class InputStream(RawInputStream):
+class InputStream(_InputStreamBase):
     """Stream for input only.  See __init__() and Stream."""
 
     def __init__(self, samplerate=None, blocksize=None,
@@ -1472,12 +1484,12 @@ class InputStream(RawInputStream):
         """
         dtype, _ = _split(self._dtype)
         channels, _ = _split(self._channels)
-        data, overflowed = RawInputStream.read(self, frames)
+        data, overflowed = _InputStreamBase._raw_read(self, frames)
         data = _array(data, channels, dtype)
         return data, overflowed
 
 
-class OutputStream(RawOutputStream):
+class OutputStream(_OutputStreamBase):
     """Stream for output only.  See __init__() and Stream."""
 
     def __init__(self, samplerate=None, blocksize=None,
@@ -1562,7 +1574,7 @@ class OutputStream(RawOutputStream):
                 data.dtype.name, dtype))
         if not data.flags.c_contiguous:
             raise TypeError('data must be C-contiguous')
-        return RawOutputStream.write(self, data)
+        return _OutputStreamBase._raw_write(self, data)
 
 
 class Stream(InputStream, OutputStream):
