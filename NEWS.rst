@@ -1,3 +1,6 @@
+0.5.2 (2025-05-16):
+ * Better error if frames/channels are non-integers
+
 0.5.1 (2024-10-12):
  * Windows wheel: bundle both non-ASIO and ASIO DLLs, the latter can be chosen
    by defining the ``SD_ENABLE_ASIO`` environment variable
