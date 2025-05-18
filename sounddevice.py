@@ -2116,29 +2116,23 @@ class default:
     device = None, None
     """Index or query string of default input/output device.
 
-    See the *device* argument of `Stream`.
-
     If not overwritten, this is queried from PortAudio.
 
     See Also
     --------
-    `query_devices()`
+    `default`, `query_devices()`, the *device* argument of `Stream`
 
     """
     channels = _default_channels = None, None
     """Default number of input/output channels.
 
-    See the *channels* argument of `Stream`.
-
     See Also
     --------
-    `query_devices()`
+    `default`, `query_devices()`, the *channels* argument of `Stream`
 
     """
     dtype = _default_dtype = 'float32', 'float32'
     """Default data type used for input/output samples.
-
-    See the *dtype* argument of `Stream`.
 
     The types ``'float32'``, ``'int32'``, ``'int16'``, ``'int8'`` and
     ``'uint8'`` can be used for all streams and functions.
@@ -2147,6 +2141,10 @@ class default:
     ``'float32'``) and `RawInputStream`, `RawOutputStream` and
     `RawStream` support ``'int24'`` (packed 24 bit format, which is
     *not* supported in NumPy!).
+
+    See Also
+    --------
+    `default`, `numpy:numpy.dtype`, the *dtype* argument of `Stream`
 
     """
     latency = _default_latency = 'high', 'high'
@@ -2164,7 +2162,7 @@ class default:
 
     See Also
     --------
-    `query_devices()`
+    `default`, `query_devices()`
 
     """
     blocksize = _lib.paFramesPerBufferUnspecified
