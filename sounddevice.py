@@ -2237,8 +2237,8 @@ class default:
 
 if not hasattr(_ffi, 'I_AM_FAKE'):
     # This object shadows the 'default' class, except when building the docs.
-    _default_class = default
-    default: _default_class = default()
+    _default_instance: ... = default()
+    default = _default_instance
 
 
 class PortAudioError(Exception):
