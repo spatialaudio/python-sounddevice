@@ -2113,7 +2113,7 @@ class default:
     _pairs = 'device', 'channels', 'dtype', 'latency', 'extra_settings'
     # The class attributes listed in _pairs are only provided here for static
     # analysis tools and for the docs.  They're overwritten in __init__().
-    device = None, None
+    device: ... = None, None
     """Index or query string of default input/output device.
 
     If not overwritten, this is queried from PortAudio.
@@ -2123,7 +2123,8 @@ class default:
     `default`, `query_devices()`, the *device* argument of `Stream`
 
     """
-    channels = _default_channels = None, None
+    _default_channels = None, None
+    channels: ... = _default_channels
     """Default number of input/output channels.
 
     See Also
@@ -2131,7 +2132,8 @@ class default:
     `default`, `query_devices()`, the *channels* argument of `Stream`
 
     """
-    dtype = _default_dtype = 'float32', 'float32'
+    _default_dtype = 'float32', 'float32'
+    dtype: ... = _default_dtype
     """Default data type used for input/output samples.
 
     The types ``'float32'``, ``'int32'``, ``'int16'``, ``'int8'`` and
@@ -2147,9 +2149,11 @@ class default:
     `default`, `numpy:numpy.dtype`, the *dtype* argument of `Stream`
 
     """
-    latency = _default_latency = 'high', 'high'
+    _default_latency = 'high', 'high'
+    latency: ... = _default_latency
     """See the *latency* argument of `Stream`."""
-    extra_settings = _default_extra_settings = None, None
+    _default_extra_settings = None, None
+    extra_settings: ... = _default_extra_settings
     """Host-API-specific input/output settings.
 
     See Also
@@ -2157,7 +2161,7 @@ class default:
     AsioSettings, CoreAudioSettings, WasapiSettings
 
     """
-    samplerate = None
+    samplerate: ... = None
     """Sampling frequency in Hertz (= frames per second).
 
     See Also
@@ -2165,7 +2169,7 @@ class default:
     `default`, `query_devices()`
 
     """
-    blocksize = _lib.paFramesPerBufferUnspecified
+    blocksize: ... = _lib.paFramesPerBufferUnspecified
     """See the *blocksize* argument of `Stream`."""
     clip_off = False
     """Disable clipping.
