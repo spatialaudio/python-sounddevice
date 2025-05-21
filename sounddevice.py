@@ -2512,12 +2512,10 @@ class WasapiSettings:
 class _CallbackContext:
     """Helper class for reuse in play()/rec()/playrec() callbacks."""
 
-    blocksize = None
     frame = 0
     frames: int
     input_channels = output_channels = None
     input_dtype = output_dtype = None
-    input_mapping = output_mapping = None
     silent_channels = None
 
     def __init__(self, loop=False):
