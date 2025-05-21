@@ -16,12 +16,12 @@ jobs:
       - name: Install sounddevice module
         run: |
           python -m pip install .
-      - name: Install Pyright
+      - name: Install Pyright and NumPy
         run: |
-          python -m pip install pyright
+          python -m pip install pyright numpy
       - name: Check sounddevice module with Pyright
         run: |
-          # TODO
+          python -m pyright sounddevice.py
       - name: Install dependencies for examples
         run: |
           python -m pip install ffmpeg-python matplotlib soundfile
