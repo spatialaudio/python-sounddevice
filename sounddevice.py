@@ -85,7 +85,7 @@ except OSError:
         next(iter(_sounddevice_data.__path__)), 'portaudio-binaries', _libname)
     _lib: ... = _ffi.dlopen(_libname)
 
-_sampleformats = {
+_sampleformats: ... = {
     'float32': _lib.paFloat32,
     'int32': _lib.paInt32,
     'int24': _lib.paInt24,
@@ -2052,7 +2052,7 @@ class _InputOutputPair:
     _indexmapping = {'input': 0, 'output': 1}
 
     def __init__(self, parent, default_attr):
-        self._pair = [None, None]
+        self._pair: ... = [None, None]
         self._parent = parent
         self._default_attr = default_attr
 
@@ -2715,7 +2715,7 @@ def _check_dtype(dtype):
 
 
 def _get_stream_parameters(kind, device, channels, dtype, latency,
-                           extra_settings, samplerate):
+                           extra_settings: ..., samplerate):
     """Get parameters for one direction (input or output) of a stream."""
     assert kind in ('input', 'output')
     if device is None:
