@@ -2229,9 +2229,11 @@ class default:
                 _lib.Pa_GetDefaultOutputDevice())
 
     @property
-    def hostapi(self):
+    def hostapi(self):  # type: ignore
         """Index of the default host API (read-only)."""
         return _check(_lib.Pa_GetDefaultHostApi())
+
+    hostapi: int
 
     def reset(self):
         """Reset all attributes to their "factory default"."""
