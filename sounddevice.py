@@ -453,7 +453,7 @@ def get_stream():
         raise RuntimeError('play()/rec()/playrec() was not called yet')
 
 
-def query_devices(device=None, kind=None):
+def query_devices(device=None, kind=None) -> ...:
     """Return information about available devices.
 
     Information and capabilities of PortAudio devices.
@@ -606,7 +606,7 @@ def query_devices(device=None, kind=None):
     return device_dict
 
 
-def query_hostapis(index=None):
+def query_hostapis(index=None) -> ...:
     """Return information about available host APIs.
 
     Parameters
