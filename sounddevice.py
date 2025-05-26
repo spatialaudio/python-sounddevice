@@ -2113,7 +2113,7 @@ class default:
     _pairs = 'device', 'channels', 'dtype', 'latency', 'extra_settings'
     # The class attributes listed in _pairs are only provided here for static
     # analysis tools and for the docs.  They're overwritten in __init__().
-    device: ... = None, None
+    device: ... = (None, None)
     """Index or query string of default input/output device.
 
     If not overwritten, this is queried from PortAudio.
