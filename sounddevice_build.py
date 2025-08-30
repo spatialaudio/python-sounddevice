@@ -255,6 +255,7 @@ typedef enum PaWasapiFlags
     paWinWasapiUseChannelMask           = 4,
     paWinWasapiPolling                  = 8,
     paWinWasapiThreadPriority           = 16,
+    paWinWasapiExplicitSampleFormat     = 32,
     paWinWasapiAutoConvert              = 64
 } PaWasapiFlags;
 

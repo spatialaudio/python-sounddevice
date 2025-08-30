@@ -2448,7 +2448,7 @@ class CoreAudioSettings:
 
 class WasapiSettings:
 
-    def __init__(self, exclusive=False, auto_convert=False):
+    def __init__(self, exclusive=False, auto_convert=False, explicit_sample_format=False):
         """WASAPI-specific input/output settings.
 
         Objects of this class can be used as *extra_settings* argument
@@ -2470,6 +2470,13 @@ class WasapiSettings:
             system mixer sample rate.  This only applies in *shared
             mode* and has no effect when *exclusive* is set to ``True``.
 
+        explicit_sample_format : bool
+            Force explicit sample format and do not allow PortAudio to
+            select suitable working format. API will fail if provided
+            sample format is not supported by audio hardware in Exclusive
+            mode or system mixer in Shared mode. This is required for
+            accurate native format detection.
+
         Examples
         --------
         Setting exclusive mode when calling `play()`:
@@ -2487,8 +2494,10 @@ class WasapiSettings:
         flags = 0x0
         if exclusive:
             flags |= _lib.paWinWasapiExclusive
-        elif auto_convert:
+        if auto_convert:
             flags |= _lib.paWinWasapiAutoConvert
+        if explicit_sample_format:
+            flags |= _lib.paWinWasapiExplicitSampleFormat
         self._streaminfo = _ffi.new('PaWasapiStreamInfo*', dict(
             size=_ffi.sizeof('PaWasapiStreamInfo'),
             hostApiType=_lib.paWASAPI,
