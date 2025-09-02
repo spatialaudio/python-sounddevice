@@ -6,11 +6,9 @@ build:
   jobs:
     post_checkout:
       - git fetch --unshallow || true
-python:
-  install:
-    - method: pip
-      path: .
-    - requirements: doc/requirements.txt
+    install:
+      - pip install --upgrade pip
+      - pip install --group doc .
 sphinx:
   configuration: doc/conf.py
 formats: all

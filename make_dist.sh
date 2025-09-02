@@ -8,6 +8,9 @@ PYTHON=python3
 
 make_wheel()
 {
+  # This makes sure that only the appropriate libraries are copied:
+  rm -rf sounddevice.egg-info/
+
   PYTHON_SOUNDDEVICE_PLATFORM=$1 PYTHON_SOUNDDEVICE_ARCHITECTURE=${2:-} \
     $PYTHON -m build
 }
@@ -18,9 +21,6 @@ make_wheel Darwin
 make_wheel Windows 32bit
 
 make_wheel Windows 64bit
-
-# This makes sure that the libraries are not copied to the final sdist:
-rm -rf sounddevice.egg-info/
 
 # This creates a "pure" wheel:
 make_wheel Linux
