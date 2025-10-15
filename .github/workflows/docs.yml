@@ -20,7 +20,7 @@ jobs:
           fetch-depth: 0
       - name: Install dependencies
         run: |
-          python -m pip install -r doc/requirements.txt
+          python -m pip install --group doc
       - name: Build HTML
         run: |
           python -m sphinx -W --keep-going --color -d _build/doctrees/ doc/ _build/html/ -b html
