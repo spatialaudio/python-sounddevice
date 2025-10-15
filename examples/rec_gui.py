@@ -12,7 +12,6 @@ recording can be stopped successfully when it is supposed to.
 """
 import contextlib
 import queue
-import sys
 import tempfile
 import threading
 import tkinter as tk

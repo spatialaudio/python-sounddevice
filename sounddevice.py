@@ -829,11 +829,11 @@ class _StreamBase:
                                        extra_settings, samplerate)
             self._device = parameters.device
             self._channels = parameters.channelCount
+            iparameters = _ffi.NULL
+            oparameters = _ffi.NULL
             if kind == 'input':
                 iparameters = parameters
-                oparameters = _ffi.NULL
             elif kind == 'output':
-                iparameters = _ffi.NULL
                 oparameters = parameters
 
         ffi_callback = _ffi.callback('PaStreamCallback', error=_lib.paAbort)

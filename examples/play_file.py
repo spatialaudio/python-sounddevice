@@ -80,6 +80,6 @@ try:
     with stream:
         event.wait()  # Wait until playback is finished
 except KeyboardInterrupt:
-    parser.exit('\nInterrupted by user')
+    parser.exit(1, '\nInterrupted by user')
 except Exception as e:
-    parser.exit(type(e).__name__ + ': ' + str(e))
+    parser.exit(1, type(e).__name__ + ': ' + str(e))

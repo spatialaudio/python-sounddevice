@@ -61,16 +61,16 @@ try:
     info = ffmpeg.probe(args.url)
 except ffmpeg.Error as e:
     sys.stderr.buffer.write(e.stderr)
-    parser.exit(e)
+    parser.exit(1, str(e))
 
 streams = info.get('streams', [])
 if len(streams) != 1:
-    parser.exit('There must be exactly one stream available')
+    parser.exit(1, 'There must be exactly one stream available')
 
 stream = streams[0]
 
 if stream.get('codec_type') != 'audio':
-    parser.exit('The stream must be an audio stream')
+    parser.exit(1, 'The stream must be an audio stream')
 
 channels = stream['channels']
 samplerate = float(stream['sample_rate'])
@@ -117,9 +117,9 @@ try:
         while True:
             q.put(process.stdout.read(read_size), timeout=timeout)
 except KeyboardInterrupt:
-    parser.exit('\nInterrupted by user')
+    parser.exit(1, '\nInterrupted by user')
 except queue.Full:
     # A timeout occurred, i.e. there was an error in the callback
     parser.exit(1)
 except Exception as e:
-    parser.exit(type(e).__name__ + ': ' + str(e))
+    parser.exit(1, type(e).__name__ + ': ' + str(e))

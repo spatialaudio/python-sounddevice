@@ -106,6 +106,6 @@ try:
                           '\x1b[0m', sep='')
                     break
 except KeyboardInterrupt:
-    parser.exit('Interrupted by user')
+    parser.exit(1, '\nInterrupted by user')
 except Exception as e:
-    parser.exit(type(e).__name__ + ': ' + str(e))
+    parser.exit(1, type(e).__name__ + ': ' + str(e))

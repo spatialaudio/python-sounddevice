@@ -116,4 +116,4 @@ try:
     with stream:
         plt.show()
 except Exception as e:
-    parser.exit(type(e).__name__ + ': ' + str(e))
+    parser.exit(1, type(e).__name__ + ': ' + str(e))

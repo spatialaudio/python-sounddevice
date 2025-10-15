@@ -83,4 +83,4 @@ except KeyboardInterrupt:
     print('\nRecording finished: ' + repr(args.filename))
     parser.exit(0)
 except Exception as e:
-    parser.exit(type(e).__name__ + ': ' + str(e))
+    parser.exit(1, type(e).__name__ + ': ' + str(e))
