@@ -1,3 +1,6 @@
+0.5.3 (2025-10-19):
+ * add ``explicit_sample_format`` parameter to `WasapiSettings`
+
 0.5.2 (2025-05-16):
  * Better error if frames/channels are non-integers
 
