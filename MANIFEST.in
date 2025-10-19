@@ -1,6 +1,4 @@
-include LICENSE
-include *.rst
-include doc/requirements.txt
-include sounddevice_build.py
-recursive-include doc *.rst *.py
-recursive-include examples *.py
+prune .github
+exclude .git*
+exclude .readthedocs.yml
+exclude src/_sounddevice_data/README
