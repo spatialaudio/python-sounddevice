@@ -32,7 +32,7 @@ jobs:
       - name: Install Python package
         working-directory: git-repo
         run: |
-          python -m pip install .
+          python -m pip install --editable .
       - name: Import module
         run: |
           python -m sounddevice
