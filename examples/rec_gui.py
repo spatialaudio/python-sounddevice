@@ -75,8 +75,6 @@ class SettingsWindow(Dialog):
 
 class RecGui(tk.Tk):
 
-    stream = None
-
     def __init__(self):
         super().__init__()
 
@@ -122,7 +120,7 @@ class RecGui(tk.Tk):
         self.update_gui()
 
     def create_stream(self, device=None):
-        if self.stream is not None:
+        with contextlib.suppress(AttributeError):
             self.stream.close()
         self.stream = sd.InputStream(
             device=device, channels=1, callback=self.audio_callback)
@@ -205,7 +203,7 @@ class RecGui(tk.Tk):
     def init_buttons(self):
         self.rec_button['text'] = 'record'
         self.rec_button['command'] = self.on_rec
-        if self.stream:
+        if hasattr(self, 'stream'):
             self.rec_button['state'] = 'normal'
         self.settings_button['state'] = 'normal'
 

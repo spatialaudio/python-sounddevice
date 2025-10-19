@@ -96,7 +96,7 @@ try:
             callback=callback, finished_callback=event.set)
         with stream:
             timeout = args.blocksize * args.buffersize / f.samplerate
-            while len(data):
+            while len(data):  # type: ignore
                 data = f.read(args.blocksize)
                 q.put(data, timeout=timeout)
             event.wait()  # Wait until playback is finished
