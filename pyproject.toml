@@ -1,3 +1,39 @@
 [build-system]
-requires = ["setuptools >= 61.0"]
+requires = ["setuptools", "setuptools-scm", "cffi"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "sounddevice"
+license = "MIT"
+dynamic = ["version"]
+description = "Play and Record Sound with Python"
+readme = "README.rst"
+keywords = ["sound", "audio", "PortAudio", "play", "record", "playrec"]
+authors = [{ name = "Matthias Geier", email = "Matthias.Geier@gmail.com" }]
+classifiers = [
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Topic :: Multimedia :: Sound/Audio",
+]
+requires-python = ">=3.7"
+dependencies = ["cffi"]
+
+[project.optional-dependencies]
+numpy = ["numpy"]
+
+[dependency-groups]
+dev = [{ include-group = "test" }, { include-group = "doc" }]
+test = []
+doc = [
+  "insipid-sphinx-theme",
+  "sphinx-last-updated-by-git",
+]
+
+[project.urls]
+Documentation = "https://python-sounddevice.readthedocs.io/"
+Repository = "https://github.com/spatialaudio/python-sounddevice/"
+Issues = "https://github.com/spatialaudio/python-sounddevice/issues"
+
+[tool.setuptools.dynamic]
+version = { attr = "sounddevice.__version__" }

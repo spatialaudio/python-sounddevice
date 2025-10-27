@@ -2,13 +2,6 @@ import os
 import platform
 from setuptools import setup
 
-# "import" __version__
-__version__ = 'unknown'
-for line in open('sounddevice.py'):
-    if line.startswith('__version__'):
-        exec(line)
-        break
-
 MACOSX_VERSIONS = '.'.join([
     'macosx_10_6_x86_64',  # for compatibility with pip < v21
     'macosx_10_6_universal2',
@@ -27,7 +20,7 @@ elif system == 'Windows':
 else:
     libname = None
 
-if libname and os.path.isdir('_sounddevice_data/portaudio-binaries'):
+if libname:
     packages = ['_sounddevice_data']
     package_data = {'_sounddevice_data': ['portaudio-binaries/' + libname,
                                           'portaudio-binaries/README.md']}
@@ -63,34 +56,11 @@ else:
     cmdclass = {'bdist_wheel': bdist_wheel_half_pure}
 
 setup(
-    name='sounddevice',
-    version=__version__,
+    package_dir = {'': 'src'},
     py_modules=['sounddevice'],
     packages=packages,
     package_data=package_data,
     zip_safe=zip_safe,
-    python_requires='>=3.7',
-    setup_requires=['CFFI>=1.0'],
-    install_requires=['CFFI>=1.0'],
-    extras_require={'NumPy': ['NumPy']},
     cffi_modules=['sounddevice_build.py:ffibuilder'],
-    author='Matthias Geier',
-    author_email='Matthias.Geier@gmail.com',
-    description='Play and Record Sound with Python',
-    long_description=open('README.rst').read(),
-    license='MIT',
-    keywords='sound audio PortAudio play record playrec'.split(),
-    url='http://python-sounddevice.readthedocs.io/',
-    project_urls={
-        'Source': 'https://github.com/spatialaudio/python-sounddevice',
-    },
-    platforms='any',
-    classifiers=[
-        'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
-        'Topic :: Multimedia :: Sound/Audio',
-    ],
     cmdclass=cmdclass,
 )

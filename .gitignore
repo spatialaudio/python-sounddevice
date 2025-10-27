@@ -1,7 +1,7 @@
-_sounddevice.py
 *.pyc
 __pycache__/
-build/
-dist/
-.eggs/
-sounddevice.egg-info/
+/build/
+/_build/
+/dist/
+/src/_sounddevice.py
+/src/sounddevice.egg-info/
