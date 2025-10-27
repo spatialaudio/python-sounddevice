@@ -18,7 +18,7 @@ jobs:
     - name: Build binary wheels and a source tarball
       run: ./make_dist.sh
     - name: Store the distribution packages
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: dist
         path: dist
