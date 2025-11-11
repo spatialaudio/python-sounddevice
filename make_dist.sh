@@ -19,6 +19,8 @@ make_wheel Windows 32bit
 
 make_wheel Windows 64bit
 
+make_wheel Windows arm64
+
 # This makes sure that the libraries are not copied to the final sdist:
 rm -rf sounddevice.egg-info/
 
