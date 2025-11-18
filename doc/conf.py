@@ -3,7 +3,7 @@ import sys
 import os
 from subprocess import check_output
 
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('../src'))
 sys.path.insert(0, os.path.abspath('.'))
 
 # Fake import to avoid actually loading CFFI and the PortAudio library

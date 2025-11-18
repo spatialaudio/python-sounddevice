@@ -316,4 +316,4 @@ int PaWasapi_IsLoopback( PaDeviceIndex device );
 """)
 
 if __name__ == '__main__':
-    ffibuilder.compile(verbose=True)
+    ffibuilder.compile(tmpdir='src', verbose=True)
