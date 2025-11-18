@@ -8,7 +8,7 @@ jobs:
           - os: macos-latest
             arch: 'arm64'
           # Last version with Intel CPU:
-          - os: macos-13
+          - os: macos-15-intel
             arch: 'x64'
           - os: windows-latest
             arch: 'x64'
