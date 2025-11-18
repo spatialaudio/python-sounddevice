@@ -93,6 +93,7 @@ newest development version (a.k.a. "master") from Github_::
    git clone --recursive https://github.com/spatialaudio/python-sounddevice.git
    cd python-sounddevice
    python -m pip install -e .
+   python sounddevice_build.py
 
 .. _PyPI: https://pypi.org/project/sounddevice/
 .. _Github: https://github.com/spatialaudio/python-sounddevice/
@@ -118,7 +119,7 @@ If you make changes to the documentation, you can locally re-create the HTML
 pages using Sphinx_.
 You can install it and a few other necessary packages with::
 
-   python -m pip install -r doc/requirements.txt
+   python -m pip install -e . --group doc
 
 To (re-)build the HTML files, use::
 
