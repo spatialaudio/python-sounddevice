@@ -22,5 +22,7 @@ make_wheel Windows 32bit
 
 make_wheel Windows 64bit
 
+make_wheel Windows arm64
+
 # This creates a "pure" wheel and an sdist without libraries:
 make_wheel Linux
