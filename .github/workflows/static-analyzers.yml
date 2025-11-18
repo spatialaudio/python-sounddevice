@@ -1,0 +1,30 @@
+name: Run static analysis tools
+on: [push, pull_request]
+jobs:
+  static-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3"
+      - name: Double-check Python version
+        run: |
+          python --version
+      - name: Clone Git repository
+        uses: actions/checkout@v4
+      - name: Install sounddevice module
+        run: |
+          python -m pip install .
+      - name: Install Pyright and NumPy
+        run: |
+          python -m pip install pyright numpy
+      - name: Check sounddevice module with Pyright
+        run: |
+          python -m pyright src/sounddevice.py
+      - name: Install dependencies for examples
+        run: |
+          python -m pip install ffmpeg-python matplotlib soundfile
+      - name: Check examples with Pyright
+        run: |
+          python -m pyright examples/*.py

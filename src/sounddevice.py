@@ -69,7 +69,7 @@ try:
             break
     else:
         raise OSError('PortAudio library not found')
-    _lib = _ffi.dlopen(_libname)
+    _lib: ... = _ffi.dlopen(_libname)
 except OSError:
     if _platform.system() == 'Darwin':
         _libname = 'libportaudio.dylib'
@@ -87,9 +87,9 @@ except OSError:
     import _sounddevice_data
     _libname = _os.path.join(
         next(iter(_sounddevice_data.__path__)), 'portaudio-binaries', _libname)
-    _lib = _ffi.dlopen(_libname)
+    _lib: ... = _ffi.dlopen(_libname)
 
-_sampleformats = {
+_sampleformats: ... = {
     'float32': _lib.paFloat32,
     'int32': _lib.paInt32,
     'int24': _lib.paInt24,
@@ -457,7 +457,7 @@ def get_stream():
         raise RuntimeError('play()/rec()/playrec() was not called yet')
 
 
-def query_devices(device=None, kind=None):
+def query_devices(device=None, kind=None) -> ...:
     """Return information about available devices.
 
     Information and capabilities of PortAudio devices.
@@ -575,7 +575,7 @@ def query_devices(device=None, kind=None):
     if not info:
         raise PortAudioError(f'Error querying device {device}')
     assert info.structVersion == 2
-    name_bytes = _ffi.string(info.name)
+    name_bytes = _ffi_string(info.name)
     try:
         # We don't know beforehand if DirectSound and MME device names use
         # 'utf-8' or 'mbcs' encoding.  Let's try 'utf-8' first, because it more
@@ -610,7 +610,7 @@ def query_devices(device=None, kind=None):
     return device_dict
 
 
-def query_hostapis(index=None):
+def query_hostapis(index=None) -> ...:
     """Return information about available host APIs.
 
     Parameters
@@ -655,7 +655,7 @@ def query_hostapis(index=None):
         raise PortAudioError(f'Error querying host API {index}')
     assert info.structVersion == 1
     return {
-        'name': _ffi.string(info.name).decode(),
+        'name': _ffi_string(info.name).decode(),
         'devices': [_lib.Pa_HostApiDeviceIndexToDeviceIndex(index, i)
                     for i in range(info.deviceCount)],
         'default_input_device': info.defaultInputDevice,
@@ -725,7 +725,7 @@ def get_portaudio_version():
         (1899, 'PortAudio V19-devel (built Feb 15 2014 23:28:00)')
 
     """
-    return _lib.Pa_GetVersion(), _ffi.string(_lib.Pa_GetVersionText()).decode()
+    return _lib.Pa_GetVersion(), _ffi_string(_lib.Pa_GetVersionText()).decode()
 
 
 class _StreamBase:
@@ -1208,7 +1208,7 @@ class _InputStreamBase(_StreamBase):
         """
         channels, _ = _split(self._channels)
         samplesize, _ = _split(self._samplesize)
-        data = _ffi.new('signed char[]', channels * samplesize * frames)
+        data = _ffi.new('signed char[]', channels * samplesize * frames)  # type: ignore
         err = _lib.Pa_ReadStream(self._ptr, data, frames)
         if err == _lib.paInputOverflowed:
             overflowed = True
@@ -1306,7 +1306,7 @@ class _OutputStreamBase(_StreamBase):
             pass  # input is not a buffer
         _, samplesize = _split(self._samplesize)
         _, channels = _split(self._channels)
-        samples, remainder = divmod(len(data), samplesize)
+        samples, remainder = divmod(len(data), samplesize)  # type: ignore
         if remainder:
             raise ValueError('len(data) not divisible by samplesize')
         frames, remainder = divmod(samples, channels)
@@ -2056,7 +2056,7 @@ class _InputOutputPair:
     _indexmapping = {'input': 0, 'output': 1}
 
     def __init__(self, parent, default_attr):
-        self._pair = [None, None]
+        self._pair: ... = [None, None]
         self._parent = parent
         self._default_attr = default_attr
 
@@ -2117,7 +2117,7 @@ class default:
     _pairs = 'device', 'channels', 'dtype', 'latency', 'extra_settings'
     # The class attributes listed in _pairs are only provided here for static
     # analysis tools and for the docs.  They're overwritten in __init__().
-    device = None, None
+    device: ... = (None, None)
     """Index or query string of default input/output device.
 
     If not overwritten, this is queried from PortAudio.
@@ -2127,7 +2127,8 @@ class default:
     `default`, `query_devices()`, the *device* argument of `Stream`
 
     """
-    channels = _default_channels = None, None
+    _default_channels = None, None
+    channels: ... = _default_channels
     """Default number of input/output channels.
 
     See Also
@@ -2135,7 +2136,8 @@ class default:
     `default`, `query_devices()`, the *channels* argument of `Stream`
 
     """
-    dtype = _default_dtype = 'float32', 'float32'
+    _default_dtype = 'float32', 'float32'
+    dtype: ... = _default_dtype
     """Default data type used for input/output samples.
 
     The types ``'float32'``, ``'int32'``, ``'int16'``, ``'int8'`` and
@@ -2151,9 +2153,11 @@ class default:
     `default`, `numpy:numpy.dtype`, the *dtype* argument of `Stream`
 
     """
-    latency = _default_latency = 'high', 'high'
+    _default_latency = 'high', 'high'
+    latency: ... = _default_latency
     """See the *latency* argument of `Stream`."""
-    extra_settings = _default_extra_settings = None, None
+    _default_extra_settings = None, None
+    extra_settings: ... = _default_extra_settings
     """Host-API-specific input/output settings.
 
     See Also
@@ -2161,7 +2165,7 @@ class default:
     AsioSettings, CoreAudioSettings, WasapiSettings
 
     """
-    samplerate = None
+    samplerate: ... = None
     """Sampling frequency in Hertz (= frames per second).
 
     See Also
@@ -2169,7 +2173,7 @@ class default:
     `default`, `query_devices()`
 
     """
-    blocksize = _lib.paFramesPerBufferUnspecified
+    blocksize: ... = _lib.paFramesPerBufferUnspecified
     """See the *blocksize* argument of `Stream`."""
     clip_off = False
     """Disable clipping.
@@ -2229,9 +2233,11 @@ class default:
                 _lib.Pa_GetDefaultOutputDevice())
 
     @property
-    def hostapi(self):
+    def hostapi(self):  # type: ignore
         """Index of the default host API (read-only)."""
         return _check(_lib.Pa_GetDefaultHostApi())
+
+    hostapi: int
 
     def reset(self):
         """Reset all attributes to their "factory default"."""
@@ -2241,7 +2247,8 @@ class default:
 
 if not hasattr(_ffi, 'I_AM_FAKE'):
     # This object shadows the 'default' class, except when building the docs.
-    default = default()
+    _default_instance: ... = default()
+    default = _default_instance
 
 
 class PortAudioError(Exception):
@@ -2511,13 +2518,10 @@ class WasapiSettings:
 class _CallbackContext:
     """Helper class for reuse in play()/rec()/playrec() callbacks."""
 
-    blocksize = None
-    data = None
-    out = None
     frame = 0
+    frames: int
     input_channels = output_channels = None
     input_dtype = output_dtype = None
-    input_mapping = output_mapping = None
     silent_channels = None
 
     def __init__(self, loop=False):
@@ -2561,7 +2565,7 @@ class _CallbackContext:
         if len(mapping) + len(silent_channels) != channels:
             raise ValueError('each channel may only appear once in mapping')
 
-        self.data = data
+        self.data: np.typing.NDArray = data
         self.output_channels = channels
         self.output_dtype = dtype
         self.output_mapping = mapping
@@ -2645,8 +2649,8 @@ class _CallbackContext:
     def finished_callback(self):
         self.event.set()
         # Drop temporary audio buffers to free memory
-        self.data = None
-        self.out = None
+        del self.data
+        del self.out
         # Drop CFFI objects to avoid reference cycles
         self.stream._callback = None
         self.stream._finished_callback = None
@@ -2677,6 +2681,10 @@ class _CallbackContext:
         finally:
             self.stream.close(ignore_errors)
         return self.status if self.status else None
+
+
+def _ffi_string(cdata) -> bytes:
+    return _ffi.string(cdata)  # type: ignore
 
 
 def _remove_self(d):
@@ -2715,7 +2723,7 @@ def _check_dtype(dtype):
 
 
 def _get_stream_parameters(kind, device, channels, dtype, latency,
-                           extra_settings, samplerate):
+                           extra_settings: ..., samplerate):
     """Get parameters for one direction (input or output) of a stream."""
     assert kind in ('input', 'output')
     if device is None:
@@ -2753,7 +2761,7 @@ def _get_stream_parameters(kind, device, channels, dtype, latency,
         latency = info['default_' + latency + '_' + kind + '_latency']
     if samplerate is None:
         samplerate = info['default_samplerate']
-    parameters = _ffi.new('PaStreamParameters*', (
+    parameters: ... = _ffi.new('PaStreamParameters*', (
         device, channels, sampleformat, latency,
         extra_settings._streaminfo if extra_settings else _ffi.NULL))
     return parameters, dtype, samplesize, samplerate
@@ -2809,7 +2817,7 @@ def _check(err, msg=''):
     if err >= 0:
         return err
 
-    errormsg = _ffi.string(_lib.Pa_GetErrorText(err)).decode()
+    errormsg = _ffi_string(_lib.Pa_GetErrorText(err)).decode()
     if msg:
         errormsg = f'{msg}: {errormsg}'
 
@@ -2820,7 +2828,7 @@ def _check(err, msg=''):
         # in scenarios where multiple APIs are being used simultaneously.
         info = _lib.Pa_GetLastHostErrorInfo()
         host_api = _lib.Pa_HostApiTypeIdToHostApiIndex(info.hostApiType)
-        hosterror_text = _ffi.string(info.errorText).decode()
+        hosterror_text = _ffi_string(info.errorText).decode()
         hosterror_info = host_api, info.errorCode, hosterror_text
         raise PortAudioError(errormsg, err, hosterror_info)
 
