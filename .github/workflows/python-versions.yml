@@ -22,7 +22,7 @@ jobs:
         run: |
           python --version
       - name: Clone Git repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: git-repo
       - name: Install Python package

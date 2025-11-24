@@ -27,7 +27,7 @@ jobs:
         run: |
           python --version
       - name: Clone Git repository (with submodules)
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: git-repo
           submodules: true
