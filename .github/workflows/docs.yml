@@ -28,7 +28,7 @@ jobs:
         run: |
           python -m sphinx -W --keep-going --color -d _build/doctrees/ doc/ _build/linkcheck/ -b linkcheck
       - name: Upload linkcheck results
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ success() || failure() }}
         with:
           name: linkcheck

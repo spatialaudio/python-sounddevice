@@ -16,7 +16,7 @@ jobs:
       run: |
         ./make_dist.sh
     - name: Store the distribution packages
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: dist
         path: dist
