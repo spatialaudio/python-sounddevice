@@ -1,15 +1,12 @@
 name: Build docs and check links
 on: [push, pull_request]
 env:
-  SPHINX: uv run --locked sphinx-build -W --keep-going --color
+  SPHINX: uv run --locked --no-build --only-group doc sphinx-build -W --keep-going --color
   UV_PYTHON_DOWNLOADS: never
 jobs:
   docs-linkcheck:
     runs-on: ubuntu-latest
     steps:
-      - name: Install pandoc
-        run: |
-          sudo apt-get install --no-install-recommends pandoc
       - name: Clone Git repository (no submodules, without depth limitation)
         uses: actions/checkout@v6
         with:
