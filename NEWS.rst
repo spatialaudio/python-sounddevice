@@ -1,3 +1,6 @@
+0.5.4 (2026-01-21):
+ * provide wheels for ARM64/Windows (WoA)
+
 0.5.3 (2025-10-19):
  * add ``explicit_sample_format`` parameter to `WasapiSettings`
 
