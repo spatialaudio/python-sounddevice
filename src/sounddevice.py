@@ -51,6 +51,7 @@ Online documentation:
 __version__ = '0.5.4'
 
 import atexit as _atexit
+import contextlib as _contextlib
 import os as _os
 import platform as _platform
 import sys as _sys
@@ -2649,8 +2650,10 @@ class _CallbackContext:
     def finished_callback(self):
         self.event.set()
         # Drop temporary audio buffers to free memory
-        del self.data
-        del self.out
+        with _contextlib.suppress(AttributeError):
+            del self.data
+        with _contextlib.suppress(AttributeError):
+            del self.out
         # Drop CFFI objects to avoid reference cycles
         self.stream._callback = None
         self.stream._finished_callback = None
