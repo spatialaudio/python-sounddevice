@@ -1,3 +1,8 @@
+0.5.5 (2026-01-23):
+ * Fix `bug from previous release`__
+
+ __ https://github.com/spatialaudio/python-sounddevice/issues/621
+
 0.5.4 (2026-01-21):
  * provide wheels for ARM64/Windows (WoA)
 
