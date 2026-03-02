@@ -20,7 +20,7 @@ jobs:
         run: |
           $SPHINX -d _build/doctrees/ doc/ _build/linkcheck/ -b linkcheck
       - name: Upload linkcheck results
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: ${{ success() || failure() }}
         with:
           name: linkcheck
