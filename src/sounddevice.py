@@ -2925,13 +2925,17 @@ def _initialize():
 
     """
     old_stderr = None
-    try:
-        old_stderr = _os.dup(2)
-        devnull = _os.open(_os.devnull, _os.O_WRONLY)
-        _os.dup2(devnull, 2)
-        _os.close(devnull)
-    except OSError:
-        pass
+    # Duping std file descriptors in a frozen context on windows will corrupt
+    # the fd and cause issues with e.g. subprocess.check_output. This happens
+    # for example in a compiled pyinstaller exe. See #461 for details.
+    if _sys.platform != 'win32' or not getattr(_sys, 'frozen', False):
+        try:
+            old_stderr = _os.dup(2)
+            devnull = _os.open(_os.devnull, _os.O_WRONLY)
+            _os.dup2(devnull, 2)
+            _os.close(devnull)
+        except OSError:
+            pass
     try:
         _check(_lib.Pa_Initialize(), 'Error initializing PortAudio')
         global _initialized
