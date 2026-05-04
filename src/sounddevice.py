@@ -1927,7 +1927,7 @@ class CallbackFlags:
     __slots__ = '_flags'
 
     def __init__(self, flags=0x0):
-        self._flags = flags
+        self._flags = int(flags)
 
     def __repr__(self):
         flags = str(self)
@@ -2770,17 +2770,17 @@ def _get_stream_parameters(kind, device, channels, dtype, latency,
     return parameters, dtype, samplesize, samplerate
 
 
-def _wrap_callback(callback, *args):
+def _wrap_callback(callback, data, frames, time, status):
     """Invoke callback function and check for custom exceptions."""
-    args = args[:-1] + (CallbackFlags(args[-1]),)
+    cf = CallbackFlags.__new__(CallbackFlags)
+    cf._flags = int(status)
     try:
-        callback(*args)
+        callback(data, frames, time, cf)
     except CallbackStop:
         return _lib.paComplete
     except CallbackAbort:
         return _lib.paAbort
     return _lib.paContinue
-
 
 def _buffer(ptr, frames, channels, samplesize):
     """Create a buffer object from a pointer to some memory."""
