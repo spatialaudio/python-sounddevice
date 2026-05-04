@@ -2770,12 +2770,13 @@ def _get_stream_parameters(kind, device, channels, dtype, latency,
     return parameters, dtype, samplesize, samplerate
 
 
-def _wrap_callback(callback, data, frames, time, status):
+def _wrap_callback(callback, *args):
     """Invoke callback function and check for custom exceptions."""
     cf = CallbackFlags.__new__(CallbackFlags)
-    cf._flags = int(status)
+    cf._flags = int(args[-1])
+    args = args[:-1] + (cf,)
     try:
-        callback(data, frames, time, cf)
+        callback(*args)
     except CallbackStop:
         return _lib.paComplete
     except CallbackAbort:
