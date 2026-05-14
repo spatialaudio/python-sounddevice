@@ -16,6 +16,8 @@ jobs:
             arch: 'x86'
           - os: windows-11-arm
             arch: 'arm64'
+          - os: windows-11-arm
+            arch: 'x64'
     runs-on: ${{ matrix.os }}
     steps:
       - name: Set up Python
@@ -25,7 +27,7 @@ jobs:
           architecture: ${{ matrix.arch }}
       - name: Double-check Python version
         run: |
-          python --version
+          python --version --version
       - name: Clone Git repository (with submodules)
         uses: actions/checkout@v6
         with:
