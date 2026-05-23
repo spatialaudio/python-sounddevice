@@ -5,8 +5,8 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.9"
-          - "3.13"
+          - "3.10"
+          - "3.14"
           - "pypy-3.9"
           - "pypy-3.11"
     runs-on: ubuntu-22.04
