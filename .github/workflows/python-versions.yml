@@ -9,7 +9,7 @@ jobs:
           - "3.14"
           - "pypy-3.9"
           - "pypy-3.11"
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Install PortAudio
         run: |
