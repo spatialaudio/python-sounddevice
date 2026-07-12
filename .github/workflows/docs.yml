@@ -18,7 +18,7 @@ jobs:
           $SPHINX -d _build/doctrees/ doc/ _build/html/ -b html
       - name: Check links
         run: |
-          $SPHINX -d _build/doctrees/ doc/ _build/linkcheck/ -b linkcheck
+          $SPHINX -d _build/doctrees/ doc/ _build/linkcheck/ -b linkcheck -q
       - name: Upload linkcheck results
         uses: actions/upload-artifact@v7
         if: ${{ success() || failure() }}

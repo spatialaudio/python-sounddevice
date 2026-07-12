@@ -2391,8 +2391,8 @@ class CoreAudioSettings:
             See the example below.  For additional information, see the
             `PortAudio documentation`__.
 
-            __ https://app.assembla.com/spaces/portaudio/git/source/
-               master/src/hostapi/coreaudio/notes.txt
+            __ https://github.com/PortAudio/portaudio/blob/master/
+               src/hostapi/coreaudio/notes.txt
         change_device_parameters : bool, optional
             If ``True``, allows PortAudio to change things like the
             device's frame size, which allows for much lower latency,
