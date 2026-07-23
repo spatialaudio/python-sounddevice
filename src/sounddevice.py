@@ -55,6 +55,7 @@ import contextlib as _contextlib
 import os as _os
 import platform as _platform
 import sys as _sys
+import sysconfig as _sysconfig
 from ctypes.util import find_library as _find_library
 from _sounddevice import ffi as _ffi
 
@@ -75,7 +76,7 @@ except OSError:
     if _platform.system() == 'Darwin':
         _libname = 'libportaudio.dylib'
     elif _platform.system() == 'Windows':
-        if _platform.machine().lower() in ('arm64', 'aarch64'):
+        if 'arm64' in _sysconfig.get_platform() or 'aarch64' in _sysconfig.get_platform():
             _platform_suffix = 'arm64'
         else:
             _platform_suffix = _platform.architecture()[0]

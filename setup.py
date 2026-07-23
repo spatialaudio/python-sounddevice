@@ -1,5 +1,6 @@
 import os
 import platform
+import sysconfig
 from setuptools import setup
 
 MACOSX_VERSIONS = '.'.join([
@@ -11,7 +12,8 @@ MACOSX_VERSIONS = '.'.join([
 system = os.environ.get('PYTHON_SOUNDDEVICE_PLATFORM', platform.system())
 machine = platform.machine().lower()
 architecture0 = os.environ.get('PYTHON_SOUNDDEVICE_ARCHITECTURE',
-    'arm64' if machine in ['arm64', 'aarch64'] else platform.architecture()[0])
+    'arm64' if 'arm64' in sysconfig.get_platform() or 'aarch64' in sysconfig.get_platform()
+    else platform.architecture()[0])
 
 if system == 'Darwin':
     libname = 'libportaudio.dylib'
