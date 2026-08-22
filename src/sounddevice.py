@@ -2792,7 +2792,7 @@ def _array(buffer, channels, dtype):
     """Create NumPy array from a buffer object."""
     import numpy as np
     data = np.frombuffer(buffer, dtype=dtype)
-    data.shape = -1, channels
+    data = np.reshape(data, (-1, channels), copy=False)
     return data
 
 
