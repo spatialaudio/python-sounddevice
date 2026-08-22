@@ -859,7 +859,7 @@ class _StreamBase:
             def callback_ptr(iptr, optr, frames, time, status, _):
                 data = _array(
                     _buffer(iptr, frames, self._channels, self._samplesize),
-                    self._channels, self._dtype)
+                    self._channels, self._dtype, self._samplesize)
                 return _wrap_callback(callback, data, frames, time, status)
 
         elif kind == 'output' and wrap_callback == 'buffer':
@@ -875,7 +875,7 @@ class _StreamBase:
             def callback_ptr(iptr, optr, frames, time, status, _):
                 data = _array(
                     _buffer(optr, frames, self._channels, self._samplesize),
-                    self._channels, self._dtype)
+                    self._channels, self._dtype, self._samplesize)
                 return _wrap_callback(callback, data, frames, time, status)
 
         elif kind == 'duplex' and wrap_callback == 'buffer':
@@ -896,10 +896,12 @@ class _StreamBase:
                 ichannels, ochannels = self._channels
                 idtype, odtype = self._dtype
                 isize, osize = self._samplesize
-                idata = _array(_buffer(iptr, frames, ichannels, isize),
-                               ichannels, idtype)
-                odata = _array(_buffer(optr, frames, ochannels, osize),
-                               ochannels, odtype)
+                idata = _array(
+                    _buffer(iptr, frames, ichannels, isize),
+                    ichannels, idtype, isize)
+                odata = _array(
+                    _buffer(optr, frames, ochannels, osize),
+                    ochannels, odtype, osize)
                 return _wrap_callback(
                     callback, idata, odata, frames, time, status)
 
@@ -1490,8 +1492,9 @@ class InputStream(_InputStreamBase):
         """
         dtype, _ = _split(self._dtype)
         channels, _ = _split(self._channels)
+        samplesize, _ = _split(self._samplesize)
         data, overflowed = _InputStreamBase._raw_read(self, frames)
-        data = _array(data, channels, dtype)
+        data = _array(data, channels, dtype, samplesize)
         return data, overflowed
 
 
@@ -2788,10 +2791,11 @@ def _buffer(ptr, frames, channels, samplesize):
     return _ffi.buffer(ptr, frames * channels * samplesize)
 
 
-def _array(buffer, channels, dtype):
+def _array(buffer, channels, dtype, samplesize):
     """Create NumPy array from a buffer object."""
     import numpy as np
-    return np.frombuffer(buffer, dtype=np.dtype((dtype, (channels,))))
+    shape = len(buffer) // (samplesize * channels), channels
+    return np.ndarray(shape, dtype=dtype, buffer=buffer)
 
 
 def _split(value):
