@@ -2791,9 +2791,7 @@ def _buffer(ptr, frames, channels, samplesize):
 def _array(buffer, channels, dtype):
     """Create NumPy array from a buffer object."""
     import numpy as np
-    data = np.frombuffer(buffer, dtype=dtype)
-    data = np.reshape(data, (-1, channels), copy=False)
-    return data
+    return np.frombuffer(buffer, dtype=np.dtype((dtype, (channels,))))
 
 
 def _split(value):
