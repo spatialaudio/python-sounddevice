@@ -8,9 +8,12 @@ Platform-specific Settings
    .. autosummary::
       :nosignatures:
 
+      AlsaSettings
       AsioSettings
       CoreAudioSettings
       WasapiSettings
+
+.. autoclass:: AlsaSettings
 
 .. autoclass:: AsioSettings
 

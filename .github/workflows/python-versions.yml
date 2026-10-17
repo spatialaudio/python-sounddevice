@@ -35,3 +35,10 @@ jobs:
           python -m sounddevice
           python -c "import sounddevice as sd; print(sd._libname)"
           python -c "import sounddevice as sd; print(sd.get_portaudio_version())"
+      - name: Install optional NumPy for convenience API tests
+        if: ${{ !startsWith(matrix.python-version, 'pypy-') }}
+        run: python -m pip install numpy
+      - name: Run synthetic ALSA regressions
+        timeout-minutes: 2
+        working-directory: git-repo
+        run: python -m pytest -q tests
