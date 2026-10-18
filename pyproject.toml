@@ -24,7 +24,7 @@ numpy = ["numpy"]
 
 [dependency-groups]
 dev = [{ include-group = "test" }, { include-group = "doc" }]
-test = ["pytest"]
+test = []
 doc = [
   "insipid-sphinx-theme",
   "sphinx-last-updated-by-git",
