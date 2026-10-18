@@ -2,10 +2,15 @@
 import unittest
 from unittest.mock import patch
 
-import numpy as np
 import sounddevice as sd
 
+try:
+    import numpy as np
+except ImportError:
+    np = None
 
+
+@unittest.skipIf(np is None, 'NumPy required for convenience playback')
 class PlaybackSilenceTests(unittest.TestCase):
 
     def test_silent_channels_and_final_padding(self):
