@@ -2634,17 +2634,18 @@ class _CallbackContext:
                 indata[:self.blocksize, source]
 
     def write_outdata(self, outdata):
+        silence = 128 if self.output_dtype == 'uint8' else 0
         # 'float64' data is cast to 'float32' here:
         outdata[:self.blocksize, self.output_mapping] = \
             self.data[self.frame:self.frame + self.blocksize]
-        outdata[:self.blocksize, self.silent_channels] = 0
+        outdata[:self.blocksize, self.silent_channels] = silence
         if self.loop and self.blocksize < len(outdata):
             self.frame = 0
             outdata = outdata[self.blocksize:]
             self.blocksize = min(self.frames, len(outdata))
             self.write_outdata(outdata)
         else:
-            outdata[self.blocksize:] = 0
+            outdata[self.blocksize:] = silence
 
     def callback_exit(self):
         if not self.blocksize:
