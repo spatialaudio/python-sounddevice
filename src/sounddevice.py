@@ -91,6 +91,9 @@ except OSError:
         next(iter(_sounddevice_data.__path__)), 'portaudio-binaries', _libname)
     _lib: ... = _ffi.dlopen(_libname)
 
+DEVICE_FROM_EXTRA_SETTINGS = _lib.paUseHostApiSpecificDeviceSpecification
+"""Select a device through host-API-specific ``extra_settings``."""
+
 _sampleformats: ... = {
     'float32': _lib.paFloat32,
     'int32': _lib.paInt32,
@@ -173,8 +176,7 @@ def play(data, samplerate=None, mapping=None, blocking=False, loop=False,
 
     """
     ctx = _CallbackContext(loop=loop)
-    ctx.frames = ctx.check_data(
-        data, mapping, kwargs.get('device'), kwargs.get('extra_settings'))
+    ctx.frames = ctx.check_data(data, mapping, kwargs.get('device'))
 
     def callback(outdata, frames, time, status):
         assert len(outdata) == frames
@@ -360,8 +362,7 @@ def playrec(data, samplerate=None, channels=None, dtype=None,
 
     """
     ctx = _CallbackContext()
-    output_frames = ctx.check_data(
-        data, output_mapping, kwargs.get('device'), kwargs.get('extra_settings'))
+    output_frames = ctx.check_data(data, output_mapping, kwargs.get('device'))
     if dtype is None:
         dtype = ctx.data.dtype  # ignore module defaults
     out, input_frames = ctx.check_out(out, output_frames, channels, dtype,
@@ -1669,6 +1670,10 @@ class Stream(InputStream, OutputStream):
             all space-separated parts in the right order.  Each device
             string contains the name of the corresponding host API in
             the end.  The string comparison is case-insensitive.
+            Use `DEVICE_FROM_EXTRA_SETTINGS` to select a device through
+            *extra_settings*, e.g. with `AlsaSettings`. In this case,
+            channels, sample rate and numeric latency must be supplied
+            explicitly or through defaults.
         channels : int or pair of int, optional
             The number of channels of sound to be delivered to the
             stream callback or accessed by `read()` or `write()`.  It
@@ -2329,8 +2334,9 @@ class AlsaSettings:
     def __init__(self, device_string):
         """ALSA-specific settings for opening a PCM by address.
 
-        Use as ``extra_settings`` with ``device=None`` (or ``-2``).
-        The address overrides `default.device`. Channels and sample rate
+        Use as ``extra_settings`` with
+        ``device=sd.DEVICE_FROM_EXTRA_SETTINGS``. Supplying these settings
+        alone does not override `default.device`. Channels and sample rate
         must be supplied explicitly or through defaults. Streams also
         require a numeric latency in seconds.
 
@@ -2344,10 +2350,20 @@ class AlsaSettings:
         Notes
         -----
         The stream's device attribute reports PortAudio's special value
-        ``-2``. Passing an explicit device index or name is an error.
+        ``-2`` when `DEVICE_FROM_EXTRA_SETTINGS` is selected.
         For direct output with ``mapping=[1]`` in `play()` or `playrec()`,
         use `OutputStream` with explicit channels instead; automatic
         stereo detection requires enumerated device information.
+
+        Examples
+        --------
+        >>> import sounddevice as sd
+        >>> with sd.RawInputStream(
+        ...         device=sd.DEVICE_FROM_EXTRA_SETTINGS,
+        ...         samplerate=48000, channels=2, dtype='int16',
+        ...         blocksize=1024, latency=4096 / 48000,
+        ...         extra_settings=sd.AlsaSettings('null')) as stream:
+        ...     data, overflowed = stream.read(1024)
 
         """
         if not isinstance(device_string, str):
@@ -2587,7 +2603,7 @@ class _CallbackContext:
         self.event = threading.Event()
         self.status = CallbackFlags()
 
-    def check_data(self, data, mapping, device, extra_settings=None):
+    def check_data(self, data, mapping, device):
         """Check data and output mapping."""
         import numpy as np
         data = np.asarray(data)
@@ -2609,13 +2625,6 @@ class _CallbackContext:
         # first two channels, which is unexpected when specifying mapping=[1].
         # In this case, we play silence on the second channel, but only if the
         # device actually supports a second channel:
-        effective_settings = (default.extra_settings if extra_settings is None
-                              else extra_settings)
-        if (mapping_is_explicit and np.array_equal(mapping, [0]) and
-                isinstance(_select_input_or_output(effective_settings, 'output'),
-                           AlsaSettings)):
-            raise ValueError('For ALSA direct output mapping=[1], use '
-                             'OutputStream with explicit channels')
         if (mapping_is_explicit and np.array_equal(mapping, [0]) and
                 query_devices(device, 'output')['max_output_channels'] >= 2):
             channels = 2
@@ -2789,16 +2798,7 @@ def _get_stream_parameters(kind, device, channels, dtype, latency,
     if extra_settings is None:
         extra_settings = default.extra_settings
     extra_settings = _select_input_or_output(extra_settings, kind)
-    direct_alsa = isinstance(extra_settings, AlsaSettings)
-    if direct_alsa:
-        device = _select_input_or_output(device, kind)
-        if device is not None and device != -2:
-            raise ValueError('AlsaSettings conflicts with an explicit device')
-        device = _lib.paUseHostApiSpecificDeviceSpecification
-    else:
-        if device is None:
-            device = default.device
-        device = _get_device_id(device, kind, raise_on_error=True)
+    device = _get_device_id(device, kind, raise_on_error=True)
     if channels is None:
         channels = default.channels
     channels = _select_input_or_output(channels, kind)
@@ -2811,30 +2811,33 @@ def _get_stream_parameters(kind, device, channels, dtype, latency,
     if samplerate is None:
         samplerate = default.samplerate
 
-    if direct_alsa:
-        import math
-        import numbers
-        if (isinstance(channels, bool) or
-                not isinstance(channels, numbers.Integral) or channels < 1):
-            raise ValueError('AlsaSettings requires a positive channel count')
-        if (isinstance(samplerate, bool) or
-                not isinstance(samplerate, numbers.Real) or
-                not math.isfinite(samplerate) or samplerate <= 0):
-            raise ValueError('AlsaSettings requires a positive finite sample rate')
-        if for_check:
-            latency = 0.0  # Pa_IsFormatSupported ignores suggested latency.
-        elif (isinstance(latency, bool) or
-                not isinstance(latency, numbers.Real) or
-                not math.isfinite(latency) or latency < 0):
-            raise ValueError('AlsaSettings requires finite numeric latency >= 0')
-    else:
+    if for_check:
+        latency = 0.0  # Pa_IsFormatSupported ignores suggested latency.
+    if channels is None or samplerate is None or latency in ('low', 'high'):
         info = query_devices(device)
         if channels is None:
             channels = info['max_' + kind + '_channels']
-        if latency in ('low', 'high'):
-            latency = info['default_' + latency + '_' + kind + '_latency']
         if samplerate is None:
             samplerate = info['default_samplerate']
+        if latency in ('low', 'high'):
+            latency = info['default_' + latency + '_' + kind + '_latency']
+
+    if device == DEVICE_FROM_EXTRA_SETTINGS:
+        import math
+        import numbers
+        if extra_settings is None:
+            raise ValueError('DEVICE_FROM_EXTRA_SETTINGS requires extra_settings')
+        if (isinstance(channels, bool) or
+                not isinstance(channels, numbers.Integral) or channels < 1):
+            raise ValueError('A positive channel count is required')
+        if (isinstance(samplerate, bool) or
+                not isinstance(samplerate, numbers.Real) or
+                not math.isfinite(samplerate) or samplerate <= 0):
+            raise ValueError('A positive finite sample rate is required')
+        if (isinstance(latency, bool) or
+                not isinstance(latency, numbers.Real) or
+                not math.isfinite(latency) or latency < 0):
+            raise ValueError('Finite numeric latency >= 0 is required')
     try:
         # If NumPy is available, get canonical dtype name
         dtype = _sys.modules['numpy'].dtype(dtype).name
