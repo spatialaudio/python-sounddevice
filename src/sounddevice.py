@@ -2351,6 +2351,7 @@ class AlsaSettings:
         -----
         The stream's device attribute reports PortAudio's special value
         ``-2`` when `DEVICE_FROM_EXTRA_SETTINGS` is selected.
+        PortAudio rejects these settings with a regular ALSA device index.
         For direct output with ``mapping=[1]`` in `play()` or `playrec()`,
         use `OutputStream` with explicit channels instead; automatic
         stereo detection requires enumerated device information.
