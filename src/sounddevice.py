@@ -2815,7 +2815,20 @@ def _get_stream_parameters(kind, device, channels, dtype, latency,
     if for_check:
         latency = 0.0  # Pa_IsFormatSupported ignores suggested latency.
     if channels is None or samplerate is None or latency in ('low', 'high'):
-        info = query_devices(device)
+        try:
+            info = query_devices(device)
+        except PortAudioError as error:
+            required = []
+            if channels is None:
+                required.append('channels')
+            if samplerate is None:
+                required.append('samplerate')
+            if latency in ('low', 'high'):
+                required.append('numeric latency')
+            raise ValueError(
+                'Cannot determine {} stream parameters from device information; '
+                'specify {} explicitly or through defaults'.format(
+                    kind, ', '.join(required))) from error
         if channels is None:
             channels = info['max_' + kind + '_channels']
         if samplerate is None:
