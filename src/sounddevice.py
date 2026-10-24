@@ -91,6 +91,9 @@ except OSError:
         next(iter(_sounddevice_data.__path__)), 'portaudio-binaries', _libname)
     _lib: ... = _ffi.dlopen(_libname)
 
+DEVICE_FROM_EXTRA_SETTINGS = _lib.paUseHostApiSpecificDeviceSpecification
+"""Select a device through host-API-specific ``extra_settings``."""
+
 _sampleformats: ... = {
     'float32': _lib.paFloat32,
     'int32': _lib.paInt32,
@@ -690,7 +693,7 @@ def check_input_settings(device=None, channels=None, dtype=None,
     """
     parameters, dtype, samplesize, samplerate = _get_stream_parameters(
         'input', device=device, channels=channels, dtype=dtype, latency=None,
-        extra_settings=extra_settings, samplerate=samplerate)
+        extra_settings=extra_settings, samplerate=samplerate, for_check=True)
     _check(_lib.Pa_IsFormatSupported(parameters, _ffi.NULL, samplerate))
 
 
@@ -704,7 +707,7 @@ def check_output_settings(device=None, channels=None, dtype=None,
     """
     parameters, dtype, samplesize, samplerate = _get_stream_parameters(
         'output', device=device, channels=channels, dtype=dtype, latency=None,
-        extra_settings=extra_settings, samplerate=samplerate)
+        extra_settings=extra_settings, samplerate=samplerate, for_check=True)
     _check(_lib.Pa_IsFormatSupported(_ffi.NULL, parameters, samplerate))
 
 
@@ -807,6 +810,12 @@ class _StreamBase:
             stream_flags |= _lib.paNeverDropInput
         if prime_output_buffers_using_stream_callback:
             stream_flags |= _lib.paPrimeOutputBuffersUsingStreamCallback
+
+        # Retain effective settings, including their C buffers, through close.
+        if extra_settings is None:
+            extra_settings = tuple(default.extra_settings)
+        self._extra_settings = (tuple(_split(extra_settings)),
+                                tuple(default.extra_settings))
 
         if kind == 'duplex':
             idevice, odevice = _split(device)
@@ -1661,6 +1670,10 @@ class Stream(InputStream, OutputStream):
             all space-separated parts in the right order.  Each device
             string contains the name of the corresponding host API in
             the end.  The string comparison is case-insensitive.
+            Use `DEVICE_FROM_EXTRA_SETTINGS` to select a device through
+            *extra_settings*, e.g. with `AlsaSettings`. In this case,
+            channels, sample rate and numeric latency must be supplied
+            explicitly or through defaults.
         channels : int or pair of int, optional
             The number of channels of sound to be delivered to the
             stream callback or accessed by `read()` or `write()`.  It
@@ -2167,7 +2180,7 @@ class default:
 
     See Also
     --------
-    AsioSettings, CoreAudioSettings, WasapiSettings
+    AlsaSettings, AsioSettings, CoreAudioSettings, WasapiSettings
 
     """
     samplerate: ... = None
@@ -2314,6 +2327,56 @@ class CallbackAbort(Exception):
     CallbackStop, `Stream.abort()`, Stream
 
     """
+
+
+class AlsaSettings:
+
+    def __init__(self, device_string):
+        """ALSA-specific settings for opening a PCM by address.
+
+        Use as ``extra_settings`` with
+        ``device=sd.DEVICE_FROM_EXTRA_SETTINGS``. Supplying these settings
+        alone does not override `default.device`. Channels and sample rate
+        must be supplied explicitly or through defaults. Streams also
+        require a numeric latency in seconds.
+
+        Parameters
+        ----------
+        device_string : str
+            ALSA PCM address, such as ``'hw:2,0'`` or a named PCM from the
+            ALSA configuration. It must be nonempty and contain no NUL.
+            An ALSA address is not a persistent hardware identifier.
+
+        Notes
+        -----
+        The stream's device attribute reports PortAudio's special value
+        ``-2`` when `DEVICE_FROM_EXTRA_SETTINGS` is selected.
+        PortAudio rejects these settings with a regular ALSA device index.
+        For direct output with ``mapping=[1]`` in `play()` or `playrec()`,
+        use `OutputStream` with explicit channels instead; automatic
+        stereo detection requires enumerated device information.
+
+        Examples
+        --------
+        >>> import sounddevice as sd
+        >>> with sd.RawInputStream(
+        ...         device=sd.DEVICE_FROM_EXTRA_SETTINGS,
+        ...         samplerate=48000, channels=2, dtype='int16',
+        ...         blocksize=1024, latency=4096 / 48000,
+        ...         extra_settings=sd.AlsaSettings('null')) as stream:
+        ...     data, overflowed = stream.read(1024)
+
+        """
+        if not isinstance(device_string, str):
+            raise TypeError('device_string must be a string')
+        if not device_string or '\0' in device_string:
+            raise ValueError('device_string must be nonempty and contain no NUL')
+        _check(_lib.Pa_HostApiTypeIdToHostApiIndex(_lib.paALSA),
+               'ALSA host API is unavailable')
+        self._device_string = _ffi.new('char[]', device_string.encode('utf-8'))
+        self._streaminfo: ... = _ffi.new('PaAlsaStreamInfo*')
+        _lib.PaAlsa_InitializeStreamInfo(self._streaminfo)
+        self._streaminfo.deviceString = self._device_string
 
 
 class AsioSettings:
@@ -2731,11 +2794,12 @@ def _check_dtype(dtype):
 
 
 def _get_stream_parameters(kind, device, channels, dtype, latency,
-                           extra_settings: ..., samplerate):
+                           extra_settings: ..., samplerate, *, for_check=False):
     """Get parameters for one direction (input or output) of a stream."""
     assert kind in ('input', 'output')
-    if device is None:
-        device = default.device
+    if extra_settings is None:
+        extra_settings = default.extra_settings
+    extra_settings = _select_input_or_output(extra_settings, kind)
     device = _get_device_id(device, kind, raise_on_error=True)
     if channels is None:
         channels = default.channels
@@ -2746,15 +2810,49 @@ def _get_stream_parameters(kind, device, channels, dtype, latency,
     if latency is None:
         latency = default.latency
     latency = _select_input_or_output(latency, kind)
-    if extra_settings is None:
-        extra_settings = default.extra_settings
-    extra_settings = _select_input_or_output(extra_settings, kind)
     if samplerate is None:
         samplerate = default.samplerate
 
-    info = query_devices(device)
-    if channels is None:
-        channels = info['max_' + kind + '_channels']
+    if for_check:
+        latency = 0.0  # Pa_IsFormatSupported ignores suggested latency.
+    if channels is None or samplerate is None or latency in ('low', 'high'):
+        try:
+            info = query_devices(device)
+        except PortAudioError as error:
+            required = []
+            if channels is None:
+                required.append('channels')
+            if samplerate is None:
+                required.append('samplerate')
+            if latency in ('low', 'high'):
+                required.append('numeric latency')
+            raise ValueError(
+                'Cannot determine {} stream parameters from device information; '
+                'specify {} explicitly or through defaults'.format(
+                    kind, ', '.join(required))) from error
+        if channels is None:
+            channels = info['max_' + kind + '_channels']
+        if samplerate is None:
+            samplerate = info['default_samplerate']
+        if latency in ('low', 'high'):
+            latency = info['default_' + latency + '_' + kind + '_latency']
+
+    if device == DEVICE_FROM_EXTRA_SETTINGS:
+        import math
+        import numbers
+        if extra_settings is None:
+            raise ValueError('DEVICE_FROM_EXTRA_SETTINGS requires extra_settings')
+        if (isinstance(channels, bool) or
+                not isinstance(channels, numbers.Integral) or channels < 1):
+            raise ValueError('A positive channel count is required')
+        if (isinstance(samplerate, bool) or
+                not isinstance(samplerate, numbers.Real) or
+                not math.isfinite(samplerate) or samplerate <= 0):
+            raise ValueError('A positive finite sample rate is required')
+        if (isinstance(latency, bool) or
+                not isinstance(latency, numbers.Real) or
+                not math.isfinite(latency) or latency < 0):
+            raise ValueError('Finite numeric latency >= 0 is required')
     try:
         # If NumPy is available, get canonical dtype name
         dtype = _sys.modules['numpy'].dtype(dtype).name
@@ -2765,10 +2863,6 @@ def _get_stream_parameters(kind, device, channels, dtype, latency,
     except KeyError as e:
         raise ValueError('Invalid ' + kind + ' sample format') from e
     samplesize = _check(_lib.Pa_GetSampleSize(sampleformat))
-    if latency in ('low', 'high'):
-        latency = info['default_' + latency + '_' + kind + '_latency']
-    if samplerate is None:
-        samplerate = info['default_samplerate']
     parameters: ... = _ffi.new('PaStreamParameters*', (
         device, channels, sampleformat, latency,
         extra_settings._streaminfo if extra_settings else _ffi.NULL))

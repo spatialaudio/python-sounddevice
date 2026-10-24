@@ -35,6 +35,7 @@ class FakeLibrary:
 
     paFloat32 = paInt32 = paInt24 = paInt16 = paInt8 = paUInt8 = NotImplemented
     paFramesPerBufferUnspecified = 0
+    paUseHostApiSpecificDeviceSpecification = -2
 
     def Pa_Initialize(self):
         return 0
