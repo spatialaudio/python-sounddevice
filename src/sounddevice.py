@@ -316,16 +316,16 @@ def playrec(data, samplerate=None, channels=None, dtype=None,
     data : array_like
         Audio data to be played back.  See `play()`.
     channels : int, sometimes optional
-        Number of input channels, see `rec()`.
-        The number of output channels is obtained from *data.shape*.
+        Number of channels to record, see `rec()`.
+        The number of channels to play back is obtained from *data.shape*.
     dtype : str or numpy.dtype, optional
-        Input data type, see `rec()`.
+        Data type of the recording, see `rec()`.
         If *dtype* is not specified, it is taken from *data.dtype*
         (i.e. `default.dtype` is ignored).
-        The output data type is obtained from *data.dtype* anyway.
+        The playback data type is obtained from *data.dtype* anyway.
     input_mapping, output_mapping : array_like, optional
-        See the parameter *mapping* of `rec()` and `play()`,
-        respectively.
+        Channels to record and channels to play back, respectively.
+        See the parameter *mapping* of `rec()` and `play()`.
     blocking : bool, optional
         If ``False`` (the default), return immediately (but continue
         playback/recording in the background), if ``True``, wait until
@@ -341,7 +341,9 @@ def playrec(data, samplerate=None, channels=None, dtype=None,
     Other Parameters
     ----------------
     out : numpy.ndarray or subclass, optional
-        See `rec()`.
+        Array to store the recorded data in, see `rec()`.
+        This is the output of the function, containing data from the
+        audio device's input channels.
     samplerate, **kwargs
         All parameters of `Stream` -- except *channels*, *dtype*,
         *callback* and *finished_callback* -- can be used.
