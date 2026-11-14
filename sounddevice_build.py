@@ -233,6 +233,15 @@ const char *PaMacCore_GetChannelName( int device, int channelIndex, bool input )
 
 typedef unsigned long PaWinWaveFormatChannelMask;
 
+/* pa_linux_alsa.h */
+typedef struct PaAlsaStreamInfo {
+    unsigned long size;
+    PaHostApiTypeId hostApiType;
+    unsigned long version;
+    const char *deviceString;
+} PaAlsaStreamInfo;
+void PaAlsa_InitializeStreamInfo(PaAlsaStreamInfo *info);
+
 /* pa_asio.h */
 
 #define paAsioUseChannelSelectors 0x01
